@@ -1,71 +1,34 @@
-using MQTTnet;
-using WireProtocol;
+using NodePublisherSim;
 
-var brokerHost = Environment.GetEnvironmentVariable("MQTT_BROKER_HOST") ?? "localhost";
-var brokerPort = int.Parse(Environment.GetEnvironmentVariable("MQTT_BROKER_PORT") ?? "1883");
-var nodeId = byte.Parse(Environment.GetEnvironmentVariable("NODE_ID") ?? "1");
-var intervalSeconds = double.Parse(Environment.GetEnvironmentVariable("PUBLISH_INTERVAL_SECONDS") ?? "1");
-
-var mqttFactory = new MqttClientFactory();
-using var mqttClient = mqttFactory.CreateMqttClient();
-
-var options = new MqttClientOptionsBuilder()
-    .WithClientId($"node-sim-{nodeId}")
-    .WithTcpServer(brokerHost, brokerPort)
-    .Build();
-
-await mqttClient.ConnectAsync(options, CancellationToken.None);
-Console.WriteLine($"[NodePublisherSim] Connected to {brokerHost}:{brokerPort} as node {nodeId}");
-
-var random = new Random();
-var topic = $"sensors/{nodeId}/reading";
-byte seq = 0;
-
-while (true)
+// Giả lập LINES NM, mỗi NM có NODES_PER_LINE node, theo giao thức PC - NM (docs/lan-architecture-protocol.md).
+// Ví dụ kiểm thử tải: LINES=30 NODES_PER_LINE=30 dotnet run --project NodePublisherSim
+var options = SimOptions.FromEnvironment();
+using var cts = new CancellationTokenSource();
+Console.CancelKeyPress += (_, e) =>
 {
-    var entries = new List<SensorTlvEntry>
-    {
-        new((byte)SensorTypeByte.Light, seq, new LightSensorValue(NextInRange(random, 50, 800)).ToBytes()),
-        new((byte)SensorTypeByte.WaterLevel, seq, new WaterLevelValue(NextInRange(random, 0, 3)).ToBytes()),
-        new(
-            (byte)SensorTypeByte.TemperatureHumidity,
-            seq,
-            new TemperatureHumidityValue(NextInRange(random, 20, 35), NextInRange(random, 40, 90)).ToBytes()),
-        new((byte)SensorTypeByte.Radar, seq, BuildRadarValue(random).ToBytes())
-    };
+    e.Cancel = true;
+    cts.Cancel();
+};
+AppDomain.CurrentDomain.ProcessExit += (_, _) => cts.Cancel();
 
-    var payload = SensorTlvCodec.Encode(entries);
-    var frame = WireFrameCodec.Encode((byte)NodeCommand.SensorData, nodeId, payload);
+Console.WriteLine($"[NodePublisherSim] {options.Lines} line(s) x {options.NodesPerLine} node(s) -> {options.BrokerHost}:{options.BrokerPort}");
 
-    var message = new MqttApplicationMessageBuilder()
-        .WithTopic(topic)
-        .WithPayload(frame)
-        .Build();
+var gateways = Enumerable.Range(options.FirstGatewayIndex, options.Lines).Select(i => new SimulatedGateway(options, i)).ToList();
+var runs = gateways.Select(g => g.RunAsync(cts.Token)).ToList();
 
-    await mqttClient.PublishAsync(message, CancellationToken.None);
-    Console.WriteLine($"[NodePublisherSim] Published seq={seq} to {topic} ({frame.Length} bytes)");
-
-    seq = unchecked((byte)(seq + 1));
-    await Task.Delay(TimeSpan.FromSeconds(intervalSeconds));
-}
-
-static float NextInRange(Random random, float min, float max) => min + (float)random.NextDouble() * (max - min);
-
-static RadarValue BuildRadarValue(Random random)
+var report = Task.Run(async () =>
 {
-    var count = random.Next(0, 4);
-    var objects = new List<RadarObject>(count);
-
-    for (var i = 0; i < count; i++)
+    long last = 0;
+    while (!cts.IsCancellationRequested)
     {
-        objects.Add(new RadarObject(
-            X: NextInRange(random, -5, 5),
-            Y: NextInRange(random, -5, 5),
-            Z: NextInRange(random, 0, 3),
-            VelocityMps: NextInRange(random, 0, 2),
-            DistanceM: NextInRange(random, 1, 50),
-            FalseAlarmProbabilityPercent: NextInRange(random, 0, 5)));
+        await Task.Delay(TimeSpan.FromSeconds(10), cts.Token).ContinueWith(_ => { });
+        var total = gateways.Sum(g => g.Published);
+        Console.WriteLine(
+            $"[NodePublisherSim] joined {gateways.Sum(g => g.JoinedNodes)}/{options.Lines * options.NodesPerLine} nodes, " +
+            $"{(total - last) / 10.0:0.#} msg/s");
+        last = total;
     }
+});
 
-    return new RadarValue(objects);
-}
+await Task.WhenAll(runs);
+await report;
