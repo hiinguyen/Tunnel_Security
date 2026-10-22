@@ -262,6 +262,8 @@ public sealed class NodeJoinService
             var existing = await db.Nodes.FirstOrDefaultAsync(n => n.PhysicalId == physicalId, ct);
             if (existing is { NodeByteId: { } knownId } && existing.LineId == lineId)
             {
+                await EnsureCameraAsync(db, existing, ct);
+                await db.SaveChangesAsync(ct);
                 return knownId;
             }
 
@@ -281,7 +283,7 @@ public sealed class NodeJoinService
             }
 
             var nodeId = DeviceIds.Node(lineId, free);
-            db.Nodes.Add(new Node
+            var node = new Node
             {
                 Id = nodeId,
                 Code = nodeId,
@@ -293,7 +295,9 @@ public sealed class NodeJoinService
                 HardwareId = physicalId.ToString("X8"),
                 IpAddress = NodeAddress(lineId, free).ToString(),
                 Status = NodeStatus.Unknown
-            });
+            };
+            db.Nodes.Add(node);
+            await EnsureCameraAsync(db, node, ct);
             await db.SaveChangesAsync(ct);
             return free;
         }
@@ -301,6 +305,28 @@ public sealed class NodeJoinService
         {
             _allocationLock.Release();
         }
+    }
+
+    /// <summary>Mọi node đều có camera: tạo bản ghi CAM-L{k}-N{n} nếu chưa có và gắn vào node.</summary>
+    private static async Task EnsureCameraAsync(AppDbContext db, Node node, CancellationToken ct)
+    {
+        var cameraId = DeviceIds.Camera(node.LineId!.Value, node.NodeByteId!.Value);
+        node.CameraId = cameraId;
+        if (await db.Cameras.AnyAsync(c => c.Id == cameraId, ct))
+        {
+            return;
+        }
+
+        db.Cameras.Add(new Camera
+        {
+            Id = cameraId,
+            Name = $"Camera node {node.NodeByteId} tuyến {node.LineId}",
+            Description = string.Empty,
+            NodeId = node.Id,
+            Protocol = CameraProtocol.WebSocket,
+            StreamUrl = $"/ws/camera/{cameraId}/view",
+            Status = CameraStatus.Offline
+        });
     }
 
     /// <summary>Quy hoạch IP theo docs mục 3: node n của tuyến k là 10.k.1.n.</summary>
