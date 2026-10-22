@@ -18,3 +18,16 @@ public interface INodeLink
 
     void Close();
 }
+
+/// <summary>Đích của video đã ghép theo node.</summary>
+public interface ICameraSink
+{
+    void PostFrame(byte nodeId, byte[] jpeg);
+
+    void PostDetections(byte nodeId, string json);
+}
+
+public interface ILineIdentity
+{
+    int? LineId { get; }
+}

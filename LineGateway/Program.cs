@@ -1,6 +1,7 @@
 using LineGateway;
 using LineGateway.Gsan;
 using LineGateway.Mqtt;
+using LineGateway.Video;
 
 var builder = Host.CreateApplicationBuilder(args);
 builder.Services.AddSystemd();
@@ -12,6 +13,9 @@ builder.Services.AddSingleton<MqttLineUplink>();
 builder.Services.AddSingleton<ILineUplink>(sp => sp.GetRequiredService<MqttLineUplink>());
 builder.Services.AddHostedService(sp => sp.GetRequiredService<MqttLineUplink>());
 builder.Services.AddHostedService<GsanServer>();
-// Task 12 thêm: CameraForwarderPool, VideoReceiver, MetaReceiver.
+builder.Services.AddSingleton<ILineIdentity>(sp => sp.GetRequiredService<MqttLineUplink>());
+builder.Services.AddSingleton<ICameraSink, CameraForwarderPool>();
+builder.Services.AddHostedService<VideoReceiver>();
+builder.Services.AddHostedService<MetaReceiver>();
 
 builder.Build().Run();

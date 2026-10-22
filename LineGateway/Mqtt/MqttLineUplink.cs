@@ -18,7 +18,7 @@ public sealed class MqttLineUplink(
     IOptions<LineGatewayOptions> options,
     DownlinkRouter router,
     NodeSessionTable sessions,
-    ILogger<MqttLineUplink> logger) : BackgroundService, ILineUplink
+    ILogger<MqttLineUplink> logger) : BackgroundService, ILineUplink, ILineIdentity
 {
     private static readonly TimeSpan RetryDelay = TimeSpan.FromSeconds(5);
     private static readonly TimeSpan StatusInterval = TimeSpan.FromSeconds(30);
