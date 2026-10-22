@@ -1,0 +1,14 @@
+[Unit]
+Description=AIoT node agent (radar + camera uplink)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+WorkingDirectory=/opt/aiot/NodeAgent
+Environment=PYTHONPATH=/opt/aiot/cells
+ExecStart=/usr/bin/python3 /opt/aiot/NodeAgent/node_agent.py --config /etc/aiot/node_config.json
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
