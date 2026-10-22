@@ -10,6 +10,7 @@ Mỗi dòng dưới đây là một bước cài đặt trên Pi.
 - Tạo `/etc/aiot/device.key` chứa khóa hex 32 byte do PC cấp bằng `JoinProtocol.DeriveDeviceKey(khóa gốc, ID vật lý)`.
 - Đặt quyền `600` cho `/etc/aiot/device.key`.
 - Sửa `/etc/aiot/node_config.json` theo địa chỉ gateway và nguồn cảm biến thực tế.
+- Chép `aiot-node-agent.service` vào `/etc/systemd/system/` rồi chạy `systemctl daemon-reload`.
 - Chạy `systemctl enable --now aiot-node-agent`.
 
 ## Chạy thử trên máy dev
