@@ -275,7 +275,7 @@ public sealed class SimulatedGateway
         if (command == NodeCommand.JoinRequest && JoinProtocol.TryDecodeChallenge(payload, out var physicalId, out var nonce)
             && _nodes.FirstOrDefault(n => n.PhysicalId == physicalId) is { } challenged)
         {
-            var mac = JoinProtocol.ComputeMac(challenged.Key, physicalId, nonce);
+            var mac = JoinProtocol.ComputeMac(challenged.Key, nonce);
             await SendAsync(GatewayTopics.Join(_lineId), NodeCommand.JoinRequest, GatewayTopics.UnassignedNodeId,
                 JoinProtocol.EncodeResponse(physicalId, mac), CancellationToken.None);
         }

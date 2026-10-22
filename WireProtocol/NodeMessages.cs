@@ -58,6 +58,9 @@ namespace WireProtocol
         private const int FixedLength = 6;
         private const int BytesPerPeripheral = 2;
 
+        /// <summary>Pin đã biết; null khi node không có pin (gửi NaN/Infinity).</summary>
+        public float? KnownBatteryPercent => float.IsFinite(BatteryPercent) ? BatteryPercent : null;
+
         public byte[] ToBytes()
         {
             var bytes = new byte[FixedLength + Peripherals.Count * BytesPerPeripheral];
@@ -231,19 +234,21 @@ namespace WireProtocol
             return true;
         }
 
-        /// <summary>4 byte đầu (LE) của HMAC-SHA256(key, physicalId LE ‖ nonce LE).</summary>
-        public static uint ComputeMac(ReadOnlySpan<byte> key, uint physicalId, uint nonce)
+        /// <summary>4 byte đầu (LE) của HMAC-SHA256(key, nonce LE), theo SDD 4.2.3.</summary>
+        public static uint ComputeMac(ReadOnlySpan<byte> key, uint nonce)
         {
+            Span<byte> message = stackalloc byte[4];
+            BinaryPrimitives.WriteUInt32LittleEndian(message, nonce);
             Span<byte> hash = stackalloc byte[HMACSHA256.HashSizeInBytes];
-            HMACSHA256.HashData(key, EncodePair(physicalId, nonce), hash);
+            HMACSHA256.HashData(key, message, hash);
             return BinaryPrimitives.ReadUInt32LittleEndian(hash);
         }
 
-        public static bool VerifyMac(ReadOnlySpan<byte> key, uint physicalId, uint nonce, uint mac)
+        public static bool VerifyMac(ReadOnlySpan<byte> key, uint nonce, uint mac)
         {
             Span<byte> expected = stackalloc byte[4];
             Span<byte> actual = stackalloc byte[4];
-            BinaryPrimitives.WriteUInt32LittleEndian(expected, ComputeMac(key, physicalId, nonce));
+            BinaryPrimitives.WriteUInt32LittleEndian(expected, ComputeMac(key, nonce));
             BinaryPrimitives.WriteUInt32LittleEndian(actual, mac);
             return CryptographicOperations.FixedTimeEquals(expected, actual);
         }

@@ -20,12 +20,12 @@ Hai ràng buộc thiết kế xuyên suốt:
 | LAN | Đường trục Ethernet nối PC với các tuyến | Switch lõi tại trạm |
 | NM1..NMk | Node Master, đầu mỗi tuyến, số lượng tùy ý | Raspberry Pi đóng vai trò Gateway của tuyến |
 | SW | Switch trên tuyến, nối chuỗi (daisy chain) | Switch công nghiệp tại mỗi điểm đặt node |
-| N1..Nn | Node hiện trường, số lượng tùy ý trong mỗi tuyến | Raspberry Pi + camera + VXL |
+| N1..Nn | Node hiện trường, số lượng tùy ý trong mỗi tuyến | Raspberry Pi + camera + radar + VXL |
 | N (GW) | Node cuối tuyến | Giống các node khác, thêm vai trò cổng ra cho thiết bị phụ nếu có |
-| VXL | Vi xử lý đi kèm mỗi node | MCU đọc cảm biến, điều khiển ngoại vi |
+| VXL | Vi xử lý đi kèm mỗi node | MCU (STM32) đọc các cảm biến còn lại, điều khiển ngoại vi, nối Pi qua USB |
 | RS485 | Bus nối các VXL trong tuyến | Đường truyền dự phòng khi Ethernet của một node bị đứt |
-| SS | Cảm biến | Ánh sáng, mực nước, nhiệt ẩm, radar |
-| Camera | Có ở mọi node | Camera gắn Pi (CSI hoặc USB) |
+| SS | Cảm biến nối VXL | Ánh sáng, mực nước, nhiệt ẩm, camera nhiệt, khoảng cách laser |
+| Camera, Radar | Có ở mọi node | Hai thiết bị duy nhất nối trực tiếp Pi: camera CSI, radar mmWave qua UART |
 | PC Uplink: An toàn / Cảnh báo / Tình huống | Ba loại bản tin PC báo lên cấp trên | Gửi lên ứng dụng Center |
 
 ---
@@ -53,11 +53,11 @@ graph TB
     end
 
     subgraph L1["Tầng 1 - Node hiện trường (n node mỗi tuyến, ngoài phạm vi)"]
-        N1[N1 + Camera] --- N2[N2 + Camera] --- Nn[Nn + Camera]
+        N1[N1: Pi + Camera + Radar] --- N2[N2: Pi + Camera + Radar] --- Nn[Nn: Pi + Camera + Radar]
     end
 
     subgraph L0["Tầng 0 - Thiết bị (ngoài phạm vi)"]
-        VXL[VXL / MCU] --- SS[Cảm biến, ngoại vi]
+        VXL[VXL / MCU] --- SS[Cảm biến môi trường, ngoại vi]
     end
 
     CENTER <-- "MQTT bridge, JSON" --> BROKER
@@ -70,15 +70,15 @@ graph TB
     NM1 -. NTP .-> NTP
     NM1 <-- "TCP/LAN, khung nhị phân" --> N1
     N1 -- "Camera: WS, chỉ khi được yêu cầu" --> BV2
-    N1 <-- "UART, khung nhị phân" --> VXL
+    N1 <-- "USB-CDC, khung nhị phân" --> VXL
 ```
 
 ### 2.1 Vai trò từng tầng
 
 | Tầng | Thành phần | Trách nhiệm |
 |---|---|---|
-| 0 | VXL + cảm biến | Đo, điều khiển còi/đèn/khóa/bơm, liên kết RS485 với VXL lân cận |
-| 1 | Node (Pi) | Gom dữ liệu từ VXL, đóng khung, gửi lên NM, nhận lệnh, phát camera khi được yêu cầu, ghi đệm video vòng tại chỗ |
+| 0 | VXL + cảm biến | Đo ánh sáng, mực nước, nhiệt ẩm, camera nhiệt, laser; điều khiển còi/đèn/khóa/bơm/PTZ; liên kết RS485 với VXL lân cận |
+| 1 | Node (Pi) | Đọc radar và camera, gom TLV từ VXL, đóng khung, gửi lên NM, nhận lệnh và chuyển lệnh ngoại vi xuống VXL, phát camera khi được yêu cầu, ghi đệm video vòng tại chỗ |
 | 2 | NM (Pi Gateway) | Quản lý node trong tuyến (join, keep-alive A4, đồng bộ giờ), chuyển tiếp khung lên PC, đệm dữ liệu khi PC mất kết nối |
 | 3 | PC | Lưu trữ, đánh giá ngưỡng, sinh cảnh báo, ghép tình huống, điều khiển, xem camera, hiển thị, báo cáo lên Center |
 | 4 | Center | Giám sát tổng hợp nhiều trạm |
@@ -98,12 +98,35 @@ graph TB
    Wildcard `+` trong topic giúp PC nhận dữ liệu của tuyến mới mà không phải subscribe thêm.
 4. **Payload giữa NM và PC giữ nguyên khung nhị phân `0x53 ... 0x4D`.**
    NM chuyển tiếp trong suốt, không dịch sang JSON.
-   Cùng một codec `WireProtocol` dùng được cho cả UART (VXL - node), TCP (node - NM) và MQTT (NM - PC).
+   Cùng một codec `WireProtocol` dùng được cho cả USB-CDC (VXL - node), TCP (node - NM) và MQTT (NM - PC).
 5. **Camera chỉ phát khi có người xem hoặc khi có sự kiện** (mục 5).
    Vì mọi node đều có camera, nếu tất cả cùng phát liên tục thì băng thông tuyến và PC sẽ là điểm nghẽn đầu tiên khi mở rộng.
 6. **Uplink lên Center dùng JSON**, vì đây là kênh giữa hai phần mềm, không bị giới hạn tài nguyên như thiết bị nhúng.
 7. **Giờ chuẩn của toàn hệ thống lấy từ PC** (chrony làm NTP server trên LAN).
    NM và node đồng bộ NTP với PC, NM phát thêm lệnh A4 xuống node như tài liệu giao thức yêu cầu.
+
+### 2.3 Cấu trúc bên trong một node
+
+Chi tiết phần cứng nằm trong SDD `AIOT-NODE-SDD-001` v1.2 (`Cảm biến và các kết nối.docx`), mục 3 và 4.6.
+
+```mermaid
+flowchart LR
+    CAM[Camera CSI<br/>imx708] --> PI
+    RADAR[Radar IWRL6432<br/>UART ttyAMA0] --> PI
+    PI[Raspberry Pi 5<br/>AI, AppState, truyền thông] <-- "IF-07: USB-CDC<br/>khung 0x53..0x4D + TLV" --> VXL[VXL STM32]
+    VXL --- I2C[I2C: SHT31, BH1750, MLX90640]
+    VXL --- MISC[ADC: mực nước<br/>UART: laser U85B]
+    VXL --- ACT[PWM/GPIO: PTZ, còi, đèn,<br/>relay khóa, relay bơm]
+    VXL --- RS[RS485 tới VXL lân cận]
+    PI <-- "Ethernet" --> NM[NM của tuyến]
+```
+
+- Pi chỉ nối trực tiếp camera và radar, không dùng I2C/GPIO cho cảm biến hay ngoại vi.
+- VXL gửi số đo lên Pi bằng A7 với đúng TLV như tầng trên (`0x01..0x03`, `0x14`); Pi ghép nguyên trạng với TLV radar (`0x04`) rồi gửi lên NM.
+  Vì vậy PC không phân biệt dữ liệu đến từ Pi hay VXL, BackendV2 không phải sửa phần giải mã.
+- Lệnh A6 từ PC: Pi tự xử lý chế độ nguồn, chuyển TLV ngoại vi `0x80..0x84` xuống VXL và chỉ báo xác nhận lên khi VXL đã xác nhận.
+- Pi gửi A4 xuống VXL mỗi 1 giây; mất phản hồi 3 giây thì Pi bật bit lỗi cảm biến (bit 0 mã lỗi A4) để PC thấy.
+- Mã `0x84` (PTZ) và `0x14` (nhiệt độ cực đại camera nhiệt) chưa có trong "Cấu trúc khung truyền" và `WireProtocol`, sẽ bổ sung theo kế hoạch `docs/plans/2026-10-22-vxl-node-redesign.md`.
 
 ---
 
@@ -171,6 +194,7 @@ Lý do chọn QoS:
 | n-1 | Stop | byte | `0x4D` |
 
 Tài liệu gốc chỉ ghi "checksum 2 byte" mà không nêu thuật toán; `WireProtocol/Crc16.cs` chọn CRC-16/CCITT-FALSE và mọi bên (VXL, node, NM, PC) phải dùng đúng thuật toán này.
+SDD của node (`gsan_protocol.py`) lại dùng CRC16-Modbus cho cùng khung; phải thống nhất trước khi viết firmware VXL (SDD VĐ-07).
 
 Payload dùng TLV: Header 2 byte (loại + số thứ tự), Length 2 byte LE, Value.
 Header `0x01..0x7F` là cảm biến, `0x80..0xFF` là ngoại vi, theo "Cấu trúc khung truyền".
@@ -295,6 +319,7 @@ PC kiểm tra hết hạn bằng một hàng đợi theo thời điểm hết h�
 Khi Ethernet của một node bị đứt, VXL của node đó chuyển khung qua bus RS485 tới VXL lân cận, node lân cận chuyển tiếp lên NM.
 Vì khung mang sẵn Node ID gốc, việc chuyển tiếp là trong suốt với PC, PC không cần xử lý gì thêm.
 Camera của node đó sẽ mất hình vì RS485 không đủ băng thông, PC hiển thị camera là offline.
+Radar nối vào Pi chứ không nối VXL, nên muốn giữ dữ liệu radar trên đường dự phòng thì Pi phải đẩy khung A7 đã đóng gói xuống VXL qua USB để VXL chuyển tiếp; phần này còn mở (SDD VĐ-09).
 Chi tiết thực hiện thuộc phía node, nằm ngoài phạm vi tài liệu này.
 
 ### 4.9 Bảo mật
@@ -322,7 +347,7 @@ Mọi số nguyên là little-endian.
 |---|---|---|---|
 | A1 yêu cầu | node → PC | 0 | ID vật lý (4) |
 | A1 thách đố | PC → node | 0 | ID vật lý (4), nonce (4) |
-| A1 trả lời | node → PC | 0 | ID vật lý (4), MAC (4) = 4 byte đầu HMAC-SHA256(khóa, ID vật lý ‖ nonce) |
+| A1 trả lời | node → PC | 0 | ID vật lý (4), MAC (4) = 4 byte đầu HMAC-SHA256(khóa, nonce) |
 | A3 cấp ID | PC → node | 0 | ID vật lý (4), Node ID mới (1), TLV cấu hình |
 | A3 xác nhận cấp ID | node → PC | 0 | ID vật lý (4), mã kết quả (1) |
 | A2 đọc cấu hình | PC → node | n | rỗng |
@@ -336,6 +361,7 @@ Mọi số nguyên là little-endian.
 TLV cấu hình dùng loại `0x00`: `0x10` Node ID (1), `0x11` chu kỳ lấy mẫu ms (uint32), `0x12` loại node (1), `0x13` địa chỉ IPv4 (4).
 Mã lỗi A4 theo bit: 0 cảm biến, 1 ngoại vi, 2 pin yếu, 3 bộ nhớ, 4 RS485, 5 chưa đồng bộ giờ.
 Khóa thiết bị có thể dẫn xuất hàng loạt khi sản xuất: khóa = HMAC-SHA256(khóa gốc, ID vật lý), mỗi thiết bị vẫn một khóa khác nhau.
+Theo SDD 4.2.3; khóa riêng từng thiết bị nên MAC vẫn gắn với ID vật lý.
 
 ---
 

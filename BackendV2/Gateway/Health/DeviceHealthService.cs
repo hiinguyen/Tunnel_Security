@@ -283,7 +283,7 @@ public sealed class DeviceHealthService : BackgroundService
             Liveness.Offline => NodeStatus.Offline,
             _ => NodeStatus.Unknown
         };
-        var battery = (double?)snapshot?.LastStatus?.BatteryPercent;
+        var battery = (double?)snapshot?.LastStatus?.KnownBatteryPercent;
         var lastSeen = snapshot?.LastSeen?.UtcDateTime;
 
         return db.Nodes.Where(n => n.Id == nodeId).ExecuteUpdateAsync(s => s
@@ -302,7 +302,7 @@ public sealed class DeviceHealthService : BackgroundService
         foreach (var n in online)
         {
             var nodeId = DeviceIds.Node(n.LineId, n.NodeByteId);
-            var battery = (double?)n.LastStatus?.BatteryPercent;
+            var battery = (double?)n.LastStatus?.KnownBatteryPercent;
             var lastSeen = n.LastSeen?.UtcDateTime;
             await db.Nodes.Where(x => x.Id == nodeId).ExecuteUpdateAsync(s => s
                 .SetProperty(x => x.LastOnline, x => lastSeen ?? x.LastOnline)

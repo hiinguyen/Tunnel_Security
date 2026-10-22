@@ -231,7 +231,7 @@ public sealed class NodeJoinService
         }
 
         var lookup = await _keys.FindAsync(physicalId, ct);
-        if (lookup.Key is null || !JoinProtocol.VerifyMac(lookup.Key, physicalId, challenge.Nonce, mac))
+        if (lookup.Key is null || !JoinProtocol.VerifyMac(lookup.Key, challenge.Nonce, mac))
         {
             _logger.LogWarning("[Join] L{Line}: authentication FAILED for device {Phys:X8}", lineId, physicalId);
             RecordFailure(physicalId);

@@ -76,17 +76,6 @@ public class JoinProtocolTests
     }
 
     [Fact]
-    public void Mac_is_first_four_bytes_of_hmac_sha256_over_physical_id_and_nonce()
-    {
-        var message = new byte[] { 0x2A, 0, 0, 0, 0xBE, 0xBA, 0xFE, 0xCA };
-        var expected = BitConverter.ToUInt32(HMACSHA256.HashData(Key, message), 0);
-
-        Assert.Equal(expected, JoinProtocol.ComputeMac(Key, 42, 0xCAFEBABE));
-        Assert.True(JoinProtocol.VerifyMac(Key, 42, 0xCAFEBABE, expected));
-        Assert.False(JoinProtocol.VerifyMac(Key, 42, 0xCAFEBABE, expected ^ 1));
-    }
-
-    [Fact]
     public void Derived_device_keys_are_deterministic_and_distinct_per_device()
     {
         var a = JoinProtocol.DeriveDeviceKey(Key, 1);

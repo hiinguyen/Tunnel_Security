@@ -85,7 +85,7 @@ public class LinesController : ControllerBase
                 n.Id, n.NodeByteId.Value, n.Name,
                 h?.State ?? Liveness.Unknown,
                 h?.LastSeen ?? (n.LastOnline is { } t ? new DateTimeOffset(DateTime.SpecifyKind(t, DateTimeKind.Utc)) : null),
-                h?.LastStatus?.BatteryPercent ?? (float?)n.BatteryLevel,
+                h?.LastStatus?.KnownBatteryPercent ?? (float?)n.BatteryLevel,
                 h?.LastStatus?.State.ToString(),
                 h?.LastStatus?.Errors.ToString(),
                 n.PhysicalId);
