@@ -6,7 +6,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>LineGateway</RootNamespace>
     <UserSecretsId>tunnel-security-line-gateway</UserSecretsId>
-    <OutputType>Library</OutputType>
   </PropertyGroup>
 
   <ItemGroup>
