@@ -21,4 +21,8 @@
     <ProjectReference Include="..\..\WireProtocol\WireProtocol.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="..\..\WireProtocol\test-vectors\gsan.json" Link="gsan.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>
