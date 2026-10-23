@@ -197,10 +197,10 @@ public sealed partial class CameraVideoControl : UserControl
 </body></html>";
     }
 
-    // BackendV2's camera relay is a WebSocket push (/ws/camera/{id}/view) rather than a
-    // pollable HTTP endpoint: the browser WebSocket delivers one binary JPEG per message,
-    // which we turn into an object URL and draw to canvas on load — no server polling loop
-    // needed, and no MJPEG-buffer burst artifact since each message renders immediately.
+    // BackendV2's camera relay is a WebSocket push (/ws/camera/{id}/view): Binary messages are JPEG frames,
+    // Text messages are YOLO detections JSON from the node (pixel coordinates of the source image).
+    // Boxes are drawn on the frame that follows the detections and dropped when older than 1 s,
+    // so a node that stops sending metadata does not leave stale boxes on screen.
     private static string BuildWebSocketStreamPage(string wsUrl)
     {
         return $@"<!DOCTYPE html><html>
@@ -215,13 +215,32 @@ public sealed partial class CameraVideoControl : UserControl
     var on  = true;
     var ws  = null;
     var currentBlobUrl = null;
+    var dets = null;
 
     function resize() {{ cv.width = innerWidth || 320; cv.height = innerHeight || 240; }}
     resize();
     window.onresize = resize;
 
+    function drawBoxes() {{
+      if (!dets || Date.now() - dets.at > 1000 || !img.naturalWidth) return;
+      var sx = cv.width / img.naturalWidth, sy = cv.height / img.naturalHeight;
+      ctx.lineWidth = 2;
+      ctx.font = '13px Segoe UI, sans-serif';
+      dets.objects.forEach(function(o) {{
+        var x = o.box[0] * sx, y = o.box[1] * sy, w = (o.box[2] - o.box[0]) * sx, h = (o.box[3] - o.box[1]) * sy;
+        var label = '#' + o.track + ' ' + Math.round(o.conf * 100) + '%';
+        ctx.strokeStyle = '#00E676';
+        ctx.strokeRect(x, y, w, h);
+        ctx.fillStyle = '#00E676';
+        ctx.fillRect(x, Math.max(0, y - 18), ctx.measureText(label).width + 8, 18);
+        ctx.fillStyle = '#000';
+        ctx.fillText(label, x + 4, Math.max(13, y - 5));
+      }});
+    }}
+
     img.onload = function() {{
       ctx.drawImage(img, 0, 0, cv.width, cv.height);
+      drawBoxes();
       if (currentBlobUrl) {{ URL.revokeObjectURL(currentBlobUrl); currentBlobUrl = null; }}
     }};
 
@@ -230,6 +249,11 @@ public sealed partial class CameraVideoControl : UserControl
       ws = new WebSocket(url);
       ws.binaryType = 'blob';
       ws.onmessage = function(ev) {{
+        if (typeof ev.data === 'string') {{
+          var msg = JSON.parse(ev.data);
+          if (msg.type === 'detections') dets = {{ objects: msg.objects, at: Date.now() }};
+          return;
+        }}
         if (currentBlobUrl) URL.revokeObjectURL(currentBlobUrl);
         currentBlobUrl = URL.createObjectURL(ev.data);
         img.src = currentBlobUrl;
