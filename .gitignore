@@ -3,7 +3,6 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
-.claude/
 .impeccable/
 
 # User-specific files
@@ -379,5 +378,5 @@ FodyWeavers.xsd
 
 # Git worktrees
 .worktrees/
-.claude
+.claude/settings.local.json
 Station/.env
