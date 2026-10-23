@@ -7,17 +7,17 @@ namespace WireProtocol
     /// "Byte thấp trước, byte cao sau" → little-endian cho Length và CRC.
     /// "Length" ở đây được hiểu là độ dài Payload (không tính Start/Command/Length/NodeId/CRC/Stop),
     /// nhất quán với cách dùng "Length" trong TLV cảm biến bên trong Payload.
-    /// CRC tính theo <see cref="FrameFormat"/>: LAN từ Start, GSAN từ Command.
+    /// CRC tính trên toàn bộ byte từ Start tới hết Payload ("checksum các byte trước nó").
     /// </summary>
     public static class WireFrameCodec
     {
         public const byte StartByte = 0x53;
         public const byte StopByte = 0x4D;
 
-        public const int HeaderLength = 5; // Start + Command + Length(2) + NodeId
-        public const int TrailerLength = 3; // CRC(2) + Stop
+        private const int HeaderLength = 5; // Start + Command + Length(2) + NodeId
+        private const int TrailerLength = 3; // CRC(2) + Stop
 
-        public static byte[] Encode(byte command, byte nodeId, byte[] payload, FrameFormat? format = null)
+        public static byte[] Encode(byte command, byte nodeId, byte[] payload)
         {
             var length = (ushort)payload.Length;
             var frame = new byte[HeaderLength + payload.Length + TrailerLength];
@@ -32,7 +32,7 @@ namespace WireProtocol
             Array.Copy(payload, 0, frame, i, payload.Length);
             i += payload.Length;
 
-            var crc = (format ?? FrameFormat.Lan).ComputeCrc(frame.AsSpan(0, i));
+            var crc = Crc16.Compute(frame.AsSpan(0, i));
             frame[i++] = (byte)(crc & 0xFF);
             frame[i++] = (byte)((crc >> 8) & 0xFF);
             frame[i] = StopByte;
@@ -40,7 +40,7 @@ namespace WireProtocol
             return frame;
         }
 
-        public static bool TryDecode(ReadOnlySpan<byte> data, out WireFrame? frame, out string? error, FrameFormat? format = null)
+        public static bool TryDecode(ReadOnlySpan<byte> data, out WireFrame? frame, out string? error)
         {
             frame = null;
             error = null;
@@ -79,7 +79,7 @@ namespace WireProtocol
             var payload = data.Slice(HeaderLength, length).ToArray();
 
             var crcReceived = (ushort)(data[HeaderLength + length] | (data[HeaderLength + length + 1] << 8));
-            var crcComputed = (format ?? FrameFormat.Lan).ComputeCrc(data[..(HeaderLength + length)]);
+            var crcComputed = Crc16.Compute(data[..(HeaderLength + length)]);
             if (crcReceived != crcComputed)
             {
                 error = $"CRC mismatch: received 0x{crcReceived:X4}, computed 0x{crcComputed:X4}";

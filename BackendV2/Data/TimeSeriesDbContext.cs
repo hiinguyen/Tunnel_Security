@@ -29,7 +29,6 @@ public class TimeSeriesDbContext : DbContext
 
             e.HasIndex(x => new { x.SensorId, x.Timestamp });
             e.HasIndex(x => new { x.NodeId, x.Timestamp });
-            e.HasIndex(x => new { x.LineId, x.NodeByteId, x.Timestamp });
         });
     }
 }

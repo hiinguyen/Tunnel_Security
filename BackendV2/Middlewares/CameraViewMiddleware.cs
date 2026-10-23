@@ -35,7 +35,10 @@ namespace BackendV2.Middlewares
             using var socket = await context.WebSockets.AcceptWebSocketAsync();
             _registry.AddViewer(cameraId, socket);
 
-            await _registry.SendLatestFrameAsync(cameraId, socket, context.RequestAborted);
+            if (_registry.TryGetLatestFrame(cameraId, out var latestFrame))
+            {
+                await socket.SendAsync(latestFrame, WebSocketMessageType.Binary, endOfMessage: true, context.RequestAborted);
+            }
 
             var buffer = new byte[8192];
 
@@ -51,10 +54,6 @@ namespace BackendV2.Middlewares
                         break;
                     }
                 }
-            }
-            catch (Exception ex) when (ex is WebSocketException or OperationCanceledException)
-            {
-                // The viewer closed the tab or reloaded while a frame was being sent: the normal end of a view.
             }
             finally
             {

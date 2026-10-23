@@ -22,92 +22,6 @@ namespace BackendV2.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("BackendV2.Models.Alert", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset?>("AcknowledgedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("AcknowledgedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid?>("IncidentId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Key")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
-
-                    b.Property<int?>("LineId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasMaxLength(512)
-                        .HasColumnType("nvarchar(512)");
-
-                    b.Property<short?>("NodeByteId")
-                        .HasColumnType("smallint");
-
-                    b.Property<string>("NodeId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset?>("ResolvedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("ResolvedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Rule")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)");
-
-                    b.Property<string>("SensorId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SensorKind")
-                        .HasMaxLength(32)
-                        .HasColumnType("nvarchar(32)");
-
-                    b.Property<short?>("SensorOrdinal")
-                        .HasColumnType("smallint");
-
-                    b.Property<int>("Severity")
-                        .HasColumnType("int");
-
-                    b.Property<int>("State")
-                        .HasColumnType("int");
-
-                    b.Property<double?>("Threshold")
-                        .HasColumnType("float");
-
-                    b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<double?>("Value")
-                        .HasColumnType("float");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("IncidentId");
-
-                    b.HasIndex("Key");
-
-                    b.HasIndex("LineId", "CreatedAt");
-
-                    b.HasIndex("State", "CreatedAt");
-
-                    b.ToTable("Alerts");
-                });
-
             modelBuilder.Entity("BackendV2.Models.AuditLog", b =>
                 {
                     b.Property<Guid>("Id")
@@ -202,30 +116,6 @@ namespace BackendV2.Migrations
                     b.ToTable("Cameras");
                 });
 
-            modelBuilder.Entity("BackendV2.Models.DeviceIdentity", b =>
-                {
-                    b.Property<long>("PhysicalId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Label")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
-
-                    b.Property<string>("ProtectedKey")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset?>("RevokedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.HasKey("PhysicalId");
-
-                    b.ToTable("DeviceIdentities");
-                });
-
             modelBuilder.Entity("BackendV2.Models.FunctionGroup", b =>
                 {
                     b.Property<Guid>("Id")
@@ -252,99 +142,6 @@ namespace BackendV2.Migrations
                         .IsUnique();
 
                     b.ToTable("FunctionGroups");
-                });
-
-            modelBuilder.Entity("BackendV2.Models.Incident", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset?>("ClosedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<int>("LineId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("NodeByteIds")
-                        .IsRequired()
-                        .HasMaxLength(1024)
-                        .HasColumnType("nvarchar(1024)");
-
-                    b.Property<string>("Note")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Operator")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Severity")
-                        .HasColumnType("int");
-
-                    b.Property<int>("State")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
-
-                    b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("State", "CreatedAt");
-
-                    b.ToTable("Incidents");
-                });
-
-            modelBuilder.Entity("BackendV2.Models.Line", b =>
-                {
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("GatewayHardwareId")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)");
-
-                    b.Property<string>("GatewayIp")
-                        .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)");
-
-                    b.Property<string>("GatewayMac")
-                        .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)");
-
-                    b.Property<string>("GatewayVersion")
-                        .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)");
-
-                    b.Property<DateTimeOffset?>("LastSeenAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
-
-                    b.Property<DateTimeOffset?>("RetiredAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GatewayHardwareId")
-                        .IsUnique()
-                        .HasFilter("[RetiredAt] IS NULL");
-
-                    b.ToTable("Lines");
                 });
 
             modelBuilder.Entity("BackendV2.Models.Node", b =>
@@ -386,9 +183,6 @@ namespace BackendV2.Migrations
                     b.Property<double>("Latitude")
                         .HasColumnType("float");
 
-                    b.Property<int?>("LineId")
-                        .HasColumnType("int");
-
                     b.Property<double>("Longitude")
                         .HasColumnType("float");
 
@@ -402,9 +196,6 @@ namespace BackendV2.Migrations
                     b.Property<byte?>("NodeByteId")
                         .HasColumnType("tinyint");
 
-                    b.Property<long?>("PhysicalId")
-                        .HasColumnType("bigint");
-
                     b.Property<int?>("RSSI")
                         .HasColumnType("int");
 
@@ -415,14 +206,6 @@ namespace BackendV2.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("PhysicalId")
-                        .IsUnique()
-                        .HasFilter("[PhysicalId] IS NOT NULL");
-
-                    b.HasIndex("LineId", "NodeByteId")
-                        .IsUnique()
-                        .HasFilter("[LineId] IS NOT NULL AND [NodeByteId] IS NOT NULL");
 
                     b.ToTable("Nodes");
                 });
@@ -536,9 +319,6 @@ namespace BackendV2.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<byte?>("Ordinal")
-                        .HasColumnType("tinyint");
-
                     b.Property<int>("SamplingRate")
                         .HasColumnType("int");
 
@@ -620,14 +400,6 @@ namespace BackendV2.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("BackendV2.Models.Alert", b =>
-                {
-                    b.HasOne("BackendV2.Models.Incident", null)
-                        .WithMany()
-                        .HasForeignKey("IncidentId")
-                        .OnDelete(DeleteBehavior.SetNull);
-                });
-
             modelBuilder.Entity("BackendV2.Models.AuditLog", b =>
                 {
                     b.HasOne("BackendV2.Models.User", "ActorUser")
@@ -645,14 +417,6 @@ namespace BackendV2.Migrations
                         .HasForeignKey("NodeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("BackendV2.Models.Node", b =>
-                {
-                    b.HasOne("BackendV2.Models.Line", null)
-                        .WithMany()
-                        .HasForeignKey("LineId")
-                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("BackendV2.Models.RefreshToken", b =>

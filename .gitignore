@@ -380,7 +380,3 @@ FodyWeavers.xsd
 .worktrees/
 .claude/settings.local.json
 Station/.env
-
-# ASP.NET Data Protection keys (encrypt device secrets at rest)
-BackendV2/keys/
-NodeAgent/dev/device.key

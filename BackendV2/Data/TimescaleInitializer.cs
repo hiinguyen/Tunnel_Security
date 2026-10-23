@@ -20,14 +20,6 @@ public static class TimescaleInitializer
         // 1. Create tables if they don't exist (idempotent)
         await db.Database.EnsureCreatedAsync();
 
-        // EnsureCreated does not alter an existing table, so columns added after the first
-        // deployment are added here (idempotent).
-        await db.Database.ExecuteSqlRawAsync($$"""
-            ALTER TABLE "{{Table}}" ADD COLUMN IF NOT EXISTS "LineId" smallint;
-            CREATE INDEX IF NOT EXISTS "IX_Readings_LineId_NodeByteId_Timestamp"
-                ON "{{Table}}" ("LineId", "NodeByteId", "{{TimeCol}}");
-            """);
-
         // 2. Enable TimescaleDB extension (requires superuser the first time)
         try
         {

@@ -16,10 +16,10 @@ namespace BackendV2.Models
 
     public class Camera
     {
-        public string Id { get; set; } = string.Empty;
-        public string Name { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public string NodeId { get; set; } = string.Empty;
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public string NodeId { get; set; }
 
         public string? StreamUrl { get; set; }
         public CameraProtocol Protocol { get; set; } = CameraProtocol.RTSP;

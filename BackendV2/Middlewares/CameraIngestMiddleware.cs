@@ -38,39 +38,26 @@ public class CameraIngestMiddleware
 
         var buffer = new byte[8192];
 
-        try
+        while (socket.State == WebSocketState.Open)
         {
-            while (socket.State == WebSocketState.Open)
+            using var frameStream = new MemoryStream();
+            WebSocketReceiveResult result;
+
+            do
             {
-                using var message = new MemoryStream();
-                WebSocketReceiveResult result;
+                result = await socket.ReceiveAsync(buffer, context.RequestAborted);
 
-                do
+                if (result.MessageType == WebSocketMessageType.Close)
                 {
-                    result = await socket.ReceiveAsync(buffer, context.RequestAborted);
-
-                    if (result.MessageType == WebSocketMessageType.Close)
-                    {
-                        await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", context.RequestAborted);
-                        return;
-                    }
-
-                    if (message.Length + result.Count > CameraRelayRegistry.MaxMessageBytes)
-                    {
-                        await socket.CloseAsync(WebSocketCloseStatus.MessageTooBig, "Message too big", context.RequestAborted);
-                        return;
-                    }
-
-                    message.Write(buffer, 0, result.Count);
+                    await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", context.RequestAborted);
+                    return;
                 }
-                while (!result.EndOfMessage);
 
-                await _registry.BroadcastAsync(cameraId, message.ToArray(), result.MessageType, context.RequestAborted);
+                frameStream.Write(buffer, 0, result.Count);
             }
-        }
-        catch (Exception ex) when (ex is WebSocketException or OperationCanceledException)
-        {
-            // The sender went away without a close handshake (gateway killed, link dropped): the normal end of a stream.
+            while (!result.EndOfMessage);
+
+            await _registry.BroadcastFrameAsync(cameraId, frameStream.ToArray(), context.RequestAborted);
         }
     }
 }

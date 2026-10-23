@@ -24,29 +24,8 @@ services:
     restart: unless-stopped
     ports:
       - "1883:1883"
-    environment:
-      # Chỉ dùng ở lần chạy đầu để tạo tài khoản admin; phải khớp Mqtt:Password của BackendV2.
-      MOSQUITTO_DYNSEC_PASSWORD: ${MQTT_ADMIN_PASSWORD:-dev-admin-password}
     volumes:
       - ./docker/mosquitto.conf:/mosquitto/config/mosquitto.conf
-      - mosquitto_data:/mosquitto/data
-
-  # SQL Server cho máy Linux/macOS (trên Windows dùng SQL Express sẵn có).
-  # Bật bằng: docker compose --profile sqlserver up -d
-  sqlserver:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: tunnel_sqlserver
-    restart: unless-stopped
-    profiles: ["sqlserver"]
-    ports:
-      - "1433:1433"
-    environment:
-      ACCEPT_EULA: "Y"
-      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:-Dev-Passw0rd!}
-    volumes:
-      - sqlserver_data:/var/opt/mssql
 
 volumes:
   timescale_data:
-  mosquitto_data:
-  sqlserver_data:

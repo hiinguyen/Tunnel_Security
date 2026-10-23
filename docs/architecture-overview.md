@@ -34,7 +34,7 @@ graph TB
         end
         
         subgraph "Background Services"
-            MQTT_SUB[Gateway services<br/>Subscribe: ts/+/n/+/up/+, ts/+/gw/+, ts/prov/+/req]
+            MQTT_SUB[MqttSubscriberService<br/>Subscribe: sensors/+/reading]
         end
         
         subgraph "Data Layer"
@@ -97,7 +97,7 @@ graph TB
 - **CameraIngestMiddleware** (`/ws/camera/{id}/ingest`): Nhận binary JPEG frames từ camera nodes, ghép multi-chunk messages.
 - **CameraViewMiddleware** (`/ws/camera/{id}/view`): Phát luồng camera đến các viewer (Station).
 - **CameraRelayRegistry:** Singleton in-memory, chuyển tiếp frame từ ingest đến tất cả viewer của từng camera. Lưu frame cuối để viewer mới không bị màn hình đen.
-- **Gateway services** (`BackendV2/Gateway/`): kết nối MQTT broker, cấp tuyến cho NM, cho node tham gia, theo dõi sống/chết, gửi lệnh, ghi TimescaleDB theo lô, cảnh báo/tình huống, uplink lên Center. Chi tiết: `docs/lan-architecture-protocol.md`.
+- **MqttSubscriberService:** Background service kết nối MQTT broker, subscribe topic `sensors/+/reading`, giải mã WireProtocol, ghi vào TimescaleDB, broadcast qua SignalR.
 - **AuthService:** Đăng ký/đăng nhập, JWT token management, refresh token, RBAC với function groups.
 
 **Kiến trúc database:**
@@ -148,12 +148,34 @@ graph TB
 | Thuộc tính | Giá trị |
 |---|---|
 | **Công nghệ** | .NET 8 Console App, MQTTnet 5.2 |
-| **Mục đích** | Mô phỏng nhiều NM (Gateway tuyến), mỗi NM có nhiều node |
+| **Mục đích** | Mô phỏng node cảm biến IoT |
 
-**Vai trò:** Giả lập đúng giao thức PC - NM: xin cấp tuyến, kết nối lại bằng tài khoản của tuyến (có Last Will), cho từng node tham gia bằng A1/A3, gửi A7 (kèm TLV thời gian) và A4 theo chu kỳ, trả lời lệnh A2/A3/A5/A6.
-Giá trị đo dao động quanh mức bình thường và thỉnh thoảng có "sự kiện" (người trong hầm, nước dâng) để sinh cảnh báo.
+**Vai trò:** Giả lập một node IoT thực tế, sinh dữ liệu ngẫu nhiên cho 4 loại cảm biến và publish lên MQTT broker theo WireProtocol.
 
-**Biến môi trường chính:** `LINES`, `NODES_PER_LINE`, `MQTT_PROVISION_PASSWORD`, `SIM_DEVICE_SECRET`, `PUBLISH_INTERVAL_SECONDS`, `EVENT_PROBABILITY` (danh sách đầy đủ ở `docs/lan-architecture-protocol.md` mục 10.1).
+**Dữ liệu mô phỏng:**
+
+| Loại cảm biến | Byte type | Giá trị | Kích thước |
+|---|---|---|---|
+| Light | 0x01 | 50–800 lux | 4 bytes (float) |
+| WaterLevel | 0x02 | 0–3 m | 4 bytes (float) |
+| TemperatureHumidity | 0x03 | 20–35°C, 40–90% RH | 8 bytes (2 floats) |
+| Radar | 0x04 | 0–3 objects | 1 + N×24 bytes |
+
+**Luồng xử lý:**
+```
+Sinh dữ liệu → TLV Encode → WireFrame Encode → MQTT Publish
+                                                   ↓
+                                            Topic: sensors/{nodeId}/reading
+```
+
+**Giao thức WireProtocol:**
+- Start byte `0x53` | Command `0xA7` (SensorData) | Length (LE) | NodeId | Payload (TLV entries) | CRC-16 (LE) | Stop byte `0x4D`
+
+**Biến môi trường:**
+- `NODE_ID`: ID node (mặc định: `1`)
+- `PUBLISH_INTERVAL_SECONDS`: Tần suất publish (mặc định: `1`)
+- `MQTT_BROKER_HOST`: Broker host (mặc định: `localhost`)
+- `MQTT_BROKER_PORT`: Broker port (mặc định: `1883`)
 
 ---
 
@@ -200,8 +222,8 @@ GenerateFrame (synthetic/static) hoặc VideoFrameSource (video) → WebSocket S
 NodePublisherSim                    BackendV2                           Station
      │                                 │                                  │
      │──MQTT publish─────────────────▶│                                  │
-     │  ts/{line}/n/{node}/up/data    │                                  │
-     │                                │──GatewayMessageRouter───────────▶│
+     │  sensors/{id}/reading          │                                  │
+     │                                │──MqttSubscriberService──────────▶│
      │                                │  decode WireProtocol             │
      │                                │                                  │
      │                                │──ghi TimescaleDB                 │
