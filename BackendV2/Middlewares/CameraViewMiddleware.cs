@@ -52,6 +52,10 @@ namespace BackendV2.Middlewares
                     }
                 }
             }
+            catch (Exception ex) when (ex is WebSocketException or OperationCanceledException)
+            {
+                // The viewer closed the tab or reloaded while a frame was being sent: the normal end of a view.
+            }
             finally
             {
                 _registry.RemoveViewer(cameraId, socket);

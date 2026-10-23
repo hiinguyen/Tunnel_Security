@@ -221,8 +221,11 @@ public sealed partial class CameraVideoControl : UserControl
     resize();
     window.onresize = resize;
 
+    var boxesShown = false;
+
     function drawBoxes() {{
       if (!dets || Date.now() - dets.at > 1000 || !img.naturalWidth) return;
+      boxesShown = true;
       var sx = cv.width / img.naturalWidth, sy = cv.height / img.naturalHeight;
       ctx.lineWidth = 2;
       ctx.font = '13px Segoe UI, sans-serif';
@@ -240,9 +243,18 @@ public sealed partial class CameraVideoControl : UserControl
 
     img.onload = function() {{
       ctx.drawImage(img, 0, 0, cv.width, cv.height);
+      boxesShown = false;
       drawBoxes();
       if (currentBlobUrl) {{ URL.revokeObjectURL(currentBlobUrl); currentBlobUrl = null; }}
     }};
+
+    // Frames stop when the node goes away; repaint the last frame without boxes once they are stale.
+    setInterval(function() {{
+      if (boxesShown && (!dets || Date.now() - dets.at > 1000)) {{
+        ctx.drawImage(img, 0, 0, cv.width, cv.height);
+        boxesShown = false;
+      }}
+    }}, 250);
 
     function connect() {{
       if (!on) return;
