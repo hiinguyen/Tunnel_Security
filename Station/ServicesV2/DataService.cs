@@ -218,7 +218,7 @@ namespace Station.ServicesV2
             _ => AlertCategory.Other
         };
 
-        private static SimulatedCamera MapCamera(CameraDto c, Dictionary<string, TunnelNode> nodeIndex)
+        private SimulatedCamera MapCamera(CameraDto c, Dictionary<string, TunnelNode> nodeIndex)
         {
             nodeIndex.TryGetValue(c.NodeId, out var node);
 
@@ -231,7 +231,7 @@ namespace Station.ServicesV2
                 NodeName = node?.NodeName ?? c.NodeId,
                 LineId = node?.LineId ?? DefaultLineId,
                 LineName = node?.LineName ?? DefaultLineName,
-                StreamUrl = string.IsNullOrWhiteSpace(c.StreamUrl) ? null : c.StreamUrl,
+                StreamUrl = ToAbsoluteStreamUrl(c.StreamUrl),
                 Description = c.Description,
                 Resolution = c.Resolution,
                 Fps = c.Fps,
@@ -245,6 +245,16 @@ namespace Station.ServicesV2
                 IsOnline = true,
                 Status = 0
             };
+        }
+
+        /// <summary>BackendV2 lưu đường dẫn WS tương đối để không phụ thuộc địa chỉ PC; ghép với địa chỉ API đang dùng.</summary>
+        private string? ToAbsoluteStreamUrl(string? streamUrl)
+        {
+            if (string.IsNullOrWhiteSpace(streamUrl)) return null;
+            if (!streamUrl.StartsWith('/')) return streamUrl;
+            var api = new Uri(_baseUrl);
+            var scheme = api.Scheme == Uri.UriSchemeHttps ? "wss" : "ws";
+            return $"{scheme}://{api.Authority}{streamUrl}";
         }
 
         private async Task ConnectHubAsync()

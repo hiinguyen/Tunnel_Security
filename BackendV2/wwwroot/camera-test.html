@@ -20,7 +20,8 @@
     <h2>Giả lập Station (xem camera)</h2>
     <button id="viewBtn">Kết nối xem</button>
     <p id="viewStatus">Chưa kết nối</p>
-    <img id="frame" style="max-width: 480px; border: 1px solid #ccc;">
+    <canvas id="frame" width="640" height="480" style="max-width: 640px; border: 1px solid #ccc; background: #000;"></canvas>
+    <p id="detStatus"></p>
 
     <script>
         const cameraIdInput = document.getElementById("cameraId");
@@ -52,30 +53,77 @@
         });
 
         const viewStatus = document.getElementById("viewStatus");
-        const frameEl = document.getElementById("frame");
-        document.getElementById("viewBtn").addEventListener("click", () => {
+        const detStatus = document.getElementById("detStatus");
+        const canvas = document.getElementById("frame");
+        const ctx = canvas.getContext("2d");
+        const img = new Image();
+        let detections = null;
+
+        let boxesShown = false;
+
+        function drawBoxes() {
+            if (!detections || Date.now() - detections.at > 1000 || !img.naturalWidth) return;
+            boxesShown = true;
+            const sx = canvas.width / img.naturalWidth, sy = canvas.height / img.naturalHeight;
+            ctx.lineWidth = 2;
+            ctx.font = "14px sans-serif";
+            for (const o of detections.objects) {
+                const [x1, y1, x2, y2] = o.box;
+                ctx.strokeStyle = "#00e676";
+                ctx.strokeRect(x1 * sx, y1 * sy, (x2 - x1) * sx, (y2 - y1) * sy);
+                const label = `#${o.track} ${Math.round(o.conf * 100)}%`;
+                ctx.fillStyle = "#00e676";
+                ctx.fillRect(x1 * sx, y1 * sy - 18, ctx.measureText(label).width + 8, 18);
+                ctx.fillStyle = "#000";
+                ctx.fillText(label, x1 * sx + 4, y1 * sy - 4);
+            }
+        }
+
+        img.onload = () => {
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
+            ctx.drawImage(img, 0, 0);
+            boxesShown = false;
+            drawBoxes();
+            URL.revokeObjectURL(img.src);
+        };
+
+        // Frames stop when the node goes away; repaint the last frame without boxes once they are stale.
+        setInterval(() => {
+            if (boxesShown && (!detections || Date.now() - detections.at > 1000)) {
+                ctx.drawImage(img, 0, 0);
+                boxesShown = false;
+            }
+        }, 250);
+
+        function view() {
             const cameraId = cameraIdInput.value;
             const socket = new WebSocket(`${wsBase}/${cameraId}/view`);
             socket.binaryType = "blob";
-
-            socket.onopen = () => {
-                viewStatus.textContent = "Đã kết nối tới " + socket.url;
-            };
-
+            socket.onopen = () => { viewStatus.textContent = "Đã kết nối tới " + socket.url; };
             socket.onmessage = (event) => {
-                const url = URL.createObjectURL(event.data);
-                frameEl.src = url;
+                if (typeof event.data === "string") {
+                    const msg = JSON.parse(event.data);
+                    if (msg.type === "detections") {
+                        detections = { objects: msg.objects, at: Date.now() };
+                        detStatus.textContent = `seq ${msg.seq}: ${msg.objects.length} đối tượng`;
+                    }
+                    return;
+                }
+                img.src = URL.createObjectURL(event.data);
             };
+            socket.onerror = (err) => { viewStatus.textContent = "Lỗi view: " + err; console.error(err); };
+            socket.onclose = () => { viewStatus.textContent = "Đã ngắt kết nối"; };
+        }
 
-            socket.onerror = (err) => {
-                viewStatus.textContent = "Lỗi view: " + err;
-                console.error(err);
-            };
+        document.getElementById("viewBtn").addEventListener("click", view);
 
-            socket.onclose = () => {
-                viewStatus.textContent = "Đã ngắt kết nối";
-            };
-        });
+        // Mở thẳng: /camera-test.html?camera=CAM-L1-N1 (dùng cho kiểm thử E2E)
+        const params = new URLSearchParams(location.search);
+        if (params.get("camera")) {
+            cameraIdInput.value = params.get("camera");
+            view();
+        }
     </script>
 </body>
 </html>

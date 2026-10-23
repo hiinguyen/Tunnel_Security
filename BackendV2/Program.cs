@@ -4,7 +4,10 @@ using BackendV2.Hubs;
 using BackendV2.Services;
 using BackendV2.Middlewares;
 using BackendV2.Auth;
+using BackendV2.Gateway;
 using BackendV2.Models;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
@@ -60,7 +63,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             }
         };
     });
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options => options.AddGatewayPolicies());
 
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -74,7 +77,19 @@ if (builder.Configuration.GetValue<bool>("TimeSeries:Enabled"))
     builder.Services.AddDbContext<TimeSeriesDbContext>(options => options.UseNpgsql(tsConnStr));
 }
 
-builder.Services.AddHostedService<MqttSubscriberService>();
+// Khóa Data Protection mã hóa khóa bí mật của thiết bị trong CSDL; mất thư mục này là mất khả năng xác thực node.
+var keysPath = builder.Configuration["DataProtection:KeysPath"]
+    ?? Path.Combine(builder.Environment.ContentRootPath, "keys");
+var dataProtection = builder.Services.AddDataProtection()
+    .SetApplicationName("TunnelSecurity.BackendV2")
+    .PersistKeysToFileSystem(new DirectoryInfo(keysPath));
+if (OperatingSystem.IsWindows())
+{
+    // PC trạm chạy Windows: mã hóa chính các khóa này bằng DPAPI của máy, file khóa bị sao chép đi nơi khác cũng vô dụng.
+    dataProtection.ProtectKeysWithDpapi(protectToLocalMachine: true);
+}
+
+builder.Services.AddGateway(builder.Configuration);
 
 builder.Services.AddSingleton<CameraRelayRegistry>();
 
@@ -96,6 +111,18 @@ using (var scope = app.Services.CreateScope())
             logger.LogWarning("[Startup] TimescaleDB initialization failed: {Msg} — " +
                               "time-series writes will be skipped", ex.Message);
         }
+    }
+}
+
+// Môi trường thật không được chạy với mật khẩu MQTT mặc định của docker-compose/appsettings.Development.
+if (!app.Environment.IsDevelopment())
+{
+    var mqtt = app.Services.GetRequiredService<IOptions<MqttOptions>>().Value;
+    static bool IsWeak(string? secret) => string.IsNullOrEmpty(secret) || secret.Length < 12 || secret.StartsWith("dev-", StringComparison.Ordinal);
+    if (mqtt.DynamicSecurity.Enabled && (IsWeak(mqtt.Password) || IsWeak(mqtt.DynamicSecurity.ProvisioningPassword)))
+    {
+        throw new InvalidOperationException(
+            "Mqtt:Password and Mqtt:DynamicSecurity:ProvisioningPassword must be set to strong (12+ chars, non-default) values outside Development");
     }
 }
 
