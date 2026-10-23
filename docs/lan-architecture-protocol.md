@@ -68,8 +68,9 @@ graph TB
     NM1 <-- "MQTT/TLS, khung nhị phân" --> BROKER
     NMk <--> BROKER
     NM1 -. NTP .-> NTP
-    NM1 <-- "TCP/LAN, khung nhị phân" --> N1
-    N1 -- "Camera: WS, chỉ khi được yêu cầu" --> BV2
+    NM1 <-- "GSAN-CONG :9300 (SDD IF-01)" --> N1
+    N1 -- "Video UDP 6000 + meta TCP 6002" --> NM1
+    NM1 -- "WS ingest" --> BV2
     N1 <-- "USB-CDC, khung nhị phân" --> VXL
 ```
 
@@ -363,11 +364,36 @@ Mã lỗi A4 theo bit: 0 cảm biến, 1 ngoại vi, 2 pin yếu, 3 bộ nhớ, 
 Khóa thiết bị có thể dẫn xuất hàng loạt khi sản xuất: khóa = HMAC-SHA256(khóa gốc, ID vật lý), mỗi thiết bị vẫn một khóa khác nhau.
 Theo SDD 4.2.3; khóa riêng từng thiết bị nên MAC vẫn gắn với ID vật lý.
 
+### 4.11 Chặng node - NM
+
+Node nói giao thức GSAN-CONG của SDD (IF-01) với NM qua TCP cổng 9300.
+Khung giống khung NM - PC nhưng CRC là CRC16-Modbus tính trên [cmd..payload] (đúng SDD); chặng NM - PC giữ CRC CCITT-FALSE tính trên [Start..payload], NM đóng khung lại khi chuyển tiếp.
+Mã triển khai: `LineGateway/Gsan/` (phía NM), `NodeAgent/gsan_*.py` (phía node), `WireProtocol/` (khung, payload, vector kiểm thử dùng chung).
+
+NM không giữ khóa thiết bị: nó dịch bắt tay của node sang bắt tay NM - PC (mục 4.5), PC quyết định.
+
+| Bước | Node → NM | NM ↔ PC | Ghi chú |
+|---|---|---|---|
+| 1 | A1 yêu cầu (ID vật lý) | A1 yêu cầu lên PC | NM ghi nhớ phiên theo ID vật lý; theo IP nguồn sau khi gắn (bước 5) |
+| 2 | NM → node: A1 thách đố (nonce) | PC → NM: A1 thách đố | |
+| 3 | A1 trả lời (MAC 4 byte) | A1 trả lời lên PC | Chỉ HMAC-SHA256; không dùng chữ ký Ed25519 vì 64 byte không vừa trường 4 byte |
+| 4 | NM → node: A3 cấp Node ID | PC → NM: A3 cấp ID | Payload 1 byte Node ID; Node ID trong khung là ID mới |
+| 5 | Node → NM: A3 xác nhận, payload ASCII `OK` | NM báo PC mã kết quả | Khác `OK` thì NM đóng phiên, báo từ chối |
+| 6 | A4 trạng thái 7 byte (SDD bảng 5.3) | NM đổi sang A4 của NM - PC | Pi không có pin: pin là NaN, PC coi là không có và không ghi đè `BatteryLevel` |
+| 7 | A7 dữ liệu TLV | Chuyển tiếp | NM chèn TLV thời gian nhận (giờ NM, đồng bộ NTP) nếu node chưa gắn |
+
+Lệnh A2 (đọc cấu hình), A5 (reset), A6 (điều khiển ngoại vi) từ PC xuống node chưa hỗ trợ: NM ghi log và bỏ qua (ngoài phạm vi đợt này).
+Khung có Node ID khác ID đã cấp cho phiên bị bỏ và ghi log.
+Thiếu radar hoặc camera (hai thiết bị bắt buộc) được báo là lỗi cảm biến trong A4.
+
+Mục tiêu radar đi trong A7 dưới dạng TLV radar; NodeAgent chỉ gửi mục tiêu đã xác nhận, tối đa 40 mục tiêu mỗi bản tin, chu kỳ 400 ms.
+
 ---
 
 ## 5. Giao thức camera (mọi node đều có camera)
 
-> Phần camera chưa triển khai, sẽ làm sau; luồng WebSocket JPEG hiện có vẫn giữ nguyên.
+> Đã triển khai một phần: camera phát liên tục kèm khung YOLO, đi qua NM (mục 5.4).
+> Chế độ Nghỉ / Xem theo yêu cầu, đệm vòng 60 giây, điều khiển `cam/ctl` và giới hạn số luồng (mục 5.2, 5.3) chưa làm.
 
 ### 5.1 Vấn đề băng thông
 
@@ -392,7 +418,13 @@ Vì vậy camera không được phát liên tục mà theo yêu cầu.
 
 Ghi đệm vòng tại node giúp có hình trước thời điểm báo động mà không tốn băng thông khi bình thường.
 
+> Hiện chỉ có một chế độ: node theo SDD phát liên tục khoảng 15 fps (khoảng 6 Mbps mỗi node ở 50 KB/khung, gấp ba ước lượng ở 5.1).
+> Chế độ "Nghỉ" và "Xem theo yêu cầu" chưa làm; băng thông tính ở 5.1 là mục tiêu của chế độ theo yêu cầu, chưa đạt.
+> NM chỉ giữ 4 bản tin mỗi node trong hàng đợi, đầy thì bỏ bản cũ nhất.
+
 ### 5.3 Điều khiển camera
+
+> Chưa triển khai (xem ghi chú ở 5.2): hiện node phát liên tục, không nhận `cam/ctl`.
 
 PC gửi `ts/{line}/n/{nodeId}/cam/ctl`:
 
@@ -418,18 +450,26 @@ Node báo `ts/{line}/n/{nodeId}/cam/state` (retained, Last Will = `offline`):
 ### 5.4 Luồng hình
 
 ```
-Node → WS binary JPEG → BackendV2 /ws/camera/{cameraId}/ingest (kèm token thiết bị)
-                         → CameraRelayRegistry
-                         → /ws/camera/{cameraId}/view → Station
+Node → UDP 6000 (mảnh JPEG) + TCP 6002 (metadata YOLO) → NM
+NM: ghép JPEG, gắn node theo IP nguồn của phiên GSAN đã xác thực
+  → WS ingest BackendV2 /ws/camera/{cameraId}/ingest (binary = JPEG, Text = khung YOLO JSON)
+  → CameraRelayRegistry
+  → /ws/camera/{cameraId}/view → Station
 ```
 
+- Mảnh video UDP: header 16 byte (seq uint32, timestamp double, chỉ số mảnh uint16, tổng số mảnh uint16, little-endian) + tối đa 1.400 byte dữ liệu, tối đa 512 mảnh mỗi JPEG.
+  Chỉ giữ một frame đang ghép: mảnh của frame mới hơn bỏ frame dở, mảnh của frame cũ hơn bị bỏ.
+- Metadata YOLO trên TCP 6002: header 14 byte (seq, timestamp, số đối tượng uint16) + 12 byte mỗi đối tượng (lớp, độ tin cậy, hộp x1 y1 x2 y2, track id), tối đa 256 đối tượng.
+  Tọa độ là pixel của ảnh gốc.
+- NM chỉ nhận video và metadata từ IP có phiên GSAN đã xác thực; gói từ địa chỉ khác bị bỏ.
+- Bản tin Text tới Station là JSON `{"type":"detections","seq":..,"ts":..,"objects":[{"cls":..,"conf":0..1,"box":[x1,y1,x2,y2],"track":..}]}`.
+  Station vẽ khung lên frame kế tiếp và bỏ khung cũ hơn 1 giây, nên khi node ngừng gửi thì khung biến mất, frame cuối được giữ.
+- NM giữ một WS ingest cho mỗi node (hàng đợi 4 bản tin, bỏ bản cũ nhất khi đầy), tự đóng sau 30 giây không có dữ liệu và tự kết nối lại khi có frame mới.
+- Xác thực luồng WS ingest từ NM chưa có (lỗ hổng sẵn có, ngoài phạm vi đợt này); giảm thiểu bằng VLAN riêng mỗi tuyến (mục 3).
 - `cameraId` suy ra từ node: `CAM-L{line}-N{nodeId}`, ví dụ `CAM-L3-N7`.
-  Quan hệ node - camera là 1 - 1.
-- `CameraRelayRegistry` đếm số người xem theo từng camera.
-  Người xem đầu tiên mở thì PC gửi `start`, người xem cuối đóng thì sau 15 giây PC gửi `stop` (tránh bật tắt liên tục khi chuyển trang).
-- Giới hạn số luồng xem trực tiếp đồng thời trên toàn trạm (mặc định 16, bằng lưới 4x4 lớn nhất của Station) và trên mỗi tuyến (mặc định 8).
-  Luồng sự kiện được ưu tiên hơn luồng xem khi chạm giới hạn.
-- Camera không dùng giao thức Node-Gateway và không đi qua NM, node kết nối thẳng tới PC qua LAN.
+  Quan hệ node - camera là 1 - 1. Bản ghi camera được tạo tự động khi node tham gia.
+- Chưa làm (cùng nhóm với chế độ theo yêu cầu): `CameraRelayRegistry` đếm người xem để gửi `start`/`stop`, giới hạn số luồng xem toàn trạm (dự kiến 16) và mỗi tuyến (dự kiến 8), ưu tiên luồng sự kiện.
+- Video không dùng khung GSAN: node gửi thẳng UDP/TCP tới NM, NM đẩy lên PC bằng WebSocket ingest; NM không nhận lệnh điều khiển camera.
 
 ---
 
@@ -551,7 +591,10 @@ Trong code, `GatewayIngestionService` là `MqttConnectionService` + `GatewayMess
 | Cảnh báo, tình huống | `BackendV2/Gateway/Alerts/` | Đã có |
 | Uplink lên Center | `BackendV2/Gateway/Uplink/` | Đã có |
 | SignalR theo phạm vi | `BackendV2/Hubs/SensorHub.cs`, `BackendV2/Gateway/Realtime/` | Đã có |
-| `CameraSessionManager`, xác thực camera ingest | | Để sau cùng phần camera |
+| Relay camera + khung YOLO tới người xem | `BackendV2/Middlewares/Camera*Middleware.cs`, `BackendV2/Services/CameraRelayRegistry.cs` | Đã có |
+| `CameraSessionManager` (start/stop theo người xem, giới hạn luồng), xác thực camera ingest | | Chưa làm (camera theo yêu cầu) |
+| NM (gateway tuyến): phiên GSAN, MQTT lên PC, nhận video | `LineGateway/` | Đã có |
+| Agent trên node (Pi): GSAN, radar, camera | `NodeAgent/` | Đã có |
 | Station: cây Tuyến → Node, màn hình duyệt | | Chưa làm (cần Windows để build WinUI) |
 
 API REST mới (đều cần JWT):
@@ -637,7 +680,7 @@ Client chọn phạm vi nhận `NewReading` bằng `SetScope("all" | "line:{k}" 
 | 2 | Cây topic mới, router, `NodePublisherSim` giả lập nhiều tuyến nhiều node | Xong |
 | 3 | Ghi theo lô, TLV thời gian | Xong |
 | 4 | Sống/chết, cấp tuyến (Dynamic Security), tham gia node | Xong (backend); màn hình duyệt trên Station chưa làm |
-| 5 | Camera theo yêu cầu | Để sau |
+| 5 | Camera | Một phần: camera liên tục + khung YOLO (kế hoạch `plans/2026-10-22-radar-camera-link-plan.md`); camera theo yêu cầu để sau |
 | 6 | SignalR theo phạm vi | Xong (backend); Station chuyển sang cây Tuyến → Node chưa làm |
 | 7 | Lệnh, cảnh báo, tình huống, uplink | Xong; cấu hình bridge lên Center khi có địa chỉ Center |
 | 8 | TLS cho broker | Có sẵn cấu hình mẫu trong `docker/mosquitto.conf`, cần chứng chỉ thật |
@@ -670,7 +713,7 @@ Biến môi trường của `NodePublisherSim`: `LINES`, `NODES_PER_LINE`, `FIRS
 
 ### 10.3 Kết quả kiểm thử
 
-- 84 unit test (`tests/WireProtocol.Tests`, `tests/BackendV2.Tests`).
+- 119 unit test .NET (`tests/WireProtocol.Tests` 61, `tests/BackendV2.Tests` 47, `tests/LineGateway.Tests` 11) và 12 test pytest của `NodeAgent`.
 - E2E với broker, SQL Server, TimescaleDB thật và `NodePublisherSim`:
   cấp tuyến tự động và thủ công qua API, node tham gia bằng HMAC, node sai khóa bị từ chối, NM khởi động lại nhận lại đúng tuyến và Node ID,
   lệnh A2/A3/A5/A6, node tắt nguồn chuyển offline sau 30 giây và tự hết cảnh báo khi bật lại,
