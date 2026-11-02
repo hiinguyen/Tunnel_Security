@@ -904,7 +904,7 @@ public sealed partial class SensorChartsPage : Page
             AnimationsSpeed = TimeSpan.Zero,
             EasingFunction  = null,
             XAxes = new[] { new Axis { LabelsPaint = null, SeparatorsPaint = gridPaint, TextSize = 0 } },
-            YAxes = new[] { new Axis { LabelsPaint = axisLabelPaint, SeparatorsPaint = gridPaint, TextSize = 9 } }
+            YAxes = new[] { BuildFixedYAxis(type, axisLabelPaint, gridPaint) }
         };
 
         var valueTb = new TextBlock
@@ -945,6 +945,32 @@ public sealed partial class SensorChartsPage : Page
             StatusText  = statusTb,
             LastValue   = initialValue
         };
+    }
+
+    // Fixed full-scale range per sensor type, so the Y axis never rescales when values move.
+    // Types without an entry fall back to LiveCharts' automatic scaling.
+    private static readonly Dictionary<string, (double Min, double Max, double Step)> YScaleByType = new()
+    {
+        ["temperature"] = (10,  50,   10),
+        ["humidity"]    = (0,   100,  20),
+        ["light"]       = (0,   500,  100),
+        ["waterlevel"]  = (0,   3,    0.5),
+        ["radar"]       = (0,   100,  25),
+        ["infrared"]    = (0,   100,  25),
+        ["vibration"]   = (0,   20,   5),
+    };
+
+    private static Axis BuildFixedYAxis(string type, SolidColorPaint labelPaint, SolidColorPaint gridPaint)
+    {
+        var axis = new Axis { LabelsPaint = labelPaint, SeparatorsPaint = gridPaint, TextSize = 9 };
+        if (YScaleByType.TryGetValue(type, out var scale))
+        {
+            axis.MinLimit = scale.Min;
+            axis.MaxLimit = scale.Max;
+            axis.MinStep  = scale.Step;
+            axis.ForceStepToMin = true;
+        }
+        return axis;
     }
 
     private Border BuildCard(

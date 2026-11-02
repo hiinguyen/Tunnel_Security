@@ -26,10 +26,19 @@ namespace Station.Dialogs
 
         private void PopulateAlertInfo()
         {
-            var mock = MockDataService.Instance;
-            var camera = _alert.CameraId != null
-                ? mock.Cameras.FirstOrDefault(c => c.CameraId == _alert.CameraId)
-                : null;
+            // Camera của chính node đang cảnh báo: ưu tiên CameraId, nếu thiếu thì tìm theo NodeId.
+            var cameras = DataServiceLocator.Current.Cameras;
+            var camera = cameras.FirstOrDefault(c => _alert.CameraId != null && c.CameraId == _alert.CameraId)
+                ?? cameras.FirstOrDefault(c => !string.IsNullOrEmpty(_alert.NodeId)
+                    && string.Equals(c.NodeId, _alert.NodeId, StringComparison.OrdinalIgnoreCase));
+
+            if (camera != null)
+            {
+                AlertCameraVideo.StreamUrl = camera.StreamUrl;
+                AlertCameraVideo.IsOnline = camera.IsOnline;
+                AlertCameraVideo.Visibility = Visibility.Visible;
+                AlertZoneOverlay.Visibility = Visibility.Collapsed;
+            }
 
             // Header
             AlertTitleText.Text = _alert.Title;

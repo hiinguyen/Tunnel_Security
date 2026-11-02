@@ -3,8 +3,13 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.Web.WebView2.Core;
+using Station.Config;
 using Station.ViewModels;
 using System;
+using System.IO;
+using System.Text.Json;
+using System.Threading.Tasks;
 using Windows.UI;
 
 namespace Station.Dialogs
@@ -20,6 +25,53 @@ namespace Station.Dialogs
             RequestedTheme = Station.Services.ThemeService.Instance.CurrentTheme;
             _node = node;
             PopulateData();
+            Loaded += async (_, _) => await InitializeMapAsync();
+        }
+
+        /// <summary>
+        /// Nạp cùng map.html với dashboard giám sát, ở chế độ chỉ xem, zoom vào node đang mở.
+        /// </summary>
+        private async Task InitializeMapAsync()
+        {
+            try
+            {
+                await NodeMapWebView.EnsureCoreWebView2Async();
+                var core = NodeMapWebView.CoreWebView2;
+
+                var assetsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets");
+                core.SetVirtualHostNameToFolderMapping("app.local", assetsPath, CoreWebView2HostResourceAccessKind.Allow);
+                core.Settings.AreDefaultContextMenusEnabled = false;
+
+                core.NavigationCompleted += async (_, args) =>
+                {
+                    if (!args.IsSuccess)
+                    {
+                        MapFallbackPanel.Visibility = Visibility.Visible;
+                        return;
+                    }
+
+                    // Chờ JS đăng ký listener (giống dashboard)
+                    await Task.Delay(300);
+                    var theme = Station.Services.ThemeService.Instance.CurrentTheme == ElementTheme.Light ? "Light" : "Dark";
+                    core.PostWebMessageAsJson(JsonSerializer.Serialize(new
+                    {
+                        type = "init",
+                        backend = EnvironmentConfig.BackendBaseUrl,
+                        station = EnvironmentConfig.StationId,
+                        token = EnvironmentConfig.MapboxAccessToken,
+                        @readonly = true
+                    }));
+                    await core.ExecuteScriptAsync($"setTheme('{theme}')");
+                    core.PostWebMessageAsJson(JsonSerializer.Serialize(new { type = "focus-node", nodeId = _node.NodeId, nodeName = _node.NodeName, lineName = _node.LineName }));
+                };
+
+                core.Navigate("https://app.local/Map/map.html");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[NodeDetailDialog] Map init error: {ex.Message}");
+                MapFallbackPanel.Visibility = Visibility.Visible;
+            }
         }
 
         private void PopulateData()

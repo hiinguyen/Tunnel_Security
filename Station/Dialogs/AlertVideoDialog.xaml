@@ -5,8 +5,9 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:Station.Controls"
     mc:Ignorable="d"
-    
+
     Background="{ThemeResource DkSurfaceBrush}"
     BorderBrush="{ThemeResource DkBorderBrush}"
     BorderThickness="1"
@@ -89,6 +90,9 @@
 
             <!-- Video area -->
             <Grid Grid.Column="0" Background="{ThemeResource DkDeepBrush}">
+                <!-- Luồng camera thật của node đang cảnh báo -->
+                <controls:CameraVideoControl x:Name="AlertCameraVideo" Visibility="Collapsed"/>
+
                 <Border VerticalAlignment="Top" HorizontalAlignment="Left" Margin="16"
                         Background="{ThemeResource DkBgBrush}"
                         BorderBrush="{ThemeResource DkBorderBrush}"

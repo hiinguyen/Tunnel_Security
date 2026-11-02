@@ -33,6 +33,9 @@ namespace Station.ServicesV2
 
         private readonly Dictionary<string, SimulatedSensor> _sensorMap = new();
 
+        // Cảm biến đang có cảnh báo giả chưa kết thúc (sensorId -> mức), để không phát lặp mỗi mẫu đo.
+        private readonly System.Collections.Concurrent.ConcurrentDictionary<string, AlertSeverity> _openAlertSeverities = new();
+
         private List<SimulatedSensor> _sensors = new();
         private List<SimulatedCamera> _cameras = new();
         private List<TunnelNode> _nodes = new();
@@ -143,12 +146,17 @@ namespace Station.ServicesV2
             var sensorDtos = await _apiClient.GetSensorsAsync();
             var cameraDtos = await _apiClient.GetCamerasAsync();
 
-            var nodes = nodeDtos.Select(n => new TunnelNode
+            // Trạm hub không có cảm biến/camera nên không đưa vào danh sách node giám sát (giống mock).
+            var nodes = nodeDtos.Where(n => !n.IsHub).Select(n =>
             {
-                NodeId = n.Id,
-                NodeName = n.Name,
-                LineId = DefaultLineId,
-                LineName = DefaultLineName
+                var (lineId, lineName) = ResolveLine(n.Code);
+                return new TunnelNode
+                {
+                    NodeId = n.Id,
+                    NodeName = n.Name,
+                    LineId = lineId,
+                    LineName = lineName
+                };
             }).ToList();
 
             var nodeIndex = nodes.ToDictionary(n => n.NodeId, StringComparer.OrdinalIgnoreCase);
@@ -157,10 +165,15 @@ namespace Station.ServicesV2
             var cameras = cameraDtos.Select(c => MapCamera(c, nodeIndex)).ToList();
 
             _nodes = nodes;
-            _lines = new List<TunnelLine>
-            {
-                new TunnelLine { LineId = DefaultLineId, LineName = DefaultLineName, Nodes = nodes }
-            };
+            _lines = nodes
+                .GroupBy(n => (n.LineId, n.LineName))
+                .Select(g => new TunnelLine
+                {
+                    LineId = g.Key.LineId,
+                    LineName = g.Key.LineName,
+                    Nodes = g.ToList()
+                })
+                .ToList();
             _sensors = sensors;
             _cameras = cameras;
 
@@ -169,6 +182,25 @@ namespace Station.ServicesV2
 
             System.Diagnostics.Debug.WriteLine(
                 $"[DataService] Loaded {nodes.Count} nodes, {sensors.Count} sensors, {cameras.Count} cameras from BackendV2");
+        }
+
+        // Backend chưa có tên tuyến cho node hiển thị; tuyến suy ra từ tiền tố mã node (DC-01, KM-03...)
+        // theo cùng bảng tuyến với bản đồ dashboard (nodes.json) và MockDataService.
+        private static readonly Dictionary<string, (string Id, string Name)> LinesByCodePrefix =
+            new(StringComparer.OrdinalIgnoreCase)
+            {
+                ["DC"]  = ("LINE-DC",  "Tuyến Đội Cấn"),
+                ["KM"]  = ("LINE-KM",  "Tuyến Kim Mã"),
+                ["HHT"] = ("LINE-HHT", "Tuyến Hoàng Hoa Thám"),
+                ["PDP"] = ("LINE-PDP", "Tuyến Phan Đình Phùng")
+            };
+
+        private static (string Id, string Name) ResolveLine(string? nodeCode)
+        {
+            var prefix = nodeCode?.Split('-')[0];
+            return prefix != null && LinesByCodePrefix.TryGetValue(prefix, out var line)
+                ? line
+                : (DefaultLineId, DefaultLineName);
         }
 
         private static SimulatedSensor MapSensor(SensorDto s, Dictionary<string, TunnelNode> nodeIndex)
@@ -289,6 +321,7 @@ namespace Station.ServicesV2
                 SensorTick?.Invoke(this, args);
 
             if (isAnomaly) TryGenerateAlert(sensor);
+            else _openAlertSeverities.TryRemove(sensor.SensorId, out _);
         }
 
         private void OnConnectionChanged(object? sender, bool connected)
@@ -303,6 +336,8 @@ namespace Station.ServicesV2
         private void TryGenerateAlert(SimulatedSensor sensor)
         {
             var severity = sensor.CurrentAlertSeverity;
+            // Camera đặt tại cùng node với cảm biến, dùng để xem hiện trường khi cảnh báo.
+            var cameraId = _cameras.FirstOrDefault(c => string.Equals(c.NodeId, sensor.NodeId, StringComparison.OrdinalIgnoreCase))?.CameraId;
             var alert = new Alert
             {
                 Id = Guid.NewGuid().ToString(),
@@ -311,6 +346,7 @@ namespace Station.ServicesV2
                 Category = sensor.Category,
                 NodeId = sensor.NodeId,
                 NodeName = sensor.NodeName,
+                CameraId = cameraId,
                 SensorId = sensor.SensorId,
                 SensorName = sensor.SensorName,
                 SensorValue = sensor.CurrentValue,
@@ -320,6 +356,18 @@ namespace Station.ServicesV2
                 Description = $"{sensor.SensorName} = {sensor.CurrentValue:F1} {sensor.Unit} (ngưỡng: {sensor.WarnThreshold})",
                 State = AlertState.Unprocessed
             };
+
+            // Giá trị vượt ngưỡng tự nhiên của mô phỏng không phải cảnh báo: chỉ ghi nhận khi
+            // AlertInjector đang ép giá trị cho đúng node + cảm biến này.
+            if (!InjectedAlertGate.Shared.IsActive(alert))
+            {
+                _openAlertSeverities.TryRemove(sensor.SensorId, out _);
+                return;
+            }
+
+            // Mỗi lần bơm chỉ tạo một cảnh báo; mẫu đo kế tiếp cùng mức bị bỏ qua, đổi mức thì tạo mới.
+            if (_openAlertSeverities.TryGetValue(sensor.SensorId, out var openSeverity) && openSeverity == severity) return;
+            _openAlertSeverities[sensor.SensorId] = severity;
 
             if (_dispatcherQueue != null)
             {

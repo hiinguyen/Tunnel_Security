@@ -27,6 +27,7 @@ namespace Station
             _configService = new StationConfigService();
             _themeService = ThemeService.Instance;
             _idleMonitor = new SessionIdleMonitor(IdleSessionTimeout);
+            Station.Controls.AlertFlashHost.Attach(this);
 
             Title = "Trạm Nghĩa Đô - Hệ thống giám sát xâm nhập";
 
@@ -185,6 +186,9 @@ namespace Station
             {
                 element.RequestedTheme = _themeService.CurrentTheme;
             }
+
+            // Cửa sổ module cũng nháy đỏ khi có cảnh báo
+            Station.Controls.AlertFlashHost.Attach(newWindow);
 
             // Set window to maximized/fullscreen
             MaximizeWindow(newWindow);

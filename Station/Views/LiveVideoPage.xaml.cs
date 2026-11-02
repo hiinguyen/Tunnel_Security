@@ -54,14 +54,16 @@ namespace Station.Views
 
         private async void OnAlertDialogRequested(CameraStreamViewModel camera)
         {
+            var simCam = Station.Services.DataServiceLocator.Current.Cameras
+                .FirstOrDefault(c => c.CameraId == camera.CameraId);
             var alert = new Alert
             {
                 Title = camera.AlertTitle,
                 Description = camera.AlertDescription,
                 Severity = camera.AlertSeverityLevel,
                 CameraId = camera.CameraId,
-                NodeId = camera.CameraId,
-                NodeName = camera.CameraName,
+                NodeId = simCam?.NodeId ?? camera.CameraId,
+                NodeName = simCam?.NodeName ?? camera.CameraName,
                 CreatedAt = camera.AlertTime
             };
 

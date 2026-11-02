@@ -59,8 +59,6 @@ namespace Station.Views
         private enum AlertFilterPeriod { Day, Week, Month }
 
         // Alert notification badge
-        private int _pendingAlertCount = 0;
-		private List<Station.Models.Alert> _pendingAlerts = new();
 		private bool _alertDialogOpen = false;
 
         // Join request notification badge
@@ -82,7 +80,14 @@ namespace Station.Views
             UpdateThemeIcons(_themeService.CurrentTheme);
 
             // Subscribe to alert events for flash + badge
-            MockDataService.Instance.AlertGenerated += OnAlertGeneratedForUI;
+            AlertNotificationService.Instance.AlertRaised += OnAlertRaisedForUI;
+            AlertNotificationService.Instance.PendingChanged += OnPendingAlertsChanged;
+            Unloaded += (_, _) =>
+            {
+                AlertNotificationService.Instance.AlertRaised -= OnAlertRaisedForUI;
+                AlertNotificationService.Instance.PendingChanged -= OnPendingAlertsChanged;
+            };
+            OnPendingAlertsChanged(null, EventArgs.Empty);
 
             // Subscribe to device join requests for badge
             Station.Services.DataServiceLocator.Current.NewJoinRequest += OnJoinRequestForUI;
@@ -1707,113 +1712,80 @@ namespace Station.Views
 
 		#region Alert Notification (Flash + Badge)
 
-		private void OnAlertGeneratedForUI(object? sender, Station.Services.AlertGeneratedEventArgs e)
+		/// <summary>Cảnh báo mới: tô sáng node trên bản đồ và đưa camera quay vòng về node đó (nếu có trong danh sách).</summary>
+		private void OnAlertRaisedForUI(object? sender, Station.Models.Alert alert)
 		{
-			DispatcherQueue.TryEnqueue(() =>
+			if (!string.IsNullOrEmpty(alert.CameraId)
+				&& _mockForCameras.Cameras.Any(c => c.CameraId == alert.CameraId))
 			{
-				// Thêm vào hàng đợi và xếp hạng ưu tiên (Khẩn cấp lên đầu)
-				_pendingAlerts.Add(e.Alert);
-				_pendingAlerts = _pendingAlerts.OrderByDescending(a => (int)a.Severity).ToList();
-				_pendingAlertCount = _pendingAlerts.Count;
+				FocusOnCameraAlert(alert.CameraId, alert.Title);
+			}
 
-				// 1. Kích hoạt hiệu ứng UI (Badge)
-				if (e.Alert.Severity != Station.Models.AlertSeverity.Low)
+			if (_securityMapInitialized && SecurityMapWebView != null && alert.NodeId != null)
+			{
+				var payload = new
 				{
-					AlertBadgeCountText.Text = _pendingAlertCount.ToString();
-					AlertNotificationBadge.Visibility = Visibility.Visible;
-				}
+					type = "highlight-node",
+					nodeId = alert.NodeId,
+					severity = alert.Severity.ToString()
+				};
+				SecurityMapWebView.CoreWebView2.PostWebMessageAsJson(JsonSerializer.Serialize(payload));
+			}
+		}
 
-				if (!string.IsNullOrEmpty(e.Alert.CameraId))
-					FocusOnCameraAlert(e.Alert.CameraId, e.Alert.Title);
+		/// <summary>Đồng bộ badge với hàng đợi cảnh báo chờ xác nhận: một badge duy nhất kèm số lượng.</summary>
+		private void OnPendingAlertsChanged(object? sender, EventArgs e)
+		{
+			var count = AlertNotificationService.Instance.Pending.Count;
+			if (count == 0)
+			{
+				AlertNotificationBadge.Visibility = Visibility.Collapsed;
+				return;
+			}
 
-				// 2. BẮN LỆNH BẬT NHÁY XUỐNG BẢN ĐỒ
-				if (_securityMapInitialized && SecurityMapWebView != null && e.Alert.NodeId != null)
-				{
-					var payload = new
-					{
-						type = "highlight-node",
-						nodeId = e.Alert.NodeId,
-						severity = e.Alert.Severity.ToString()
-					};
-					var json = JsonSerializer.Serialize(payload);
-					SecurityMapWebView.CoreWebView2.PostWebMessageAsJson(json);
-				}
-
-				// 3. Nếu là lỗi Khẩn Cấp -> Ép bật Popup luôn
-				if (e.Alert.Severity == Station.Models.AlertSeverity.Critical)
-				{
-					RedFlashStoryboard.Begin();
-					if (!_alertDialogOpen)
-					{
-						AlertNotificationBadge_Click(null, null);
-					}
-				}
-			});
+			AlertBadgeCountText.Text = count.ToString();
+			AlertNotificationBadge.Visibility = Visibility.Visible;
 		}
 
 		private async void AlertNotificationBadge_Click(object sender, RoutedEventArgs e)
 		{
-			if (_alertDialogOpen || _pendingAlerts.Count == 0) return;
+			var service = AlertNotificationService.Instance;
+			if (_alertDialogOpen || service.Pending.Count == 0) return;
 			_alertDialogOpen = true;
 
-			RedFlashStoryboard.Stop();
-			RedFlashOverlay.Opacity = 0;
-
-			// Xử lý lần lượt từng cảnh báo trong hàng đợi
-			while (_pendingAlerts.Count > 0)
+			try
 			{
-				var currentAlert = _pendingAlerts.First();
-
-				// Mức Thấp (Low) không cần xem Popup
-				if (currentAlert.Severity == Station.Models.AlertSeverity.Low)
+				// Xem lần lượt từng cảnh báo (mức cao nhất trước), mỗi cảnh báo mở camera của node đó.
+				while (service.Pending.Count > 0)
 				{
-					_pendingAlerts.Remove(currentAlert);
-					continue;
-				}
+					var currentAlert = service.Pending[0];
 
-				var dialog = new Station.Dialogs.AlertVideoDialog(currentAlert)
-				{
-					XamlRoot = this.XamlRoot
-				};
+					var dialog = new Station.Dialogs.AlertVideoDialog(currentAlert)
+					{
+						XamlRoot = this.XamlRoot
+					};
 
-				await dialog.ShowAsync();
+					await dialog.ShowAsync();
 
-				if (dialog.WasAcknowledged)
-				{
-					// Đã bấm Xác nhận -> Xóa khỏi hàng đợi
-					_pendingAlerts.Remove(currentAlert);
+					if (!dialog.WasAcknowledged)
+					{
+						// Bấm Đóng: tạm dừng xem, cảnh báo vẫn nằm trong badge
+						break;
+					}
 
-					// BẮN LỆNH TẮT NHÁY, TRẢ VỀ XANH CHO BẢN ĐỒ
+					service.Acknowledge(currentAlert);
+
 					if (_securityMapInitialized && SecurityMapWebView != null && currentAlert.NodeId != null)
 					{
 						var payload = new { type = "restore-node", nodeId = currentAlert.NodeId };
-						var json = JsonSerializer.Serialize(payload);
-						SecurityMapWebView.CoreWebView2.PostWebMessageAsJson(json);
+						SecurityMapWebView.CoreWebView2.PostWebMessageAsJson(JsonSerializer.Serialize(payload));
 					}
 				}
-				else
-				{
-					// Bấm Hủy/Đóng -> Tạm dừng xem, để lại trong Badge
-					break;
-				}
 			}
-
-			// Tính toán lại trạng thái Badge
-			_pendingAlertCount = _pendingAlerts.Count;
-			if (_pendingAlertCount == 0)
+			finally
 			{
-				AlertNotificationBadge.Visibility = Visibility.Collapsed;
+				_alertDialogOpen = false;
 			}
-			else
-			{
-				AlertBadgeCountText.Text = _pendingAlertCount.ToString();
-				if (_pendingAlerts.Any(a => a.Severity == Station.Models.AlertSeverity.Critical))
-				{
-					RedFlashStoryboard.Begin();
-				}
-			}
-
-			_alertDialogOpen = false;
 		}
 
         #endregion

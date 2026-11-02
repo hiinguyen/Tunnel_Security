@@ -50,6 +50,7 @@ namespace Station
             // Khởi tạo data service theo DATA_SOURCE env var
             var dataService = DataServiceLocator.Initialize();
             dataService.Start();
+            AlertNotificationService.Instance.Start();
 
             // Chạy simulation API server nếu dùng mock mode
             if (dataService is MockDataService)

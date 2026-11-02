@@ -143,18 +143,23 @@
                                 <TextBlock Text="VỊ TRÍ" Style="{StaticResource DkLabelStyle}"/>
                                 <Border Background="{ThemeResource DkSurfaceBrush}"
                                         BorderBrush="{ThemeResource DkBorderBrush}"
-                                        BorderThickness="1" CornerRadius="8" MinHeight="150" Padding="16">
-                                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="6">
-                                        <TextBlock x:Name="MapLocationText"
-                                                   FontSize="{StaticResource FontSizeNormal}" FontWeight="SemiBold"
-                                                   Foreground="{ThemeResource DkTextPrimaryBrush}"
-                                                   HorizontalAlignment="Center" TextTrimming="CharacterEllipsis"/>
-                                        <TextBlock Text="Chưa có bản đồ vị trí cho node này"
-                                                   FontSize="{StaticResource FontSizeCompact}"
-                                                   Foreground="{ThemeResource DkTextMutedBrush}"
-                                                   HorizontalAlignment="Center"/>
-                                    </StackPanel>
+                                        BorderThickness="1" CornerRadius="8" Height="220">
+                                    <Grid>
+                                        <WebView2 x:Name="NodeMapWebView" DefaultBackgroundColor="Transparent"/>
+                                        <!-- Fallback khi WebView2 lỗi -->
+                                        <StackPanel x:Name="MapFallbackPanel" Visibility="Collapsed"
+                                                    VerticalAlignment="Center" HorizontalAlignment="Center" Padding="16">
+                                            <TextBlock FontSize="{StaticResource FontSizeCompact}"
+                                                       Foreground="{ThemeResource DkTextMutedBrush}"
+                                                       Text="Không tải được bản đồ vị trí"
+                                                       HorizontalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Grid>
                                 </Border>
+                                <TextBlock x:Name="MapLocationText"
+                                           FontSize="{StaticResource FontSizeCompact}"
+                                           Foreground="{ThemeResource DkTextMutedBrush}"
+                                           TextTrimming="CharacterEllipsis"/>
                             </StackPanel>
                         </Border>
                     </Grid>

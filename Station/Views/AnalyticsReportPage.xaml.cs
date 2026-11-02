@@ -273,7 +273,7 @@ namespace Station.Views
 
             foreach (var line in _mock.Lines)
             {
-                foreach (var node in line.Nodes.Take(8))
+                foreach (var node in line.Nodes)
                 {
                     var camera = _mock.Cameras.FirstOrDefault(c => c.NodeId == node.NodeId);
                     locations.Add(new LocationInfo(

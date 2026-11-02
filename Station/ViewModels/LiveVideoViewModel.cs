@@ -149,8 +149,8 @@ namespace Station.ViewModels
                 {
                     CameraId = simCam.CameraId,
                     CameraName = string.IsNullOrWhiteSpace(simCam.CameraName)
-                        ? simCam.Location
-                        : $"{simCam.CameraName} · {simCam.Location}",
+                        ? simCam.NodeName
+                        : simCam.CameraName,
                     StreamUrl = simCam.StreamUrl ?? $"{apiBaseUrl}/api/cameras/{simCam.CameraId}/stream",
                     Resolution = "320×240",
                     IrStatus = "ON",

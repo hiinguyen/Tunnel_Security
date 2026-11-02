@@ -158,6 +158,16 @@
             }
 
         /* 🟠 HIGH: Nút màu cam tự chớp nháy (không có sóng lan tỏa) */
+        /* Vòng đánh dấu node đang xem chi tiết (chế độ chỉ xem trong dialog) */
+        .focus-ring {
+            width: 28px;
+            height: 28px;
+            border: 2px solid #60A5FA;
+            border-radius: 50%;
+            box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.25);
+            pointer-events: none;
+        }
+
         .blink-high {
             width: 16px;
             height: 16px;
@@ -235,7 +245,13 @@
                 if (msg.type === "init") {
                     backendBaseUrl = msg.backend;
                     stationId = msg.station;
+                    window.mapReadOnly = !!msg.readonly;
                     initMap();
+                }
+
+                if (msg.type === "focus-node") {
+                    window.focusTarget = { nodeId: msg.nodeId, nodeName: msg.nodeName, lineName: msg.lineName };
+                    applyFocusNode(!sensorsGeoJson);
                 }
 
                 if (msg.type === "refresh-data" && mapInitialized) {
@@ -304,6 +320,24 @@
             });
         }
 
+        // Zoom vào node được yêu cầu và vẽ vòng đánh dấu. Gọi lại sau mỗi lần nạp lại dữ liệu/đổi theme.
+        function applyFocusNode(deferred) {
+            const target = window.focusTarget;
+            if (deferred || !window.map || !sensorsGeoJson || !target) return;
+            const feats = sensorsGeoJson.features;
+            // Khớp theo id; nếu id backend khác id bản đồ thì khớp theo tên + tuyến, rồi chỉ theo tên.
+            const node = feats.find(f => f.properties.id === target.nodeId)
+                || feats.find(f => f.properties.name === target.nodeName && f.properties.line === target.lineName)
+                || feats.find(f => f.properties.name === target.nodeName);
+            if (!node) return;
+            const coords = node.geometry.coordinates;
+            window.map.jumpTo({ center: coords, zoom: 16.5 });
+            if (window.focusMarker) window.focusMarker.remove();
+            const el = document.createElement('div');
+            el.className = 'focus-ring';
+            window.focusMarker = new maplibregl.Marker({ element: el }).setLngLat(coords).addTo(window.map);
+        }
+
         function initMap() {
             if (mapInitialized) return;
             mapInitialized = true;
@@ -346,6 +380,7 @@
                     setupSensorInteractions();
                     setupDraggableLogic();
                 }
+                applyFocusNode(false);
             } catch (e) {
                 console.error("Lỗi khi load dữ liệu cảm biến:", e);
                 // Dữ liệu fallback
@@ -676,6 +711,7 @@
             const canvas = map.getCanvas();
 
             map.on('mousedown', 'sensors-circle', (e) => {
+                if (window.mapReadOnly) return;
                 const features = map.queryRenderedFeatures(e.point, { layers: ['sensors-circle'] });
                 if (features.length > 0) {
                     e.preventDefault();
@@ -746,6 +782,7 @@
         function setupSensorInteractions() {
             const popupLayers = ['sensors-circle', 'station-circle'];
             map.on('click', popupLayers, async (e) => {
+                if (window.mapReadOnly) return;
                 const p = e.features[0].properties;
 
                 // Lấy tọa độ thực tế từ RAM (bộ nhớ) để tránh bị cache đồ họa
