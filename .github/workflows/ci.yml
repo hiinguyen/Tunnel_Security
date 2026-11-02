@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  dotnet:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+      # Station is WinUI 3 (Windows-only), so build projects one by one instead of the whole solution.
+      - name: Build
+        run: |
+          for p in BackendV2 LineGateway NodePublisherSim CameraPublisherSim \
+                   tests/BackendV2.Tests tests/LineGateway.Tests tests/WireProtocol.Tests; do
+            dotnet build "$p" --nologo -v q -warnaserror- || exit 1
+          done
+      - name: Test
+        run: |
+          for t in BackendV2.Tests LineGateway.Tests WireProtocol.Tests; do
+            dotnet test "tests/$t" --no-build --nologo || exit 1
+          done
+
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pytest ruff
+      - name: Lint
+        run: ruff check NodeAgent
+      - name: Test
+        working-directory: NodeAgent
+        run: python -m pytest -q

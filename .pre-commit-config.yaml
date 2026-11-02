@@ -1,0 +1,28 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: detect-private-key
+        exclude: ^BackendV2/keys/
+      - id: check-added-large-files
+        args: [--maxkb=2048]
+      - id: check-merge-conflict
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.6
+    hooks:
+      - id: ruff
+        files: ^NodeAgent/
+  - repo: local
+    hooks:
+      - id: wire-protocol-tests
+        name: WireProtocol tests
+        entry: sh -c '. "$HOME/.cache/tunnel-security-dotnet/env.sh" 2>/dev/null; dotnet test tests/WireProtocol.Tests --nologo -v q'
+        language: system
+        files: ^(WireProtocol/|tests/WireProtocol\.Tests/)
+        pass_filenames: false
+      - id: node-agent-tests
+        name: NodeAgent tests
+        entry: sh -c 'cd NodeAgent && python3 -m pytest -q'
+        language: system
+        files: ^NodeAgent/
+        pass_filenames: false
