@@ -99,11 +99,41 @@ namespace Station.Views
             ApplyCurrentUserSession();
         }
 
+        // Function-binding helpers for empty states in MonitoringDashboardPage.xaml.
+        public static Visibility VisibleWhenPositive(int count)
+            => count > 0 ? Visibility.Visible : Visibility.Collapsed;
+
+        public static Visibility VisibleWhenZero(int count)
+            => count > 0 ? Visibility.Collapsed : Visibility.Visible;
+
+        private static string BuildInitials(string name)
+        {
+            var parts = name.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
+            return parts.Length switch
+            {
+                0 => "?",
+                1 => FirstTextElements(parts[0], 2).ToUpperInvariant(),
+                _ => (FirstTextElements(parts[0], 1) + FirstTextElements(parts[^1], 1)).ToUpperInvariant()
+            };
+        }
+
+        // Take whole text elements, not UTF-16 units, so surrogate pairs are never split.
+        private static string FirstTextElements(string text, int count)
+        {
+            var enumerator = System.Globalization.StringInfo.GetTextElementEnumerator(text);
+            var sb = new System.Text.StringBuilder();
+            while (count-- > 0 && enumerator.MoveNext())
+                sb.Append((string)enumerator.Current);
+            return sb.ToString();
+        }
+
         private void ApplyCurrentUserSession()
         {
             HeaderUserNameText.Text = string.IsNullOrWhiteSpace(_currentUserSession.FullName)
                 ? (_currentUserSession.Username ?? "Tài khoản")
                 : _currentUserSession.FullName;
+
+            HeaderAvatarText.Text = BuildInitials(HeaderUserNameText.Text);
 
             HeaderRoleText.Text = string.IsNullOrWhiteSpace(_currentUserSession.RoleName)
                 ? "Phiên đăng nhập"
@@ -274,13 +304,13 @@ namespace Station.Views
                 // Get resources safely
                 var transparentBrush = new SolidColorBrush(Microsoft.UI.Colors.Transparent);
                 var whiteBrush = new SolidColorBrush(Microsoft.UI.Colors.White);
-                var secondaryBrush = Application.Current.Resources.TryGetValue("MonitoringTextSecondaryBrush", out var secBrush)
+                var secondaryBrush = Station.Services.ThemeBrushes.TryGet("MonitoringTextSecondaryBrush", out var secBrush)
                     ? (SolidColorBrush)secBrush
                     : new SolidColorBrush(Windows.UI.Color.FromArgb(255, 139, 148, 158));
-                var borderBrush = Application.Current.Resources.TryGetValue("MonitoringBorderBrush", out var brdBrush)
+                var borderBrush = Station.Services.ThemeBrushes.TryGet("MonitoringBorderBrush", out var brdBrush)
                     ? (SolidColorBrush)brdBrush
                     : new SolidColorBrush(Windows.UI.Color.FromArgb(255, 48, 54, 61));
-                var accentBrush = Application.Current.Resources.TryGetValue("MonitoringAccentButtonBrush", out var accBrush)
+                var accentBrush = Station.Services.ThemeBrushes.TryGet("MonitoringAccentButtonBrush", out var accBrush)
                     ? (SolidColorBrush)accBrush
                     : new SolidColorBrush(Windows.UI.Color.FromArgb(255, 33, 150, 243));
 
@@ -1102,7 +1132,7 @@ namespace Station.Views
 
         private Brush ResourceBrush(string key)
         {
-            return Application.Current.Resources.TryGetValue(key, out var value) && value is Brush brush
+            return Station.Services.ThemeBrushes.TryGet(key, out var value) && value is Brush brush
                 ? brush
                 : new SolidColorBrush(Windows.UI.Color.FromArgb(255, 255, 255, 255));
         }
@@ -1194,13 +1224,13 @@ namespace Station.Views
 
         private SolidColorBrush ThemeBrush(string key)
         {
-            return Application.Current.Resources[key] as SolidColorBrush
+            return Station.Services.ThemeBrushes.Get(key) as SolidColorBrush
                 ?? new SolidColorBrush(Windows.UI.Color.FromArgb(255, 45, 50, 56));
         }
 
         private Style AppStyle(string key)
         {
-            return Application.Current.Resources[key] as Style
+            return Station.Services.ThemeBrushes.Get(key) as Style
                 ?? new Style(typeof(TextBox));
         }
 
@@ -1593,7 +1623,7 @@ namespace Station.Views
             // Update rotation info
             if (_focusedCamera != null)
             {
-                CameraRotationInfo.Text = "🔴 Đang focus (Cảnh báo)";
+                CameraRotationInfo.Text = "Đang focus (Cảnh báo)";
                 NextCameraInfo.Text = "Chờ xử lý...";
             }
             else if (_isPaused)
@@ -1653,7 +1683,7 @@ namespace Station.Views
             UpdateCurrentCamera();
 
             // Show alert overlay
-            AlertMessageText.Text = $"⚠️ {alertMessage.ToUpper()}";
+            AlertMessageText.Text = alertMessage.ToUpper();
             AlertOverlay.Visibility = Visibility.Visible;
 
             Debug.WriteLine($"Camera focus: {cameraName} - {alertMessage}");

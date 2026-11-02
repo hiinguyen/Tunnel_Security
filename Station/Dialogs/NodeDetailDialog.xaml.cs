@@ -17,6 +17,7 @@ namespace Station.Dialogs
         public NodeDetailDialog(NodeItemViewModel node)
         {
             this.InitializeComponent();
+            RequestedTheme = Station.Services.ThemeService.Instance.CurrentTheme;
             _node = node;
             PopulateData();
         }
@@ -30,13 +31,12 @@ namespace Station.Dialogs
             DialogStatusBadge.Background = _node.StatusBackgroundColor;
             DialogStatusBadge.BorderBrush = _node.StatusColor;
             DialogStatusBadge.BorderThickness = new Thickness(1);
-            DialogStatusText.Text = _node.StatusText.ToUpper();
+            DialogStatusText.Text = $"{_node.StatusMarker} {_node.StatusText.ToUpper()}";
             DialogStatusText.Foreground = _node.StatusColor;
 
             // Detail list
-            DetailStatusText.Text = _node.StatusText;
+            DetailStatusText.Text = $"{_node.StatusMarker} {_node.StatusText}";
             DetailStatusText.Foreground = _node.StatusColor;
-            DetailStatusDot.Fill = _node.StatusColor;
             DetailLineText.Text = _node.LineName;
             DetailSensorCountText.Text = _node.SensorCountText;
 
@@ -50,10 +50,10 @@ namespace Station.Dialogs
             var cam = FindCamera();
             CamTimestampText.Text = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             CamIdText.Text = cam ?? $"CAM_{_node.NodeName.Replace("-", "_").Replace(" ", "_")}";
-            CamIdDetail.Text = cam ?? "—";
+            CamIdDetail.Text = cam ?? "-";
             CamStatusDetail.Text = cam != null ? "Trực tuyến" : "Không kết nối";
             if (cam == null)
-                CamStatusDetail.Foreground = new SolidColorBrush(Color.FromArgb(255, 148, 163, 184));
+                CamStatusDetail.Foreground = (Brush)Station.Services.ThemeBrushes.Get("DkGrayBrush");
         }
 
         private string? FindCamera()
@@ -64,7 +64,7 @@ namespace Station.Dialogs
             return null;
         }
 
-        // ─── Tab switching ───────────────────────────────────────────────
+        // --- Tab switching
         private void Tab_Tapped(object sender, TappedRoutedEventArgs e)
         {
             if (sender is not Border border) return;
@@ -98,14 +98,14 @@ namespace Station.Dialogs
 
         private void SetTabStyle(Border border, TextBlock text, bool active)
         {
-            var blueBrush = (SolidColorBrush)Application.Current.Resources["DkBlueBrush"];
-            var mutedBrush = (SolidColorBrush)Application.Current.Resources["DkTextMutedBrush"];
+            var blueBrush = (SolidColorBrush)Station.Services.ThemeBrushes.Get("DkBlueLightBrush");
+            var mutedBrush = (SolidColorBrush)Station.Services.ThemeBrushes.Get("DkTextMutedBrush");
 
             border.BorderBrush = active ? blueBrush : new SolidColorBrush(Colors.Transparent);
             text.Foreground = active ? blueBrush : mutedBrush;
         }
 
-        // ─── Button handlers ─────────────────────────────────────────────
+        // --- Button handlers ─────────────────────────────────────────────
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
             Hide();
@@ -121,7 +121,7 @@ namespace Station.Dialogs
                 CloseButtonText = "Hủy",
                 DefaultButton = ContentDialogButton.Close,
                 XamlRoot = this.XamlRoot,
-                RequestedTheme = ElementTheme.Dark
+                RequestedTheme = Station.Services.ThemeService.Instance.CurrentTheme
             };
             var result = await confirm.ShowAsync();
             if (result == ContentDialogResult.Primary)

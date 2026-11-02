@@ -16,6 +16,7 @@ namespace Station.Dialogs
         public SensorConfigDialog(string sensorId, string sensorName, int sensorType, double currentValue, string unit, string icon, SolidColorBrush iconBackground)
         {
             this.InitializeComponent();
+            RequestedTheme = Station.Services.ThemeService.Instance.CurrentTheme;
 
             _sensorId = sensorId;
             _sensorName = sensorName;
@@ -39,6 +40,8 @@ namespace Station.Dialogs
             // Load current configuration
             LoadConfiguration();
         }
+
+        private void HeaderClose_Click(object sender, RoutedEventArgs e) => Hide();
 
         private string GetSensorTypeName(int type)
         {

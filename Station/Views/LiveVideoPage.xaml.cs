@@ -38,6 +38,10 @@ namespace Station.Views
     {
         public LiveVideoViewModel ViewModel { get; }
 
+        /// <summary>x:Bind helper: shows an empty state when the count is zero.</summary>
+        public static Visibility ZeroToVisible(int count) =>
+            count == 0 ? Visibility.Visible : Visibility.Collapsed;
+
         public LiveVideoPage()
         {
             this.InitializeComponent();
@@ -89,7 +93,7 @@ namespace Station.Views
         // with the shared design tokens instead of duplicating raw ARGB values here —
         // same pattern as LiveVideoViewModel.ResolveBrush().
         private static SolidColorBrush ResolveBrush(string key, Windows.UI.Color fallback) =>
-            Application.Current.Resources.TryGetValue(key, out var resource) && resource is SolidColorBrush brush
+            Station.Services.ThemeBrushes.TryGet(key, out var resource) && resource is SolidColorBrush brush
                 ? brush
                 : new SolidColorBrush(fallback);
 

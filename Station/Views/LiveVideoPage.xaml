@@ -11,10 +11,9 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Background="{StaticResource BackgroundSecondaryBrush}">
+    Background="{ThemeResource DkBgBrush}">
 
     <Page.Resources>
-        <ThemeShadow x:Key="CommonShadow"/>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     </Page.Resources>
 
@@ -34,14 +33,14 @@
         <Border Grid.Row="0"
                 x:Name="AlertBanner"
                 Visibility="{x:Bind ViewModel.HasActiveAlerts, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
-                Background="{StaticResource MonitoringAlertBadgePressedBrush}" Padding="0">
+                Background="{ThemeResource MonitoringAlertBadgePressedBrush}" Padding="0">
         <!-- Inner grid: blink overlay + content stacked -->
         <Grid>
             <!-- Blink highlight: alternates between dark/bright red -->
             <Border Visibility="{x:Bind ViewModel.AlertBannerHighlight, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
-                    Background="{StaticResource LiveAlertBannerBrightBrush}"/>
+                    Background="{ThemeResource LiveAlertBannerBrightBrush}"/>
             <Border Visibility="{x:Bind ViewModel.AlertBannerHighlight, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}"
-                    Background="{StaticResource MonitoringAlertBadgePressedBrush}"/>
+                    Background="{ThemeResource MonitoringAlertBadgePressedBrush}"/>
 
             <!-- Content row -->
             <Grid Padding="16,10">
@@ -51,22 +50,18 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Left: icon + message -->
+                <!-- Left: triangle marker + message (marker + text, never color alone) -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
-                    <Border Width="32" Height="32" CornerRadius="16"
-                            Background="{StaticResource LiveAlertAccentBrush}" VerticalAlignment="Center">
-                        <FontIcon Glyph="&#xE814;" FontSize="{StaticResource FontSizeMedium}" Foreground="White"
-                                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Border>
+                    <Polygon Points="6,0 12,11 0,11" Fill="White" VerticalAlignment="Center"/>
                     <StackPanel VerticalAlignment="Center">
                         <TextBlock FontSize="{StaticResource FontSizeNormal}" FontWeight="Bold" Foreground="White">
                             <Run Text="CẢNH BÁO KHẨN CẤP"/>
-                            <Run Text=" · "/>
+                            <Run Text=" - "/>
                             <Run Text="{x:Bind ViewModel.ActiveAlertCount, Mode=OneWay}"/>
                             <Run Text=" camera phát hiện sự cố"/>
                         </TextBlock>
                         <TextBlock Text="Nhấn 'Xem ngay' để mở video và nội dung cảnh báo"
-                                   FontSize="{StaticResource FontSizeSmall}" Foreground="{StaticResource LiveAlertTextBrush}"/>
+                                   FontSize="{StaticResource FontSizeSmall}" Foreground="{ThemeResource LiveAlertTextBrush}"/>
                     </StackPanel>
                 </StackPanel>
 
@@ -74,12 +69,10 @@
                 <Button Grid.Column="2"
                         Command="{x:Bind ViewModel.ShowMostCriticalAlertCommand}"
                         VerticalAlignment="Center"
-                        Background="{StaticResource LiveAlertActionButtonBrush}" BorderThickness="0"
-                        CornerRadius="4" Height="36" Padding="16,0">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xE7EF;" FontSize="{StaticResource FontSizeNormal}" Foreground="White"/>
-                        <TextBlock Text="Xem ngay" FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold" Foreground="White"/>
-                    </StackPanel>
+                        Background="{ThemeResource LiveAlertActionButtonBrush}" BorderThickness="0"
+                        CornerRadius="8" Height="36" Padding="16,0"
+                        UseSystemFocusVisuals="True">
+                    <TextBlock Text="Xem ngay" FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold" Foreground="White"/>
                 </Button>
             </Grid>
         </Grid>
@@ -88,9 +81,9 @@
         <!-- ═══════════════════════════════════════════════════
              TOP TITLE BAR (full width, hidden while fullscreen)
              ═══════════════════════════════════════════════════ -->
-        <Border Grid.Row="1" Padding="20,10"
-                Background="{StaticResource DkBgBrush}"
-                BorderBrush="{StaticResource DkBorderBrush}" BorderThickness="0,0,0,1"
+        <Border Grid.Row="1" Padding="24,12"
+                Background="{ThemeResource DkSurfaceBrush}"
+                BorderBrush="{ThemeResource DkBorderBrush}" BorderThickness="0,0,0,1"
                 Visibility="{x:Bind ViewModel.IsCameraFocused, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -99,22 +92,24 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
-                    <TextBlock Text="GIÁM SÁT TRỰC TIẾP" FontSize="{StaticResource FontSizeNormal}" FontFamily="Consolas"
-                               FontWeight="Bold" Foreground="{StaticResource DkTextPrimaryBrush}" VerticalAlignment="Center"/>
+                    <TextBlock Text="Giám sát trực tiếp" FontSize="{StaticResource FontSizeTitle}"
+                               FontWeight="SemiBold" Foreground="{ThemeResource DkTextPrimaryBrush}" VerticalAlignment="Center"/>
 
-                    <Border Background="{StaticResource DkSurfaceBrush}" Padding="10,5"
+                    <Border Background="{ThemeResource DkInputBgBrush}"
+                            BorderBrush="{ThemeResource DkBorderBrush}" BorderThickness="1"
+                            CornerRadius="8" Padding="12,0"
                             Height="36" VerticalAlignment="Center">
-                        <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-                            <Ellipse Width="7" Height="7" Fill="{StaticResource SeverityLowBrush}" VerticalAlignment="Center"/>
-                            <TextBlock FontSize="{StaticResource FontSizeSmall}" FontFamily="Consolas" VerticalAlignment="Center">
-                                <Run Text="Hoạt động:" Foreground="{StaticResource DkTextDimBrush}"/>
-                                <Run Text="{x:Bind ViewModel.ActiveCameras, Mode=OneWay}" FontWeight="Bold" Foreground="{StaticResource DkTextPrimaryBrush}"/>
-                                <Run Text="/" Foreground="{StaticResource DkTextDimBrush}"/>
-                                <Run Text="{x:Bind ViewModel.TotalCameras, Mode=OneWay}" Foreground="{StaticResource DkTextDimBrush}"/>
+                        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                            <Ellipse Width="9" Height="9" Fill="{ThemeResource DkGreenBrush}" VerticalAlignment="Center"/>
+                            <TextBlock FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center"
+                                       Typography.NumeralAlignment="Tabular">
+                                <Run Text="Hoạt động" Foreground="{ThemeResource DkTextMutedBrush}"/>
+                                <Run Text="{x:Bind ViewModel.ActiveCameras, Mode=OneWay}" FontWeight="Bold" Foreground="{ThemeResource DkTextPrimaryBrush}"/>
+                                <Run Text="/" Foreground="{ThemeResource DkTextMutedBrush}"/>
+                                <Run Text="{x:Bind ViewModel.TotalCameras, Mode=OneWay}" Foreground="{ThemeResource DkTextMutedBrush}"/>
                             </TextBlock>
                         </StackPanel>
                     </Border>
-
                 </StackPanel>
 
                 <!-- Actions -->
@@ -124,31 +119,24 @@
                             ToolTipService.ToolTip="Thay đổi bố cục"
                             VerticalAlignment="Center">
                         <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                            <FontIcon Glyph="&#xE80A;" FontSize="{StaticResource FontSizeBody}"/>
-                            <TextBlock Text="BỐ CỤC" FontSize="{StaticResource FontSizeXSmall}" FontFamily="Consolas"/>
+                            <TextBlock Text="BỐ CỤC" Style="{StaticResource DkTagTextStyle}"
+                                       Foreground="{ThemeResource DkTextPrimaryBrush}"/>
                             <FontIcon Glyph="&#xE70D;" FontSize="{StaticResource FontSizeXSmall}" Opacity="0.6"/>
                         </StackPanel>
                         <Button.Flyout>
                             <MenuFlyout Placement="BottomEdgeAlignedRight">
-                                <MenuFlyoutItem Text="1×1 - Đơn" Command="{x:Bind ViewModel.ChangeLayoutCommand}" CommandParameter="1">
-                                    <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE8A9;"/></MenuFlyoutItem.Icon>
-                                </MenuFlyoutItem>
-                                <MenuFlyoutItem Text="2×2 - Lưới 4" Command="{x:Bind ViewModel.ChangeLayoutCommand}" CommandParameter="4">
-                                    <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE89A;"/></MenuFlyoutItem.Icon>
-                                </MenuFlyoutItem>
-                                <MenuFlyoutItem Text="3×3 - Lưới 9" Command="{x:Bind ViewModel.ChangeLayoutCommand}" CommandParameter="9">
-                                    <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE80A;"/></MenuFlyoutItem.Icon>
-                                </MenuFlyoutItem>
-                                <MenuFlyoutItem Text="4×4 - Lưới 16" Command="{x:Bind ViewModel.ChangeLayoutCommand}" CommandParameter="16">
-                                    <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE8FE;"/></MenuFlyoutItem.Icon>
-                                </MenuFlyoutItem>
+                                <MenuFlyoutItem Text="1×1 - Đơn" Command="{x:Bind ViewModel.ChangeLayoutCommand}" CommandParameter="1"/>
+                                <MenuFlyoutItem Text="2×2 - Lưới 4" Command="{x:Bind ViewModel.ChangeLayoutCommand}" CommandParameter="4"/>
+                                <MenuFlyoutItem Text="3×3 - Lưới 9" Command="{x:Bind ViewModel.ChangeLayoutCommand}" CommandParameter="9"/>
+                                <MenuFlyoutItem Text="4×4 - Lưới 16" Command="{x:Bind ViewModel.ChangeLayoutCommand}" CommandParameter="16"/>
                             </MenuFlyout>
                         </Button.Flyout>
                     </Button>
                     <Button Style="{StaticResource DkIconButtonStyle}"
                             Command="{x:Bind ViewModel.RefreshStreamsCommand}"
-                            ToolTipService.ToolTip="Làm mới">
-                        <FontIcon Glyph="&#xE72C;" FontSize="{StaticResource FontSizeNormal}" Foreground="{StaticResource DkTextMutedBrush}"/>
+                            ToolTipService.ToolTip="Làm mới"
+                            AutomationProperties.Name="Làm mới">
+                        <FontIcon Glyph="&#xE72C;" FontSize="{StaticResource FontSizeSmall}"/>
                     </Button>
                 </StackPanel>
             </Grid>
@@ -164,8 +152,8 @@
             </Grid.ColumnDefinitions>
 
             <!-- ─── Sidebar: Camera List ─── -->
-            <Border Grid.Column="0" Background="{StaticResource BackgroundPrimaryBrush}"
-                    BorderBrush="{StaticResource BorderLightBrush}" BorderThickness="0,0,1,0">
+            <Border Grid.Column="0" Background="{ThemeResource DkSurfaceBrush}"
+                    BorderBrush="{ThemeResource DkBorderBrush}" BorderThickness="0,0,1,0">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -174,7 +162,7 @@
 
                     <!-- Sidebar header (always visible) -->
                     <Grid x:Name="SidebarHeaderGrid" Grid.Row="0" Padding="16,13,10,13"
-                          BorderBrush="{StaticResource BorderLightBrush}" BorderThickness="0,0,0,1">
+                          BorderBrush="{ThemeResource DkBorderBrush}" BorderThickness="0,0,0,1">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
@@ -182,24 +170,23 @@
 
                         <StackPanel x:Name="SidebarTitlePanel" Grid.Column="0"
                                     VerticalAlignment="Center">
-                            <TextBlock Text="DANH SÁCH CAMERA" FontSize="{StaticResource FontSizeBody}" FontFamily="Consolas" FontWeight="SemiBold"
-                                       CharacterSpacing="20"
-                                       Foreground="{StaticResource TextPrimaryBrush}"/>
-                            <TextBlock Text="Kéo camera vào ô trống để xem" FontSize="{StaticResource FontSizeCompact}" FontFamily="Consolas"
-                                       Foreground="{StaticResource TextSecondaryBrush}" Margin="0,1,0,0"/>
+                            <TextBlock Text="DANH SÁCH CAMERA" Style="{StaticResource DkLabelStyle}"/>
+                            <TextBlock Text="Kéo camera vào ô trống để xem" FontSize="{StaticResource FontSizeCompact}"
+                                       Foreground="{ThemeResource DkTextMutedBrush}" Margin="0,2,0,0"/>
                         </StackPanel>
 
                         <Button x:Name="SidebarToggleButton"
                                 Grid.Column="1"
                                 Click="SidebarToggle_Click"
-                                Background="Transparent" BorderThickness="0"
-                                Width="32" Height="32" Padding="0"
+                                Style="{StaticResource DkIconButtonStyle}"
+                                Width="32" Height="32"
                                 VerticalAlignment="Center"
+                                AutomationProperties.Name="Thu gọn danh sách"
                                 ToolTipService.ToolTip="Thu gọn danh sách">
                             <FontIcon x:Name="SidebarToggleIcon"
                                       Glyph="&#xE76B;"
                                       FontSize="{StaticResource FontSizeBody}"
-                                      Foreground="{StaticResource TextSecondaryBrush}"/>
+                                      Foreground="{ThemeResource DkTextSecondaryBrush}"/>
                         </Button>
                     </Grid>
 
@@ -213,16 +200,35 @@
                         <!-- Alert summary chip -->
                         <Border Grid.Row="0"
                                 Visibility="{x:Bind ViewModel.HasActiveAlerts, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
-                                Background="{StaticResource LiveAlertChipBgBrush}" BorderBrush="{StaticResource MonitoringAlertBadgePressedBrush}" BorderThickness="0,0,0,1"
+                                Background="{ThemeResource LiveAlertChipBgBrush}" BorderBrush="{ThemeResource MonitoringAlertBadgePressedBrush}" BorderThickness="0,0,0,1"
                                 Padding="16,8">
                             <StackPanel Orientation="Horizontal" Spacing="8">
-                                <Ellipse Width="7" Height="7" Fill="{StaticResource LiveAlertAccentBrush}" VerticalAlignment="Center"/>
-                                <TextBlock FontSize="{StaticResource FontSizeSmall}" FontFamily="Consolas" Foreground="{StaticResource LiveAlertTextBrush}" VerticalAlignment="Center">
+                                <Polygon Points="4.5,0 9,8 0,8" Fill="{ThemeResource LiveAlertAccentBrush}" VerticalAlignment="Center"/>
+                                <TextBlock FontSize="{StaticResource FontSizeSmall}" Foreground="{ThemeResource LiveAlertTextBrush}" VerticalAlignment="Center">
                                     <Run Text="{x:Bind ViewModel.ActiveAlertCount, Mode=OneWay}" FontWeight="Bold"/>
                                     <Run Text=" cảnh báo đang hoạt động"/>
                                 </TextBlock>
                             </StackPanel>
                         </Border>
+
+                        <!-- Empty state: no camera registered yet -->
+                        <StackPanel Grid.Row="1" Padding="20,32" Spacing="6"
+                                    VerticalAlignment="Top" HorizontalAlignment="Center"
+                                    Visibility="{x:Bind views:LiveVideoPage.ZeroToVisible(ViewModel.TotalCameras), Mode=OneWay}">
+                            <Border Background="{ThemeResource DkInputBgBrush}"
+                                    BorderBrush="{ThemeResource DkBorderBrush}" BorderThickness="1"
+                                    CornerRadius="4" Padding="8,3" HorizontalAlignment="Center">
+                                <TextBlock Text="CAM" Style="{StaticResource DkTagTextStyle}"/>
+                            </Border>
+                            <TextBlock Text="Chưa có camera nào"
+                                       FontSize="{StaticResource FontSizeBody}"
+                                       Foreground="{ThemeResource DkTextSecondaryBrush}"
+                                       HorizontalAlignment="Center"/>
+                            <TextBlock Text="Đăng ký camera ở trang Thiết bị"
+                                       FontSize="{StaticResource FontSizeCompact}"
+                                       Foreground="{ThemeResource DkTextMutedBrush}"
+                                       HorizontalAlignment="Center"/>
+                        </StackPanel>
 
                         <!-- Camera list: each row is a drag source -->
                         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="0">
@@ -242,11 +248,11 @@
                                             </Grid.BackgroundTransition>
                                             <!-- Bottom divider -->
                                             <Rectangle Height="1" VerticalAlignment="Bottom"
-                                                       Fill="{StaticResource BorderLightBrush}" Opacity="0.22"/>
+                                                       Fill="{ThemeResource DkBorderBrush}" Opacity="0.22"/>
 
                                             <!-- Alert state row: full-tint background + leading dot + text carry the
-                                                 state (no side-stripe accent — background tint already does that job) -->
-                                            <Grid Background="{StaticResource LiveAlertRowBgBrush}"
+                                                 state (no side-stripe accent - background tint already does that job) -->
+                                            <Grid Background="{ThemeResource LiveAlertRowBgBrush}"
                                                   Visibility="{x:Bind HasAlert, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
                                                 <Grid Padding="14,10,16,10">
                                                     <Grid.ColumnDefinitions>
@@ -257,24 +263,24 @@
                                                     </Grid.ColumnDefinitions>
                                                     <StackPanel Spacing="2" VerticalAlignment="Center">
                                                         <TextBlock Text="{x:Bind CameraName}"
-                                                                   FontSize="{StaticResource FontSizeBody}" FontFamily="Consolas" FontWeight="SemiBold"
-                                                                   Foreground="{StaticResource LiveAlertCardTitleBrush}"/>
+                                                                   FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold"
+                                                                   Foreground="{ThemeResource LiveAlertCardTitleBrush}"/>
                                                         <TextBlock Text="{x:Bind AlertTitle}"
-                                                                   FontSize="{StaticResource FontSizeCompact}" FontFamily="Consolas" Foreground="{StaticResource LiveAlertTextBrush}"
+                                                                   FontSize="{StaticResource FontSizeCompact}" Foreground="{ThemeResource LiveAlertTextBrush}"
                                                                    TextTrimming="CharacterEllipsis" MaxWidth="160"/>
                                                     </StackPanel>
-                                                    <Ellipse Grid.Column="1" Width="7" Height="7"
+                                                    <Polygon Grid.Column="1" Points="4.5,0 9,8 0,8"
                                                              Fill="{x:Bind AlertSeverityBrush, Mode=OneWay}" VerticalAlignment="Center"
                                                              Opacity="{x:Bind AlertBorderOpacity, Mode=OneWay}"/>
                                                     <!-- Keyboard/non-drag equivalent of dragging this row onto a slot -->
-                                                    <Button Grid.Column="3" Style="{StaticResource IconButtonStyle}"
+                                                    <Button Grid.Column="3" Style="{StaticResource DkIconButtonStyle}"
                                                             Width="28" Height="28" Padding="6"
                                                             Command="{Binding ElementName=PageRoot, Path=ViewModel.AssignToFirstEmptySlotCommand}"
                                                             CommandParameter="{x:Bind}"
                                                             IsEnabled="{Binding ElementName=PageRoot, Path=ViewModel.HasEmptySlots, Mode=OneWay}"
                                                             ToolTipService.ToolTip="Thêm vào lưới hiển thị"
                                                             AutomationProperties.Name="Thêm vào lưới hiển thị">
-                                                        <FontIcon Glyph="&#xE710;" FontSize="{StaticResource FontSizeSmall}" Foreground="{StaticResource TextTertiaryBrush}"/>
+                                                        <FontIcon Glyph="&#xE710;" FontSize="{StaticResource FontSizeSmall}" Foreground="{ThemeResource DkTextMutedBrush}"/>
                                                     </Button>
                                                 </Grid>
                                             </Grid>
@@ -292,15 +298,19 @@
                                                     <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
 
-                                                <FontIcon Grid.Column="0" Glyph="&#xE700;" FontSize="{StaticResource FontSizeSmall}"
-                                                          Foreground="{StaticResource TextTertiaryBrush}"
-                                                          VerticalAlignment="Center"
-                                                          ToolTipService.ToolTip="Kéo để hiển thị"/>
+                                                <Border Grid.Column="0"
+                                                        Background="{ThemeResource DkInputBgBrush}"
+                                                        BorderBrush="{ThemeResource DkBorderBrush}" BorderThickness="1"
+                                                        CornerRadius="4" Padding="6,2"
+                                                        VerticalAlignment="Center"
+                                                        ToolTipService.ToolTip="Kéo để hiển thị">
+                                                    <TextBlock Text="CAM" Style="{StaticResource DkTagTextStyle}"/>
+                                                </Border>
 
                                                 <!-- Fill is transparent when offline (hollow ring vs. solid dot) so status
                                                      doesn't rely on hue alone; AutomationProperties.Name gives screen
                                                      readers the same "Online"/"Offline" signal. -->
-                                                <Ellipse Grid.Column="2" Width="8" Height="8"
+                                                <Ellipse Grid.Column="2" Width="9" Height="9"
                                                          Fill="{x:Bind StatusFillBrush, Mode=OneWay}"
                                                          Stroke="{x:Bind StatusColor, Mode=OneWay}" StrokeThickness="1.2"
                                                          VerticalAlignment="Center"
@@ -309,22 +319,22 @@
                                                 <StackPanel Grid.Column="4" Spacing="2"
                                                             VerticalAlignment="Center">
                                                     <TextBlock Text="{x:Bind CameraName}"
-                                                               FontSize="{StaticResource FontSizeBody}" FontFamily="Consolas" FontWeight="SemiBold"
-                                                               Foreground="{StaticResource TextPrimaryBrush}"/>
+                                                               FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold"
+                                                               Foreground="{ThemeResource DkTextPrimaryBrush}"/>
                                                     <TextBlock Text="{x:Bind CameraId}"
-                                                               FontSize="{StaticResource FontSizeCompact}" FontFamily="Consolas"
-                                                               Foreground="{StaticResource TextTertiaryBrush}"/>
+                                                               FontSize="{StaticResource FontSizeCompact}"
+                                                               Foreground="{ThemeResource DkTextMutedBrush}"/>
                                                 </StackPanel>
 
                                                 <!-- Keyboard/non-drag equivalent of dragging this row onto a slot -->
-                                                <Button Grid.Column="6" Style="{StaticResource IconButtonStyle}"
+                                                <Button Grid.Column="6" Style="{StaticResource DkIconButtonStyle}"
                                                         Width="28" Height="28" Padding="6"
                                                         Command="{Binding ElementName=PageRoot, Path=ViewModel.AssignToFirstEmptySlotCommand}"
                                                         CommandParameter="{x:Bind}"
                                                         IsEnabled="{Binding ElementName=PageRoot, Path=ViewModel.HasEmptySlots, Mode=OneWay}"
                                                         ToolTipService.ToolTip="Thêm vào lưới hiển thị"
                                                         AutomationProperties.Name="Thêm vào lưới hiển thị">
-                                                    <FontIcon Glyph="&#xE710;" FontSize="{StaticResource FontSizeSmall}" Foreground="{StaticResource TextTertiaryBrush}"/>
+                                                    <FontIcon Glyph="&#xE710;" FontSize="{StaticResource FontSizeSmall}" Foreground="{ThemeResource DkTextMutedBrush}"/>
                                                 </Button>
                                             </Grid>
                                         </Grid>
@@ -371,30 +381,29 @@
 
                                     <!-- ── Empty slot: dashed drop target ── -->
                                     <Grid Visibility="{x:Bind IsEmpty, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                                        <Rectangle Stroke="{StaticResource BorderLightBrush}" StrokeThickness="1.5"
-                                                   StrokeDashArray="4,3" RadiusX="6" RadiusY="6"
-                                                   Fill="{StaticResource BackgroundPrimaryBrush}" Opacity="0.6"/>
+                                        <Rectangle Stroke="{ThemeResource DkBorderHoverBrush}" StrokeThickness="1.5"
+                                                   StrokeDashArray="4,3" RadiusX="12" RadiusY="12"
+                                                   Fill="{ThemeResource DkSurfaceBrush}" Opacity="0.6"/>
                                         <!-- Highlighted while a dragged camera hovers over this slot -->
-                                        <Rectangle Stroke="{StaticResource PrimaryMediumBrush}" StrokeThickness="2"
-                                                   StrokeDashArray="4,3" RadiusX="6" RadiusY="6"
-                                                   Fill="{StaticResource PrimaryMediumBrush}"
+                                        <Rectangle Stroke="{ThemeResource DkBlueBrush}" StrokeThickness="2"
+                                                   StrokeDashArray="4,3" RadiusX="12" RadiusY="12"
+                                                   Fill="{ThemeResource DkBlueBrush}"
                                                    Opacity="{x:Bind DragHighlightOpacity, Mode=OneWay}">
                                             <Rectangle.OpacityTransition>
                                                 <ScalarTransition Duration="0:0:0.15"/>
                                             </Rectangle.OpacityTransition>
                                         </Rectangle>
                                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="10">
-                                            <Border Width="48" Height="48" CornerRadius="24"
-                                                    Background="{StaticResource BackgroundSecondaryBrush}">
-                                                <FontIcon Glyph="&#xE710;" FontSize="{StaticResource FontSizeLarge}"
-                                                          Foreground="{StaticResource TextTertiaryBrush}"
-                                                          HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            <Border Background="{ThemeResource DkInputBgBrush}"
+                                                    BorderBrush="{ThemeResource DkBorderBrush}" BorderThickness="1"
+                                                    CornerRadius="4" Padding="8,3" HorizontalAlignment="Center">
+                                                <TextBlock Text="TRỐNG" Style="{StaticResource DkTagTextStyle}"/>
                                             </Border>
                                             <TextBlock Text="Kéo camera vào đây" FontSize="{StaticResource FontSizeBody}"
-                                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                                       Foreground="{ThemeResource DkTextSecondaryBrush}"
                                                        HorizontalAlignment="Center"/>
                                             <TextBlock Text="{x:Bind SlotLabel, Mode=OneWay}" FontSize="{StaticResource FontSizeCompact}"
-                                                       Foreground="{StaticResource TextTertiaryBrush}"
+                                                       Foreground="{ThemeResource DkTextMutedBrush}"
                                                        HorizontalAlignment="Center"/>
                                         </StackPanel>
                                     </Grid>
@@ -406,9 +415,9 @@
 
                                         <!-- ── Normal card (no alert) ── -->
                                         <Border Visibility="{Binding HasAlert, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}"
-                                                Background="{StaticResource BackgroundPrimaryBrush}"
-                                                BorderBrush="{StaticResource BorderLightBrush}" BorderThickness="1"
-                                                CornerRadius="4" Shadow="{StaticResource CommonShadow}">
+                                                Background="{ThemeResource DkSurfaceBrush}"
+                                                BorderBrush="{ThemeResource DkBorderBrush}" BorderThickness="1"
+                                                CornerRadius="12">
                                             <Grid>
                                                 <Grid.RowDefinitions>
                                                     <RowDefinition Height="Auto"/>
@@ -418,29 +427,29 @@
 
                                                 <!-- Card header -->
                                                 <Grid Grid.Row="0" Padding="12,9"
-                                                      BorderBrush="{StaticResource BorderLightBrush}" BorderThickness="0,0,0,1">
+                                                      BorderBrush="{ThemeResource DkBorderBrush}" BorderThickness="0,0,0,1">
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="*"/>
                                                         <ColumnDefinition Width="Auto"/>
                                                     </Grid.ColumnDefinitions>
                                                     <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                                                        <Border Width="8" Height="8" CornerRadius="4"
+                                                        <Border Width="9" Height="9" CornerRadius="5"
                                                                 Background="{Binding StatusFillBrush, Mode=OneWay}"
-                                                                BorderBrush="{Binding StatusColor, Mode=OneWay}" BorderThickness="1.2"
+                                                                BorderBrush="{Binding StatusColor, Mode=OneWay}" BorderThickness="1.5"
                                                                 AutomationProperties.Name="{Binding StatusText, Mode=OneWay}"/>
                                                         <TextBlock Text="{Binding CameraName}"
                                                                    FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold"
-                                                                   Foreground="{StaticResource TextPrimaryBrush}"/>
+                                                                   Foreground="{ThemeResource DkTextPrimaryBrush}"/>
                                                     </StackPanel>
                                                     <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
                                                         <TextBlock Text="{Binding CameraId}"
-                                                                   FontSize="{StaticResource FontSizeCompact}" Foreground="{StaticResource TextTertiaryBrush}"
+                                                                   FontSize="{StaticResource FontSizeCompact}" Foreground="{ThemeResource DkTextMutedBrush}"
                                                                    VerticalAlignment="Center"/>
-                                                        <Button Style="{StaticResource IconButtonStyle}" Width="20" Height="20" Padding="2"
+                                                        <Button Style="{StaticResource DkIconButtonStyle}" Width="20" Height="20" Padding="2"
                                                                 Command="{Binding ElementName=PageRoot, Path=ViewModel.ClearSlotCommand}"
                                                                 CommandParameter="{x:Bind}"
                                                                 ToolTipService.ToolTip="Bỏ khỏi lưới hiển thị">
-                                                            <FontIcon Glyph="&#xE711;" FontSize="{StaticResource FontSizeXSmall}" Foreground="{StaticResource TextTertiaryBrush}"/>
+                                                            <FontIcon Glyph="&#xE711;" FontSize="{StaticResource FontSizeXSmall}" Foreground="{ThemeResource DkTextMutedBrush}"/>
                                                         </Button>
                                                     </StackPanel>
                                                 </Grid>
@@ -456,20 +465,20 @@
                                                     <StackPanel VerticalAlignment="Top" HorizontalAlignment="Right" Margin="6"
                                                                 Orientation="Horizontal" Spacing="4"
                                                                 Visibility="{Binding IsOnline, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                                                        <!-- Neutral, not red — "online" isn't an alert, and red is reserved for severity -->
-                                                        <Border Background="{StaticResource LiveVideoBadgeOverlayBrush}" CornerRadius="4" Padding="5,2">
+                                                        <!-- Neutral, not red - "online" isn't an alert, and red is reserved for severity -->
+                                                        <Border Background="{ThemeResource LiveVideoBadgeOverlayBrush}" CornerRadius="4" Padding="5,2">
                                                             <TextBlock Text="LIVE" FontSize="{StaticResource FontSizeCaption}" FontWeight="Bold" Foreground="White"/>
                                                         </Border>
-                                                        <Border Background="{StaticResource LiveVideoBadgeOverlayBrush}" CornerRadius="4" Padding="5,2"
+                                                        <Border Background="{ThemeResource LiveVideoBadgeOverlayBrush}" CornerRadius="4" Padding="5,2"
                                                                 Visibility="{Binding IsRecording, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
                                                             <StackPanel Orientation="Horizontal" Spacing="3">
-                                                                <FontIcon Glyph="&#xE7C8;" FontSize="{StaticResource FontSizeMicro}" Foreground="{StaticResource LiveAlertAccentBrush}"/>
+                                                                <Ellipse Width="7" Height="7" Fill="{ThemeResource DkRedBrush}" VerticalAlignment="Center"/>
                                                                 <TextBlock Text="REC" FontSize="{StaticResource FontSizeCaption}" FontWeight="Bold" Foreground="White"/>
                                                             </StackPanel>
                                                         </Border>
                                                     </StackPanel>
                                                     <Border VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="6"
-                                                            Background="{StaticResource LiveVideoBadgeOverlayBrush}" CornerRadius="4" Padding="5,2"
+                                                            Background="{ThemeResource LiveVideoBadgeOverlayBrush}" CornerRadius="4" Padding="5,2"
                                                             Visibility="{Binding IsOnline, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
                                                         <TextBlock Text="{Binding BitrateDisplay, Mode=OneWay}" FontSize="{StaticResource FontSizeCaption}" Foreground="White"/>
                                                     </Border>
@@ -477,66 +486,69 @@
 
                                                 <!-- Card footer -->
                                                 <Grid Grid.Row="2" Padding="10,7"
-                                                      Background="{StaticResource BackgroundSecondaryBrush}"
-                                                      CornerRadius="0,0,4,4">
+                                                      Background="{ThemeResource DkInputBgBrush}"
+                                                      BorderBrush="{ThemeResource DkBorderBrush}" BorderThickness="0,1,0,0"
+                                                      CornerRadius="0,0,11,11">
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="*"/>
                                                         <ColumnDefinition Width="Auto"/>
                                                     </Grid.ColumnDefinitions>
                                                     <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-                                                        <!-- Resolution chip — click to open selector flyout -->
-                                                        <Button Padding="4,2" Height="22" CornerRadius="4"
-                                                                Background="{StaticResource BackgroundPrimaryBrush}"
-                                                                BorderBrush="{StaticResource BorderLightBrush}" BorderThickness="1"
+                                                        <!-- Resolution chip - click to open selector flyout -->
+                                                        <Button Padding="6,2" Height="22" CornerRadius="4"
+                                                                UseSystemFocusVisuals="True"
+                                                                Background="{ThemeResource DkSurfaceBrush}"
+                                                                BorderBrush="{ThemeResource DkBorderBrush}" BorderThickness="1"
                                                                 ToolTipService.ToolTip="Chọn độ phân giải">
                                                             <StackPanel Orientation="Horizontal" Spacing="4">
                                                                 <TextBlock Text="{Binding Resolution, Mode=OneWay}" FontSize="{StaticResource FontSizeXSmall}"
-                                                                           Foreground="{StaticResource TextSecondaryBrush}" MaxWidth="70"
+                                                                           Foreground="{ThemeResource DkTextSecondaryBrush}" MaxWidth="70"
                                                                            TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
                                                                 <FontIcon Glyph="&#xE70D;" FontSize="{StaticResource FontSizeMicro}"
-                                                                          Foreground="{StaticResource TextTertiaryBrush}" VerticalAlignment="Center"/>
+                                                                          Foreground="{ThemeResource DkTextMutedBrush}" VerticalAlignment="Center"/>
                                                             </StackPanel>
                                                             <Button.Flyout>
                                                                 <MenuFlyout Placement="Top">
-                                                                    <MenuFlyoutItem Text="320×240 — SD"
+                                                                    <MenuFlyoutItem Text="320×240 - SD"
                                                                                     Command="{Binding SetResolutionCommand}"
                                                                                     CommandParameter="320×240"/>
-                                                                    <MenuFlyoutItem Text="640×480 — VGA"
+                                                                    <MenuFlyoutItem Text="640×480 - VGA"
                                                                                     Command="{Binding SetResolutionCommand}"
                                                                                     CommandParameter="640×480"/>
-                                                                    <MenuFlyoutItem Text="1280×720 — HD"
+                                                                    <MenuFlyoutItem Text="1280×720 - HD"
                                                                                     Command="{Binding SetResolutionCommand}"
                                                                                     CommandParameter="1280×720"/>
                                                                 </MenuFlyout>
                                                             </Button.Flyout>
                                                         </Button>
-                                                        <Border Background="{StaticResource BackgroundPrimaryBrush}" CornerRadius="4" Padding="4,2"
-                                                                BorderBrush="{StaticResource BorderLightBrush}" BorderThickness="1">
-                                                            <TextBlock FontSize="{StaticResource FontSizeXSmall}" Foreground="{StaticResource TextSecondaryBrush}">
+                                                        <Border Background="{ThemeResource DkSurfaceBrush}" CornerRadius="4" Padding="6,2"
+                                                                BorderBrush="{ThemeResource DkBorderBrush}" BorderThickness="1">
+                                                            <TextBlock FontSize="{StaticResource FontSizeXSmall}" Foreground="{ThemeResource DkTextSecondaryBrush}">
                                                                 <Run Text="{Binding Fps, Mode=OneWay}"/>
                                                                 <Run Text=" FPS"/>
                                                             </TextBlock>
                                                         </Border>
                                                         <!-- Local video chip: visible when a video file is loaded -->
-                                                        <Border Background="{StaticResource LiveVideoChipBgBrush}" CornerRadius="4" Padding="4,2"
-                                                                BorderBrush="{StaticResource LiveVideoChipBorderBrush}" BorderThickness="1"
+                                                        <Border Background="{ThemeResource LiveVideoChipBgBrush}" CornerRadius="4" Padding="4,2"
+                                                                BorderBrush="{ThemeResource LiveVideoChipBorderBrush}" BorderThickness="1"
                                                                 Visibility="{Binding HasLocalVideo, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
                                                             <StackPanel Orientation="Horizontal" Spacing="4">
-                                                                <FontIcon Glyph="&#xE8B2;" FontSize="{StaticResource FontSizeCaption}" Foreground="{StaticResource LiveVideoChipIconBrush}"/>
+                                                                <TextBlock Text="FILE" Style="{StaticResource DkTagTextStyle}" Foreground="{ThemeResource LiveVideoChipIconBrush}"/>
                                                                 <TextBlock Text="{Binding LocalVideoFileName, Mode=OneWay}" FontSize="{StaticResource FontSizeXSmall}"
-                                                                           Foreground="{StaticResource LiveVideoChipTextBrush}" MaxWidth="80"
+                                                                           Foreground="{ThemeResource LiveVideoChipTextBrush}" MaxWidth="80"
                                                                            TextTrimming="CharacterEllipsis"/>
-                                                                <Button Style="{StaticResource IconButtonStyle}" Width="14" Height="14" Padding="1"
+                                                                <Button Style="{StaticResource DkIconButtonStyle}" Width="14" Height="14" Padding="1"
                                                                         Click="ClearVideo_Click"
-                                                                        ToolTipService.ToolTip="Xóa video">
-                                                                    <FontIcon Glyph="&#xE711;" FontSize="{StaticResource FontSizeTiny}" Foreground="{StaticResource LiveVideoChipTextBrush}"/>
+                                                                        ToolTipService.ToolTip="Xóa video"
+                                                                        AutomationProperties.Name="Xóa video">
+                                                                    <FontIcon Glyph="&#xE711;" FontSize="{StaticResource FontSizeTiny}" Foreground="{ThemeResource LiveVideoChipTextBrush}"/>
                                                                 </Button>
                                                             </StackPanel>
                                                         </Border>
                                                     </StackPanel>
                                                     <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
                                                         <!-- Toggle stream on/off -->
-                                                        <Button Style="{StaticResource IconButtonStyle}" Width="26" Height="26" Padding="4"
+                                                        <Button Style="{StaticResource DkIconButtonStyle}" Width="26" Height="26" Padding="4"
                                                                 Command="{Binding ElementName=PageRoot, Path=ViewModel.ToggleStreamCommand}"
                                                                 CommandParameter="{Binding}"
                                                                 ToolTipService.ToolTip="{Binding StreamToggleTooltip, Mode=OneWay}">
@@ -544,24 +556,24 @@
                                                                       Foreground="{Binding StreamToggleColor, Mode=OneWay}"
                                                                       FontSize="{StaticResource FontSizeSmall}"/>
                                                         </Button>
-                                                        <Button Style="{StaticResource IconButtonStyle}" Width="26" Height="26" Padding="4"
+                                                        <Button Style="{StaticResource DkIconButtonStyle}" Width="26" Height="26" Padding="4"
                                                                 Click="ChooseVideo_Click"
                                                                 ToolTipService.ToolTip="Chọn video cục bộ">
                                                             <FontIcon Glyph="&#xE8A5;" FontSize="{StaticResource FontSizeSmall}"/>
                                                         </Button>
-                                                        <Button Style="{StaticResource IconButtonStyle}" Width="26" Height="26" Padding="4"
+                                                        <Button Style="{StaticResource DkIconButtonStyle}" Width="26" Height="26" Padding="4"
                                                                 Command="{Binding ElementName=PageRoot, Path=ViewModel.ToggleRecordingCommand}"
                                                                 CommandParameter="{Binding}" ToolTipService.ToolTip="Ghi hình">
                                                             <FontIcon Glyph="{Binding RecordingIcon, Mode=OneWay}"
                                                                       Foreground="{Binding RecordingColor, Mode=OneWay}" FontSize="{StaticResource FontSizeSmall}"/>
                                                         </Button>
-                                                        <Button Style="{StaticResource IconButtonStyle}" Width="26" Height="26" Padding="4"
+                                                        <Button Style="{StaticResource DkIconButtonStyle}" Width="26" Height="26" Padding="4"
                                                                 Command="{Binding ElementName=PageRoot, Path=ViewModel.TakeSnapshotCommand}"
                                                                 CommandParameter="{Binding}" ToolTipService.ToolTip="Chụp ảnh">
                                                             <FontIcon Glyph="&#xE722;" FontSize="{StaticResource FontSizeSmall}"/>
                                                         </Button>
                                                         <!-- Fullscreen / expand camera -->
-                                                        <Button Style="{StaticResource IconButtonStyle}" Width="26" Height="26" Padding="4"
+                                                        <Button Style="{StaticResource DkIconButtonStyle}" Width="26" Height="26" Padding="4"
                                                                 Command="{Binding ElementName=PageRoot, Path=ViewModel.FocusCameraCommand}"
                                                                 CommandParameter="{Binding}"
                                                                 ToolTipService.ToolTip="Phóng to">
@@ -574,8 +586,8 @@
 
                                         <!-- ── ALERT CARD (blinks red border) ── -->
                                         <Border Visibility="{Binding HasAlert, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
-                                                Background="{StaticResource LiveAlertCardBgBrush}"
-                                                CornerRadius="4" Shadow="{StaticResource CommonShadow}"
+                                                Background="{ThemeResource LiveAlertCardBgBrush}"
+                                                CornerRadius="12"
                                                 BorderThickness="2">
                                             <Border.BorderBrush>
                                                 <SolidColorBrush Color="{Binding AlertSeverityColor, Mode=OneWay}"
@@ -589,16 +601,16 @@
                                                 </Grid.RowDefinitions>
 
                                                 <!-- Alert card header -->
-                                                <Grid Grid.Row="0" Padding="12,9" Background="{StaticResource LiveAlertCardHeaderBgBrush}"
-                                                      CornerRadius="3,3,0,0">
+                                                <Grid Grid.Row="0" Padding="12,9" Background="{ThemeResource LiveAlertCardHeaderBgBrush}"
+                                                      CornerRadius="10,10,0,0">
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="*"/>
                                                         <ColumnDefinition Width="Auto"/>
                                                     </Grid.ColumnDefinitions>
                                                     <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                                                        <Ellipse Width="8" Height="8" Fill="{Binding AlertSeverityBrush, Mode=OneWay}" VerticalAlignment="Center"/>
+                                                        <Polygon Points="4.5,0 9,8 0,8" Fill="{Binding AlertSeverityBrush, Mode=OneWay}" VerticalAlignment="Center"/>
                                                         <TextBlock Text="{Binding CameraName}"
-                                                                   FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold" Foreground="{StaticResource LiveAlertCardTitleBrush}"/>
+                                                                   FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold" Foreground="{ThemeResource LiveAlertCardTitleBrush}"/>
                                                     </StackPanel>
                                                     <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
                                                         <Border Background="{Binding AlertSeverityBrush, Mode=OneWay}"
@@ -607,11 +619,11 @@
                                                                        FontSize="{StaticResource FontSizeXSmall}" FontWeight="Bold" Foreground="White"
                                                                        CharacterSpacing="60"/>
                                                         </Border>
-                                                        <Button Style="{StaticResource IconButtonStyle}" Width="20" Height="20" Padding="2"
+                                                        <Button Style="{StaticResource DkIconButtonStyle}" Width="20" Height="20" Padding="2"
                                                                 Command="{Binding ElementName=PageRoot, Path=ViewModel.ClearSlotCommand}"
                                                                 CommandParameter="{x:Bind}"
                                                                 ToolTipService.ToolTip="Bỏ khỏi lưới hiển thị">
-                                                            <FontIcon Glyph="&#xE711;" FontSize="{StaticResource FontSizeXSmall}" Foreground="{StaticResource LiveAlertTextBrush}"/>
+                                                            <FontIcon Glyph="&#xE711;" FontSize="{StaticResource FontSizeXSmall}" Foreground="{ThemeResource LiveAlertTextBrush}"/>
                                                         </Button>
                                                     </StackPanel>
                                                 </Grid>
@@ -619,34 +631,32 @@
                                                 <!-- Alert video area with overlay: border pulse + badges + icon + title
                                                      already carry the alert unmistakably, so this stays a plain dark
                                                      backdrop rather than adding a decorative texture on top -->
-                                                <Grid Grid.Row="1" Background="{StaticResource LiveAlertCardVideoBgBrush}">
+                                                <Grid Grid.Row="1" Background="{ThemeResource LiveAlertCardVideoBgBrush}">
                                                     <!-- LIVE badge -->
                                                     <StackPanel VerticalAlignment="Top" HorizontalAlignment="Right" Margin="6"
                                                                 Orientation="Horizontal" Spacing="4">
-                                                        <Border Background="{StaticResource LiveAlertBadgeStrongOverlayBrush}" CornerRadius="4" Padding="5,2">
+                                                        <Border Background="{ThemeResource LiveAlertBadgeStrongOverlayBrush}" CornerRadius="4" Padding="5,2">
                                                             <TextBlock Text="LIVE" FontSize="{StaticResource FontSizeCaption}" FontWeight="Bold" Foreground="White"/>
                                                         </Border>
-                                                        <!-- This one stays red — it's the actual severity signal, not a status label -->
-                                                        <Border Background="{StaticResource LiveAlertBadgeBgBrush}" BorderBrush="{StaticResource LiveAlertAccentBrush}" BorderThickness="1"
+                                                        <!-- This one stays red - it's the actual severity signal, not a status label -->
+                                                        <Border Background="{ThemeResource LiveAlertBadgeBgBrush}" BorderBrush="{ThemeResource LiveAlertAccentBrush}" BorderThickness="1"
                                                                 CornerRadius="4" Padding="5,2">
-                                                            <TextBlock Text="ALERT" FontSize="{StaticResource FontSizeCaption}" FontWeight="Bold" Foreground="{StaticResource LiveAlertTextBrush}"/>
+                                                            <TextBlock Text="ALERT" FontSize="{StaticResource FontSizeCaption}" FontWeight="Bold" Foreground="{ThemeResource LiveAlertTextBrush}"/>
                                                         </Border>
                                                     </StackPanel>
 
                                                     <!-- Alert title overlay (center) -->
                                                     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
                                                                 Margin="8" Spacing="4">
-                                                        <FontIcon Glyph="&#xE814;" FontSize="{StaticResource FontSizeXLarge}" Foreground="{Binding AlertSeverityBrush, Mode=OneWay}"
-                                                                  HorizontalAlignment="Center" Opacity="0.7"/>
                                                         <TextBlock Text="{Binding AlertTitle}"
                                                                    FontSize="{StaticResource FontSizeCompact}" FontWeight="SemiBold"
-                                                                   Foreground="{StaticResource LiveAlertTextBrush}" TextAlignment="Center"
+                                                                   Foreground="{ThemeResource LiveAlertTextBrush}" TextAlignment="Center"
                                                                    TextWrapping="Wrap" MaxWidth="180" Opacity="0.9"/>
                                                     </StackPanel>
                                                 </Grid>
 
                                                 <!-- Alert card footer: action button -->
-                                                <Border Grid.Row="2" Background="{StaticResource LiveAlertCardHeaderBgBrush}" Padding="10,8" CornerRadius="0,0,3,3">
+                                                <Border Grid.Row="2" Background="{ThemeResource LiveAlertCardHeaderBgBrush}" Padding="10,8" CornerRadius="0,0,10,10">
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="*"/>
@@ -654,21 +664,19 @@
                                                         </Grid.ColumnDefinitions>
                                                         <StackPanel Grid.Column="0" VerticalAlignment="Center" Spacing="1">
                                                             <TextBlock Text="{Binding AlertLocation}"
-                                                                       FontSize="{StaticResource FontSizeXSmall}" Foreground="{StaticResource LiveAlertLocationTextBrush}"
+                                                                       FontSize="{StaticResource FontSizeXSmall}" Foreground="{ThemeResource LiveAlertLocationTextBrush}"
                                                                        TextTrimming="CharacterEllipsis" MaxWidth="130"/>
                                                             <TextBlock Text="{Binding AlertTimeDisplay}"
-                                                                       FontSize="{StaticResource FontSizeXSmall}" Foreground="{StaticResource DkTextDimBrush}"/>
+                                                                       FontSize="{StaticResource FontSizeXSmall}" Foreground="{ThemeResource DkTextDimBrush}"/>
                                                         </StackPanel>
                                                         <!-- "Xem cảnh báo" button triggers dialog -->
                                                         <Button Grid.Column="1"
                                                                 Command="{Binding ElementName=PageRoot, Path=ViewModel.ShowAlertVideoCommand}"
                                                                 CommandParameter="{Binding}"
-                                                                Background="{StaticResource LiveAlertActionButtonBrush}" BorderThickness="0"
-                                                                CornerRadius="6" Height="30" Padding="10,0">
-                                                            <StackPanel Orientation="Horizontal" Spacing="6">
-                                                                <FontIcon Glyph="&#xE7EF;" FontSize="{StaticResource FontSizeSmall}" Foreground="White"/>
-                                                                <TextBlock Text="Xem" FontSize="{StaticResource FontSizeCompact}" FontWeight="SemiBold" Foreground="White"/>
-                                                            </StackPanel>
+                                                                Background="{ThemeResource LiveAlertActionButtonBrush}" BorderThickness="0"
+                                                                CornerRadius="8" Height="30" Padding="14,0"
+                                                                UseSystemFocusVisuals="True">
+                                                            <TextBlock Text="Xem cảnh báo" FontSize="{StaticResource FontSizeCompact}" FontWeight="SemiBold" Foreground="White"/>
                                                         </Button>
                                                     </Grid>
                                                 </Border>
@@ -692,8 +700,8 @@
                                       PointerExited="ResizeGrip_PointerExited"
                                       IsTabStop="True" KeyDown="RightGrip_KeyDown"
                                       ToolTipService.ToolTip="Kéo hoặc dùng phím mũi tên trái/phải để mở rộng, thu nhỏ theo chiều ngang"
-                                      AutomationProperties.Name="Mở rộng, thu nhỏ theo chiều ngang — dùng phím mũi tên trái/phải">
-                                    <Rectangle Width="3" Fill="{StaticResource PrimaryMediumBrush}" Opacity="0.5"
+                                      AutomationProperties.Name="Mở rộng, thu nhỏ theo chiều ngang - dùng phím mũi tên trái/phải">
+                                    <Rectangle Width="3" Fill="{ThemeResource DkBlueBrush}" Opacity="0.5"
                                                RadiusX="1.5" RadiusY="1.5"
                                                HorizontalAlignment="Center" VerticalAlignment="Stretch" Margin="0,24,0,24">
                                         <Rectangle.OpacityTransition>
@@ -712,8 +720,8 @@
                                       PointerExited="ResizeGrip_PointerExited"
                                       IsTabStop="True" KeyDown="BottomGrip_KeyDown"
                                       ToolTipService.ToolTip="Kéo hoặc dùng phím mũi tên lên/xuống để mở rộng, thu nhỏ theo chiều dọc"
-                                      AutomationProperties.Name="Mở rộng, thu nhỏ theo chiều dọc — dùng phím mũi tên lên/xuống">
-                                    <Rectangle Height="3" Fill="{StaticResource PrimaryMediumBrush}" Opacity="0.5"
+                                      AutomationProperties.Name="Mở rộng, thu nhỏ theo chiều dọc - dùng phím mũi tên lên/xuống">
+                                    <Rectangle Height="3" Fill="{ThemeResource DkBlueBrush}" Opacity="0.5"
                                                RadiusX="1.5" RadiusY="1.5"
                                                VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="24,0,24,0">
                                         <Rectangle.OpacityTransition>
@@ -743,22 +751,22 @@
 
                     <!-- Top floating bar: camera name + LIVE badge -->
                     <Border VerticalAlignment="Top" HorizontalAlignment="Stretch"
-                            Background="{StaticResource LiveAlertBadgeStrongOverlayBrush}" Padding="20,12">
+                            Background="{ThemeResource LiveAlertBadgeStrongOverlayBrush}" Padding="20,12">
                         <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
-                            <Border Background="{StaticResource LiveAlertBadgeStrongOverlayBrush}" CornerRadius="3" Padding="6,2"
+                            <Border Background="{ThemeResource LiveAlertBadgeStrongOverlayBrush}" CornerRadius="4" Padding="6,2"
                                     Visibility="{x:Bind ViewModel.FocusedCamera.IsOnline, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
                                 <TextBlock Text="LIVE" FontSize="{StaticResource FontSizeXSmall}" FontWeight="Bold" Foreground="White"/>
                             </Border>
                             <TextBlock Text="{x:Bind ViewModel.FocusedCamera.CameraName, Mode=OneWay}"
                                        FontSize="{StaticResource FontSizeNormal}" FontWeight="SemiBold" Foreground="White"/>
                             <TextBlock Text="{x:Bind ViewModel.FocusedCamera.CameraId, Mode=OneWay}"
-                                       FontSize="{StaticResource FontSizeCompact}" Foreground="{StaticResource FullscreenCameraIdTextBrush}" VerticalAlignment="Center"/>
+                                       FontSize="{StaticResource FontSizeCompact}" Foreground="{ThemeResource FullscreenCameraIdTextBrush}" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Border>
 
                     <!-- Bottom floating bar: resolution + exit-fullscreen toggle button -->
                     <Border VerticalAlignment="Bottom" HorizontalAlignment="Stretch"
-                            Background="{StaticResource LiveAlertBadgeStrongOverlayBrush}" Padding="16,10">
+                            Background="{ThemeResource LiveAlertBadgeStrongOverlayBrush}" Padding="16,10">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
@@ -767,42 +775,46 @@
                             </Grid.ColumnDefinitions>
 
                             <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-                                <TextBlock Text="Độ phân giải:" FontSize="{StaticResource FontSizeCompact}" Foreground="{StaticResource FullscreenLabelTextBrush}"
+                                <TextBlock Text="Độ phân giải" FontSize="{StaticResource FontSizeCompact}" Foreground="{ThemeResource FullscreenLabelTextBrush}"
                                            VerticalAlignment="Center" Margin="0,0,4,0"/>
                                 <Button x:Name="FsRes320" Click="FullscreenResolution_Click" Tag="320×240"
-                                        Background="{StaticResource FullscreenButtonBgBrush}" BorderThickness="0"
-                                        CornerRadius="4" Height="28" Padding="10,0">
+                                        Background="{ThemeResource FullscreenButtonBgBrush}" BorderThickness="0"
+                                        CornerRadius="8" Height="28" Padding="12,0"
+                                        UseSystemFocusVisuals="True">
                                     <TextBlock Text="SD" FontSize="{StaticResource FontSizeCompact}" Foreground="White"/>
                                 </Button>
                                 <Button x:Name="FsRes640" Click="FullscreenResolution_Click" Tag="640×480"
-                                        Background="{StaticResource FullscreenButtonBgBrush}" BorderThickness="0"
-                                        CornerRadius="4" Height="28" Padding="10,0">
+                                        Background="{ThemeResource FullscreenButtonBgBrush}" BorderThickness="0"
+                                        CornerRadius="8" Height="28" Padding="12,0"
+                                        UseSystemFocusVisuals="True">
                                     <TextBlock Text="VGA" FontSize="{StaticResource FontSizeCompact}" Foreground="White"/>
                                 </Button>
                                 <Button x:Name="FsRes1280" Click="FullscreenResolution_Click" Tag="1280×720"
-                                        Background="{StaticResource FullscreenButtonBgBrush}" BorderThickness="0"
-                                        CornerRadius="4" Height="28" Padding="10,0">
+                                        Background="{ThemeResource FullscreenButtonBgBrush}" BorderThickness="0"
+                                        CornerRadius="8" Height="28" Padding="12,0"
+                                        UseSystemFocusVisuals="True">
                                     <TextBlock Text="HD" FontSize="{StaticResource FontSizeCompact}" Foreground="White"/>
                                 </Button>
                             </StackPanel>
 
                             <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <TextBlock FontSize="{StaticResource FontSizeCompact}" Foreground="{StaticResource FullscreenInfoTextBrush}">
+                                <TextBlock FontSize="{StaticResource FontSizeCompact}" Foreground="{ThemeResource FullscreenInfoTextBrush}">
                                     <Run Text="{x:Bind ViewModel.FocusedCamera.Resolution, Mode=OneWay}"/>
-                                    <Run Text=" · "/>
+                                    <Run Text=" - "/>
                                     <Run Text="{x:Bind ViewModel.FocusedCamera.Fps, Mode=OneWay}"/>
-                                    <Run Text=" FPS · "/>
+                                    <Run Text=" FPS - "/>
                                     <Run Text="{x:Bind ViewModel.FocusedCamera.BitrateDisplay, Mode=OneWay}"/>
                                 </TextBlock>
                             </StackPanel>
 
-                            <!-- Exit fullscreen — paired with the ⛶ expand button on each card -->
+                            <!-- Exit fullscreen - paired with the ⛶ expand button on each card -->
                             <Button Grid.Column="2"
                                     Command="{x:Bind ViewModel.ExitFocusCommand}"
-                                    Background="Transparent" BorderThickness="0"
-                                    Width="36" Height="36" Padding="0"
+                                    Style="{StaticResource DkIconButtonStyle}"
+                                    Width="36" Height="36"
+                                    AutomationProperties.Name="Thu nhỏ"
                                     ToolTipService.ToolTip="Thu nhỏ">
-                                <FontIcon Glyph="&#xE73F;" FontSize="{StaticResource FontSizeMedium}" Foreground="White"/>
+                                <FontIcon Glyph="&#xE73F;" FontSize="{StaticResource FontSizeBody}" Foreground="White"/>
                             </Button>
                         </Grid>
                     </Border>

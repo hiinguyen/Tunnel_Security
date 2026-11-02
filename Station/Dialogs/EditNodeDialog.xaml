@@ -3,68 +3,86 @@
     x:Class="Station.Dialogs.EditNodeDialog"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Title="Chỉnh sửa Node"
+    Title="Chỉnh sửa node"
     PrimaryButtonText="Lưu thay đổi"
     CloseButtonText="Hủy"
+    PrimaryButtonStyle="{StaticResource DkPrimaryButtonStyle}"
+    CloseButtonStyle="{StaticResource DkSecondaryButtonStyle}"
     DefaultButton="Primary"
-    RequestedTheme="Dark"
-    Background="{StaticResource MonitoringPanelBackgroundBrush}"
-    BorderBrush="{StaticResource MonitoringBorderBrush}"
-    CornerRadius="8"
+    
+    Background="{ThemeResource DkSurfaceBrush}"
+    BorderBrush="{ThemeResource DkBorderBrush}"
+    BorderThickness="1"
+    CornerRadius="12"
     Padding="24">
 
     <ContentDialog.Resources>
-        <Style x:Key="EditFieldTextBoxStyle" TargetType="TextBox">
-            <Setter Property="Background" Value="{StaticResource MonitoringBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{StaticResource MonitoringTextPrimaryBrush}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource MonitoringBorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="4"/>
+        <Style x:Key="DlgTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource DkSearchBoxStyle}">
             <Setter Property="Padding" Value="12,8"/>
-            <Setter Property="Height" Value="36"/>
-            <Setter Property="FontSize" Value="13"/>
+        </Style>
+        <Style x:Key="DlgFieldLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource FontSizeSmall}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{ThemeResource DkTextSecondaryBrush}"/>
+            <Setter Property="Margin" Value="0,0,0,6"/>
         </Style>
     </ContentDialog.Resources>
 
-    <ScrollViewer MaxHeight="480" VerticalScrollBarVisibility="Auto" Width="400">
-        <StackPanel Spacing="16" Margin="0,12,0,0">
+    <ContentDialog.TitleTemplate>
+        <DataTemplate>
+            <Grid Margin="0,0,0,16" Width="400">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Spacing="2" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding}"
+                               FontSize="{StaticResource FontSizeTitle}" FontWeight="SemiBold"
+                               Foreground="{ThemeResource DkTextPrimaryBrush}"/>
+                    <TextBlock Text="Cập nhật tên, tuyến và vị trí của node"
+                               FontSize="{StaticResource FontSizeCompact}"
+                               Foreground="{ThemeResource DkTextMutedBrush}"/>
+                </StackPanel>
+                <Button Grid.Column="1" Style="{StaticResource DkIconButtonStyle}"
+                        Click="HeaderClose_Click"
+                        ToolTipService.ToolTip="Đóng" AutomationProperties.Name="Đóng">
+                    <FontIcon Glyph="&#xE711;" FontSize="{StaticResource FontSizeSmall}"/>
+                </Button>
+            </Grid>
+        </DataTemplate>
+    </ContentDialog.TitleTemplate>
 
-            <!-- Validation Error Banner -->
+    <ScrollViewer MaxHeight="480" VerticalScrollBarVisibility="Auto" Width="400">
+        <StackPanel Spacing="16">
+
+            <!-- Validation banner: full border + tint, marker + text. Warning tone, not critical red. -->
             <Border x:Name="ErrorBanner"
-                    Background="#3F1111"
-                    BorderBrush="#EF4444"
+                    Background="{ThemeResource DkYellowBgBrush}"
+                    BorderBrush="{ThemeResource DkYellowBrush}"
                     BorderThickness="1"
                     CornerRadius="4"
                     Padding="12,8"
                     Visibility="Collapsed">
                 <StackPanel Orientation="Horizontal" Spacing="8">
-                    <FontIcon Glyph="&#xE783;" FontSize="14" Foreground="#EF4444" VerticalAlignment="Center"/>
-                    <TextBlock x:Name="ErrorText" FontSize="12" Foreground="#EF4444"
+                    <TextBlock Text="&#x25B2;" FontSize="{StaticResource FontSizeCaption}"
+                               Foreground="{ThemeResource DkYellowBrush}" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="ErrorText" FontSize="{StaticResource FontSizeSmall}"
+                               Foreground="{ThemeResource DkYellowBrush}"
                                VerticalAlignment="Center" TextWrapping="Wrap"/>
                 </StackPanel>
             </Border>
 
-            <!-- Node Name -->
             <StackPanel>
-                <TextBlock Text="Tên Node *"
-                           FontWeight="SemiBold"
-                           FontSize="13"
-                           Foreground="{StaticResource MonitoringTextPrimaryBrush}"
-                           Margin="0,0,0,6"/>
+                <TextBlock Text="Tên node *" Style="{StaticResource DlgFieldLabelStyle}"/>
                 <TextBox x:Name="NodeNameTextBox"
                          PlaceholderText="Ví dụ: N1, Node-01..."
-                         Style="{StaticResource EditFieldTextBoxStyle}"/>
+                         Style="{StaticResource DlgTextBoxStyle}"/>
             </StackPanel>
 
-            <!-- Line Selection -->
             <StackPanel>
-                <TextBlock Text="Tuyến *"
-                           FontWeight="SemiBold"
-                           FontSize="13"
-                           Foreground="{StaticResource MonitoringTextPrimaryBrush}"
-                           Margin="0,0,0,6"/>
+                <TextBlock Text="Tuyến *" Style="{StaticResource DlgFieldLabelStyle}"/>
                 <ComboBox x:Name="LineComboBox"
-                          HorizontalAlignment="Stretch"
+                          Style="{StaticResource DkComboBoxStyle}"
                           PlaceholderText="Chọn tuyến">
                     <ComboBoxItem Content="Tuyến A1"/>
                     <ComboBoxItem Content="Tuyến A2"/>
@@ -72,33 +90,23 @@
                 </ComboBox>
             </StackPanel>
 
-            <!-- Location -->
             <StackPanel>
-                <TextBlock Text="Vị trí *"
-                           FontWeight="SemiBold"
-                           FontSize="13"
-                           Foreground="{StaticResource MonitoringTextPrimaryBrush}"
-                           Margin="0,0,0,6"/>
+                <TextBlock Text="Vị trí *" Style="{StaticResource DlgFieldLabelStyle}"/>
                 <TextBox x:Name="LocationTextBox"
                          PlaceholderText="Ví dụ: R1, Khu vực 1..."
-                         Style="{StaticResource EditFieldTextBoxStyle}"/>
+                         Style="{StaticResource DlgTextBoxStyle}"/>
             </StackPanel>
 
-            <!-- Sensor count info -->
-            <Border Background="{StaticResource MonitoringBackgroundBrush}"
-                    BorderBrush="{StaticResource MonitoringBorderBrush}"
+            <!-- Sensor count note -->
+            <Border Background="{ThemeResource DkInputBgBrush}"
+                    BorderBrush="{ThemeResource DkBorderBrush}"
                     BorderThickness="1"
-                    CornerRadius="4"
+                    CornerRadius="8"
                     Padding="12,8">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <FontIcon Glyph="&#xE957;" FontSize="14"
-                              Foreground="{StaticResource MonitoringTextSecondaryBrush}"
-                              VerticalAlignment="Center"/>
-                    <TextBlock x:Name="SensorCountInfoText"
-                               FontSize="12"
-                               Foreground="{StaticResource MonitoringTextSecondaryBrush}"
-                               VerticalAlignment="Center"/>
-                </StackPanel>
+                <TextBlock x:Name="SensorCountInfoText"
+                           FontSize="{StaticResource FontSizeSmall}"
+                           Foreground="{ThemeResource DkTextSecondaryBrush}"
+                           TextWrapping="Wrap"/>
             </Border>
 
         </StackPanel>

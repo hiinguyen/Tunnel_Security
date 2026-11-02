@@ -29,7 +29,7 @@ namespace Station.Converters
                 return new SolidColorBrush(Windows.UI.Color.FromArgb(0, 0, 0, 0));
             }
 
-            if (Application.Current.Resources.TryGetValue(targetKey, out object resource))
+            if (Station.Services.ThemeBrushes.TryGet(targetKey, out object resource))
             {
                 return resource;
             }
@@ -75,7 +75,7 @@ namespace Station.Converters
 
             string targetKey = isTrue ? trueKey : falseKey;
 
-            if (Application.Current.Resources.TryGetValue(targetKey, out object resource))
+            if (Station.Services.ThemeBrushes.TryGet(targetKey, out object resource))
             {
                 return resource;
             }
@@ -116,7 +116,7 @@ namespace Station.Converters
                 return new SolidColorBrush(Windows.UI.Color.FromArgb(0, 0, 0, 0));
             }
 
-            if (Application.Current.Resources.TryGetValue(targetKey, out object resource))
+            if (Station.Services.ThemeBrushes.TryGet(targetKey, out object resource))
             {
                 return resource;
             }

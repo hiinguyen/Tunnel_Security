@@ -1,3 +1,4 @@
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Station.ViewModels;
 
@@ -10,7 +11,10 @@ namespace Station.Dialogs
         public SensorDetailDialog(SensorItemViewModel sensor)
         {
             this.InitializeComponent();
+            RequestedTheme = Station.Services.ThemeService.Instance.CurrentTheme;
             Sensor = sensor;
         }
+
+        private void HeaderClose_Click(object sender, RoutedEventArgs e) => Hide();
     }
 }

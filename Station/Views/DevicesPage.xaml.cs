@@ -17,6 +17,32 @@ namespace Station.Views
             ViewModel = new DevicesViewModel();
             this.DataContext = ViewModel;
             SetActiveTab(isJoinRequestsTab: false);
+            UpdateStatusButtonStyles(StatusAllBtn);
+        }
+
+        /// <summary>
+        /// Amber only while there is something to act on; a zero count stays muted so the
+        /// severity color keeps its meaning.
+        /// </summary>
+        public static Brush FaultCountBrush(int count)
+            => (Brush)Station.Services.ThemeBrushes.Get(count > 0 ? "DkYellowBrush" : "DkTextMutedBrush");
+
+        private static void ApplySegmentState(Button button, bool isActive)
+        {
+            if (isActive)
+            {
+                button.Background = (Brush)Station.Services.ThemeBrushes.Get("DkBlueBgBrush");
+                button.Foreground = (Brush)Station.Services.ThemeBrushes.Get("DkBlueLightBrush");
+                button.BorderBrush = (Brush)Station.Services.ThemeBrushes.Get("DkBlueBorderBrush");
+                button.FontWeight = Microsoft.UI.Text.FontWeights.SemiBold;
+            }
+            else
+            {
+                button.Background = new SolidColorBrush(Microsoft.UI.Colors.Transparent);
+                button.Foreground = (Brush)Station.Services.ThemeBrushes.Get("DkTextSecondaryBrush");
+                button.BorderBrush = new SolidColorBrush(Microsoft.UI.Colors.Transparent);
+                button.FontWeight = Microsoft.UI.Text.FontWeights.Normal;
+            }
         }
 
         private void DevicesTabBtn_Click(object sender, RoutedEventArgs e)
@@ -27,18 +53,11 @@ namespace Station.Views
 
         private void SetActiveTab(bool isJoinRequestsTab)
         {
-            var activeBg   = (SolidColorBrush)Application.Current.Resources["DkBlueBgBrush"];
-            var activeFg   = (SolidColorBrush)Application.Current.Resources["DkBlueBrush"];
-            var inactiveBg = new SolidColorBrush(Microsoft.UI.Colors.Transparent);
-            var inactiveFg = (SolidColorBrush)Application.Current.Resources["DkTextSecondaryBrush"];
+            ApplySegmentState(DevicesTabBtn, !isJoinRequestsTab);
+            ApplySegmentState(JoinRequestsTabBtn, isJoinRequestsTab);
 
             if (isJoinRequestsTab)
             {
-                JoinRequestsTabBtn.Background = activeBg;
-                JoinRequestsTabBtn.Foreground = activeFg;
-                DevicesTabBtn.Background = inactiveBg;
-                DevicesTabBtn.Foreground = inactiveFg;
-
                 StatsPanel.Visibility = Visibility.Collapsed;
                 DeviceFilterPanel.Visibility = Visibility.Collapsed;
                 DeviceTabContent.Visibility = Visibility.Collapsed;
@@ -46,11 +65,6 @@ namespace Station.Views
             }
             else
             {
-                DevicesTabBtn.Background = activeBg;
-                DevicesTabBtn.Foreground = activeFg;
-                JoinRequestsTabBtn.Background = inactiveBg;
-                JoinRequestsTabBtn.Foreground = inactiveFg;
-
                 StatsPanel.Visibility = Visibility.Visible;
                 DeviceFilterPanel.Visibility = Visibility.Visible;
                 DeviceTabContent.Visibility = Visibility.Visible;
@@ -102,18 +116,7 @@ namespace Station.Views
             var allBtns = new[] { StatusAllBtn, StatusOnlineBtn, StatusOfflineBtn };
             
             foreach (var btn in allBtns)
-            {
-                if (btn == activeBtn)
-                {
-                    btn.Background = (SolidColorBrush)Application.Current.Resources["DkBlueBrush"];
-                    btn.Foreground = (SolidColorBrush)Application.Current.Resources["DkTextPrimaryBrush"];
-                }
-                else
-                {
-                    btn.Background = new SolidColorBrush(Microsoft.UI.Colors.Transparent);
-                    btn.Foreground = (SolidColorBrush)Application.Current.Resources["DkTextSecondaryBrush"];
-                }
-            }
+                ApplySegmentState(btn, btn == activeBtn);
         }
 
         private void TypeFilter_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -147,7 +150,7 @@ namespace Station.Views
             if (sender is Border b)
             {
                 // Use a slightly darker surface for hover effect
-                b.Background = (SolidColorBrush)Application.Current.Resources["DkBorderSubtleBrush"];
+                b.Background = (SolidColorBrush)Station.Services.ThemeBrushes.Get("DkBorderSubtleBrush");
             }
         }
 
@@ -181,7 +184,7 @@ namespace Station.Views
                     CloseButtonText = "Hủy",
                     DefaultButton = ContentDialogButton.Close,
                     XamlRoot = this.XamlRoot,
-                    RequestedTheme = Microsoft.UI.Xaml.ElementTheme.Dark
+                    RequestedTheme = Station.Services.ThemeService.Instance.CurrentTheme
                 };
                 if (await confirm.ShowAsync() == ContentDialogResult.Primary)
                     ViewModel.DeleteNode(node);

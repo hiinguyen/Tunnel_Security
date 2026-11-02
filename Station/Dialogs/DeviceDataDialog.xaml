@@ -9,544 +9,370 @@
     mc:Ignorable="d"
     Title="Dữ liệu đo"
     CloseButtonText="Đóng"
+    CloseButtonStyle="{StaticResource DkSecondaryButtonStyle}"
     DefaultButton="Close"
-    RequestedTheme="Dark"
-  Background="{StaticResource MonitoringPanelBackgroundBrush}"
-    BorderBrush="{StaticResource MonitoringBorderBrush}"
-    CornerRadius="8"
-    Padding="0">
+    
+    Background="{ThemeResource DkSurfaceBrush}"
+    BorderBrush="{ThemeResource DkBorderBrush}"
+    BorderThickness="1"
+    CornerRadius="12"
+    Padding="24">
 
     <ContentDialog.Resources>
-        <!-- Chart Card Style -->
-   <Style x:Key="ChartCardStyle" TargetType="Border">
-            <Setter Property="Background" Value="{StaticResource MonitoringBackgroundBrush}"/>
-<Setter Property="BorderBrush" Value="{StaticResource MonitoringBorderBrush}"/>
-         <Setter Property="BorderThickness" Value="1"/>
-         <Setter Property="CornerRadius" Value="6"/>
-          <Setter Property="Padding" Value="16"/>
-  <Setter Property="Margin" Value="0,0,0,16"/>
-   </Style>
-
-        <!-- Metric Value Style -->
-        <Style x:Key="MetricValueStyle" TargetType="TextBlock">
- <Setter Property="FontSize" Value="28"/>
-  <Setter Property="FontWeight" Value="Bold"/>
-    <Setter Property="Foreground" Value="{StaticResource MonitoringTextPrimaryBrush}"/>
+        <Style x:Key="ChartCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="{ThemeResource DkInputBgBrush}"/>
+            <Setter Property="BorderBrush" Value="{ThemeResource DkBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="16"/>
+            <Setter Property="Margin" Value="0,0,0,16"/>
         </Style>
-
-      <!-- Metric Label Style -->
+        <Style x:Key="MetricValueStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource FontSizeXXLarge}"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{ThemeResource DkTextPrimaryBrush}"/>
+        </Style>
         <Style x:Key="MetricLabelStyle" TargetType="TextBlock">
- <Setter Property="FontSize" Value="12"/>
-     <Setter Property="Foreground" Value="{StaticResource MonitoringTextSecondaryBrush}"/>
-         <Setter Property="Margin" Value="0,4,0,0"/>
+            <Setter Property="FontSize" Value="{StaticResource FontSizeSmall}"/>
+            <Setter Property="Foreground" Value="{ThemeResource DkTextMutedBrush}"/>
+        </Style>
+        <Style x:Key="StatCaptionStyle" TargetType="TextBlock" BasedOn="{StaticResource DkLabelStyle}"/>
+        <Style x:Key="StatValueStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource FontSizeBody}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{ThemeResource DkTextPrimaryBrush}"/>
+            <Setter Property="Margin" Value="0,2,0,0"/>
+        </Style>
+        <Style x:Key="ChartFrameStyle" TargetType="Border">
+            <Setter Property="Background" Value="{ThemeResource DkSurfaceBrush}"/>
+            <Setter Property="BorderBrush" Value="{ThemeResource DkBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="Height" Value="250"/>
         </Style>
     </ContentDialog.Resources>
 
-    <!-- Main Grid with scrollable content -->
-    <Grid MinWidth="800" MinHeight="600" MaxWidth="2000" MaxHeight="900">
-        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="24">
- <StackPanel Spacing="20">
-       <!-- Device Info Header -->
-   <Border Background="{StaticResource MonitoringBackgroundBrush}"
-     BorderBrush="{StaticResource MonitoringBorderBrush}"
-          BorderThickness="1"
-     CornerRadius="6"
-       Padding="16">
-    <Grid>
-    <Grid.ColumnDefinitions>
-      <ColumnDefinition Width="Auto"/>
-   <ColumnDefinition Width="*"/>
-   <ColumnDefinition Width="Auto"/>
- </Grid.ColumnDefinitions>
-
- <!-- Device Icon -->
-<Border Grid.Column="0"
-         Background="{StaticResource MonitoringAccentButtonBrush}"
-               CornerRadius="6"
-  Width="48"
-             Height="48"
-         Margin="0,0,16,0">
-          <FontIcon Glyph="&#xE957;"
-  FontSize="24"
-     Foreground="{StaticResource MonitoringTextPrimaryBrush}"
-      HorizontalAlignment="Center"
-  VerticalAlignment="Center"/>
-      </Border>
-
-   <!-- Device Info -->
-<StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="4">
-     <TextBlock x:Name="DeviceNameText"
-       Text="Sensor01"
-             FontSize="16"
-             FontWeight="SemiBold"
-          Foreground="{StaticResource MonitoringTextPrimaryBrush}"/>
-       <TextBlock x:Name="DeviceIdText"
-         Text="SEN-001"
-            FontSize="12"
-          Foreground="{StaticResource MonitoringTextSecondaryBrush}"/>
-   <TextBlock x:Name="LocationText"
-     Text="A2 / R3 / N5"
-               FontSize="11"
-  Foreground="{StaticResource MonitoringTextSecondaryBrush}"/>
-              </StackPanel>
-
-        <!-- Time Range Selector -->
-    <ComboBox Grid.Column="2"
-     x:Name="TimeRangeComboBox"
-          SelectedIndex="0"
-        MinWidth="160"
-           VerticalAlignment="Center">
-     <ComboBoxItem Content="24 giờ qua"/>
-           <ComboBoxItem Content="7 ngày qua"/>
-                <ComboBoxItem Content="30 ngày qua"/>
-     <ComboBoxItem Content="Tùy chỉnh"/>
-   </ComboBox>
-         </Grid>
-     </Border>
-
-  <!-- Charts Grid -->
-      <Grid>
-                <Grid.RowDefinitions>
-      <RowDefinition Height="Auto"/>
-      <RowDefinition Height="Auto"/>
-   <RowDefinition Height="Auto"/>
-         <RowDefinition Height="Auto"/>
-         </Grid.RowDefinitions>
-
-            <!-- Temperature Card -->
-      <Border Grid.Row="0" Style="{StaticResource ChartCardStyle}">
-        <Grid>
-           <Grid.RowDefinitions>
-          <RowDefinition Height="Auto"/>
-          <RowDefinition Height="Auto"/>
-        <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-
-        <!-- Header -->
-    <Grid Grid.Row="0" Margin="0,0,0,16">
-          <Grid.ColumnDefinitions>
- <ColumnDefinition Width="Auto"/>
-        <ColumnDefinition Width="*"/>
-  <ColumnDefinition Width="Auto"/>
-     </Grid.ColumnDefinitions>
-
-   <Border Grid.Column="0"
-       Background="#3D1A1A"
-   CornerRadius="6"
-         Width="40"
-            Height="40"
-      Margin="0,0,12,0">
-            <FontIcon Glyph="&#xE7A7;"
-  FontSize="20"
-  Foreground="{StaticResource MonitoringTempHighBrush}"
-         HorizontalAlignment="Center"
-VerticalAlignment="Center"/>
-        </Border>
-
-          <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
-      <TextBlock Text="Nhiệt độ"
-        FontSize="14"
- FontWeight="SemiBold"
-              Foreground="{StaticResource MonitoringTextPrimaryBrush}"/>
-         </StackPanel>
-
-    <StackPanel Grid.Column="2" HorizontalAlignment="Right">
-    <TextBlock x:Name="TemperatureValue"
-           Text="33.9"
-       Style="{StaticResource MetricValueStyle}"
-        Foreground="{StaticResource MonitoringTempHighBrush}"
-   TextAlignment="Right"/>
-              <TextBlock Text="°C"
-        Style="{StaticResource MetricLabelStyle}"
-         TextAlignment="Right"/>
-          </StackPanel>
-    </Grid>
-
-      <!-- Chart -->
-           <Border Grid.Row="1" Background="{StaticResource MonitoringPanelBackgroundBrush}"
-           BorderBrush="{StaticResource MonitoringBorderBrush}"
-     BorderThickness="1"
-       CornerRadius="6"
-                Padding="8"
-             Height="250">
-    <lvc:CartesianChart Series="{x:Bind TemperatureSeries, Mode=OneTime}"
-         XAxes="{x:Bind TemperatureXAxes, Mode=OneTime}"
-         YAxes="{x:Bind TemperatureYAxes, Mode=OneTime}"
- TooltipPosition="Top"/>
-           </Border>
-
-       <!-- Stats -->
-     <Grid Grid.Row="2" Margin="0,12,0,0">
-     <Grid.ColumnDefinitions>
-                   <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-          <ColumnDefinition Width="*"/>
-     </Grid.ColumnDefinitions>
-
-                  <StackPanel Grid.Column="0">
-        <TextBlock Text="Min"
-          FontSize="10"
-    Foreground="{StaticResource MonitoringTextSecondaryBrush}"/>
-  <TextBlock x:Name="TempMin"
-       Text="27.2°C"
-      FontSize="13"
-                  FontWeight="SemiBold"
-               Foreground="{StaticResource MonitoringTextPrimaryBrush}"
-    Margin="0,2,0,0"/>
-          </StackPanel>
-
-   <StackPanel Grid.Column="1">
- <TextBlock Text="Trung bình"
-      FontSize="10"
-            Foreground="{StaticResource MonitoringTextSecondaryBrush}"/>
-       <TextBlock x:Name="TempAvg"
-         Text="31.5°C"
-              FontSize="13"
-        FontWeight="SemiBold"
-         Foreground="{StaticResource MonitoringTextPrimaryBrush}"
-    Margin="0,2,0,0"/>
-    </StackPanel>
-
-               <StackPanel Grid.Column="2">
-       <TextBlock Text="Max"
-         FontSize="10"
-         Foreground="{StaticResource MonitoringTextSecondaryBrush}"/>
-      <TextBlock x:Name="TempMax"
-                 Text="36.1°C"
-          FontSize="13"
-       FontWeight="SemiBold"
-               Foreground="{StaticResource MonitoringTextPrimaryBrush}"
-    Margin="0,2,0,0"/>
- </StackPanel>
-        </Grid>
-         </Grid>
-      </Border>
-
-         <!-- Humidity Card -->
-         <Border Grid.Row="1" Style="{StaticResource ChartCardStyle}">
-       <Grid>
-           <Grid.RowDefinitions>
-          <RowDefinition Height="Auto"/>
-        <RowDefinition Height="Auto"/>
-    <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-
-       <Grid Grid.Row="0" Margin="0,0,0,16">
+    <ContentDialog.TitleTemplate>
+        <DataTemplate>
+            <Grid Margin="0,0,0,12">
                 <Grid.ColumnDefinitions>
-     <ColumnDefinition Width="Auto"/>
- <ColumnDefinition Width="*"/>
-    <ColumnDefinition Width="Auto"/>
-      </Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="{Binding}"
+                           FontSize="{StaticResource FontSizeTitle}" FontWeight="SemiBold"
+                           Foreground="{ThemeResource DkTextPrimaryBrush}"
+                           VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                <Button Grid.Column="1" Style="{StaticResource DkIconButtonStyle}"
+                        Click="HeaderClose_Click"
+                        ToolTipService.ToolTip="Đóng" AutomationProperties.Name="Đóng">
+                    <FontIcon Glyph="&#xE711;" FontSize="{StaticResource FontSizeSmall}"/>
+                </Button>
+            </Grid>
+        </DataTemplate>
+    </ContentDialog.TitleTemplate>
 
-   <Border Grid.Column="0"
-     Background="#142038"
-   CornerRadius="6"
-        Width="40"
-         Height="40"
-    Margin="0,0,12,0">
-         <FontIcon Glyph="&#xE753;"
-   FontSize="20"
-        Foreground="{StaticResource MonitoringAccentButtonBrush}"
-        HorizontalAlignment="Center"
-   VerticalAlignment="Center"/>
-         </Border>
+    <Grid MinWidth="800" MinHeight="560" MaxWidth="2000" MaxHeight="840">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0,0,16,0">
+            <StackPanel Spacing="16">
 
-               <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
-     <TextBlock Text="Độ ẩm"
-  FontSize="14"
-        FontWeight="SemiBold"
-           Foreground="{StaticResource MonitoringTextPrimaryBrush}"/>
-     </StackPanel>
+                <!-- Device header -->
+                <Border Style="{StaticResource ChartCardStyle}" Margin="0">
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
 
-           <StackPanel Grid.Column="2" HorizontalAlignment="Right">
-         <TextBlock x:Name="HumidityValue"
-     Text="85"
-        Style="{StaticResource MetricValueStyle}"
-                  Foreground="{StaticResource MonitoringAccentButtonBrush}"
-     TextAlignment="Right"/>
-    <TextBlock Text="%"
-         Style="{StaticResource MetricLabelStyle}"
-                 TextAlignment="Right"/>
-          </StackPanel>
-        </Grid>
+                        <Border Background="{ThemeResource DkSurfaceBrush}"
+                                BorderBrush="{ThemeResource DkBorderBrush}"
+                                BorderThickness="1" CornerRadius="4" Padding="8,3"
+                                VerticalAlignment="Center">
+                            <TextBlock Text="SEN" Style="{StaticResource DkTagTextStyle}"/>
+                        </Border>
 
- <!-- Chart -->
-     <Border Grid.Row="1" Background="{StaticResource MonitoringPanelBackgroundBrush}"
-        BorderBrush="{StaticResource MonitoringBorderBrush}"
-    BorderThickness="1"
-            CornerRadius="6"
-            Padding="8"
-          Height="250">
-      <lvc:CartesianChart Series="{x:Bind HumiditySeries, Mode=OneTime}"
-     XAxes="{x:Bind HumidityXAxes, Mode=OneTime}"
-   YAxes="{x:Bind HumidityYAxes, Mode=OneTime}"
-         TooltipPosition="Top"/>
-         </Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                            <TextBlock x:Name="DeviceNameText" Text="Sensor01"
+                                       FontSize="{StaticResource FontSizeNormal}" FontWeight="SemiBold"
+                                       Foreground="{ThemeResource DkTextPrimaryBrush}"/>
+                            <TextBlock x:Name="DeviceIdText" Text="SEN-001"
+                                       FontSize="{StaticResource FontSizeSmall}"
+                                       Foreground="{ThemeResource DkTextSecondaryBrush}"
+                                       Typography.NumeralAlignment="Tabular"/>
+                            <TextBlock x:Name="LocationText" Text="A2 / R3 / N5"
+                                       FontSize="{StaticResource FontSizeCompact}"
+                                       Foreground="{ThemeResource DkTextMutedBrush}"/>
+                        </StackPanel>
 
-           <!-- Stats -->
-           <Grid Grid.Row="2" Margin="0,12,0,0">
-    <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-<ColumnDefinition Width="*"/>
-         </Grid.ColumnDefinitions>
+                        <ComboBox Grid.Column="2" x:Name="TimeRangeComboBox"
+                                  Style="{StaticResource DkComboBoxStyle}"
+                                  SelectedIndex="0" MinWidth="160" HorizontalAlignment="Right"
+                                  VerticalAlignment="Center">
+                            <ComboBoxItem Content="24 giờ qua"/>
+                            <ComboBoxItem Content="7 ngày qua"/>
+                            <ComboBoxItem Content="30 ngày qua"/>
+                            <ComboBoxItem Content="Tùy chỉnh"/>
+                        </ComboBox>
+                    </Grid>
+                </Border>
 
-             <StackPanel Grid.Column="0">
- <TextBlock Text="Min"
-        FontSize="10"
-   Foreground="{StaticResource MonitoringTextSecondaryBrush}"/>
-      <TextBlock x:Name="HumidMin"
-   Text="78%"
-        FontSize="13"
-       FontWeight="SemiBold"
-   Foreground="{StaticResource MonitoringTextPrimaryBrush}"
-          Margin="0,2,0,0"/>
-          </StackPanel>
+                <StackPanel>
+                    <Border Style="{StaticResource ChartCardStyle}">
+                        <Grid RowSpacing="12">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
 
-    <StackPanel Grid.Column="1">
-  <TextBlock Text="Trung bình"
-              FontSize="10"
-    Foreground="{StaticResource MonitoringTextSecondaryBrush}"/>
-        <TextBlock x:Name="HumidAvg"
-            Text="87%"
-            FontSize="13"
-   FontWeight="SemiBold"
-          Foreground="{StaticResource MonitoringTextPrimaryBrush}"
-         Margin="0,2,0,0"/>
-     </StackPanel>
+                            <Grid Grid.Row="0" ColumnSpacing="12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                                    <Border Background="{ThemeResource DkSurfaceBrush}"
+                                            BorderBrush="{ThemeResource DkBorderBrush}"
+                                            BorderThickness="1" CornerRadius="4" Padding="8,3">
+                                        <TextBlock Text="TEMP" Style="{StaticResource DkTagTextStyle}"
+                                                   Foreground="{ThemeResource SensorAccentTemperatureBrush}"/>
+                                    </Border>
+                                    <TextBlock Text="Nhiệt độ"
+                                               FontSize="{StaticResource FontSizeNormal}" FontWeight="SemiBold"
+                                               Foreground="{ThemeResource DkTextPrimaryBrush}"
+                                               VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Bottom">
+                                    <TextBlock x:Name="TemperatureValue" Text="0"
+                                               Style="{StaticResource MetricValueStyle}" Typography.NumeralAlignment="Tabular"
+                                               Foreground="{ThemeResource SensorAccentTemperatureBrush}"/>
+                                    <TextBlock Text="°C" Style="{StaticResource MetricLabelStyle}"
+                                               VerticalAlignment="Bottom" Margin="0,0,0,4"/>
+                                </StackPanel>
+                            </Grid>
 
-     <StackPanel Grid.Column="2">
-            <TextBlock Text="Max"
-   FontSize="10"
-    Foreground="{StaticResource MonitoringTextSecondaryBrush}"/>
-  <TextBlock x:Name="HumidMax"
- Text="95%"
-     FontSize="13"
-        FontWeight="SemiBold"
-         Foreground="{StaticResource MonitoringTextPrimaryBrush}"
-      Margin="0,2,0,0"/>
+                            <Border Grid.Row="1" Style="{StaticResource ChartFrameStyle}">
+                                <lvc:CartesianChart Series="{x:Bind TemperatureSeries, Mode=OneTime}"
+                                                    XAxes="{x:Bind TemperatureXAxes, Mode=OneTime}"
+                                                    YAxes="{x:Bind TemperatureYAxes, Mode=OneTime}"
+                                                    TooltipPosition="Top"/>
+                            </Border>
+
+                            <Grid Grid.Row="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="MIN" Style="{StaticResource StatCaptionStyle}"/>
+                                    <TextBlock x:Name="TempMin" Text="27.2°C" Style="{StaticResource StatValueStyle}" Typography.NumeralAlignment="Tabular"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="TRUNG BÌNH" Style="{StaticResource StatCaptionStyle}"/>
+                                    <TextBlock x:Name="TempAvg" Text="31.5°C" Style="{StaticResource StatValueStyle}" Typography.NumeralAlignment="Tabular"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="MAX" Style="{StaticResource StatCaptionStyle}"/>
+                                    <TextBlock x:Name="TempMax" Text="36.1°C" Style="{StaticResource StatValueStyle}" Typography.NumeralAlignment="Tabular"/>
+                                </StackPanel>
+                            </Grid>
+                        </Grid>
+                    </Border>
+
+                    <Border Style="{StaticResource ChartCardStyle}">
+                        <Grid RowSpacing="12">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <Grid Grid.Row="0" ColumnSpacing="12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                                    <Border Background="{ThemeResource DkSurfaceBrush}"
+                                            BorderBrush="{ThemeResource DkBorderBrush}"
+                                            BorderThickness="1" CornerRadius="4" Padding="8,3">
+                                        <TextBlock Text="HUM" Style="{StaticResource DkTagTextStyle}"
+                                                   Foreground="{ThemeResource SensorAccentWaterLevelBrush}"/>
+                                    </Border>
+                                    <TextBlock Text="Độ ẩm"
+                                               FontSize="{StaticResource FontSizeNormal}" FontWeight="SemiBold"
+                                               Foreground="{ThemeResource DkTextPrimaryBrush}"
+                                               VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Bottom">
+                                    <TextBlock x:Name="HumidityValue" Text="0"
+                                               Style="{StaticResource MetricValueStyle}" Typography.NumeralAlignment="Tabular"
+                                               Foreground="{ThemeResource SensorAccentWaterLevelBrush}"/>
+                                    <TextBlock Text="%" Style="{StaticResource MetricLabelStyle}"
+                                               VerticalAlignment="Bottom" Margin="0,0,0,4"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <Border Grid.Row="1" Style="{StaticResource ChartFrameStyle}">
+                                <lvc:CartesianChart Series="{x:Bind HumiditySeries, Mode=OneTime}"
+                                                    XAxes="{x:Bind HumidityXAxes, Mode=OneTime}"
+                                                    YAxes="{x:Bind HumidityYAxes, Mode=OneTime}"
+                                                    TooltipPosition="Top"/>
+                            </Border>
+
+                            <Grid Grid.Row="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="MIN" Style="{StaticResource StatCaptionStyle}"/>
+                                    <TextBlock x:Name="HumidMin" Text="78%" Style="{StaticResource StatValueStyle}" Typography.NumeralAlignment="Tabular"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="TRUNG BÌNH" Style="{StaticResource StatCaptionStyle}"/>
+                                    <TextBlock x:Name="HumidAvg" Text="87%" Style="{StaticResource StatValueStyle}" Typography.NumeralAlignment="Tabular"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="MAX" Style="{StaticResource StatCaptionStyle}"/>
+                                    <TextBlock x:Name="HumidMax" Text="95%" Style="{StaticResource StatValueStyle}" Typography.NumeralAlignment="Tabular"/>
+                                </StackPanel>
+                            </Grid>
+                        </Grid>
+                    </Border>
+
+                    <Border Style="{StaticResource ChartCardStyle}">
+                        <Grid RowSpacing="12">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <Grid Grid.Row="0" ColumnSpacing="12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                                    <Border Background="{ThemeResource DkSurfaceBrush}"
+                                            BorderBrush="{ThemeResource DkBorderBrush}"
+                                            BorderThickness="1" CornerRadius="4" Padding="8,3">
+                                        <TextBlock Text="VIB" Style="{StaticResource DkTagTextStyle}"
+                                                   Foreground="{ThemeResource SensorAccentLightBrush}"/>
+                                    </Border>
+                                    <TextBlock Text="Rung động"
+                                               FontSize="{StaticResource FontSizeNormal}" FontWeight="SemiBold"
+                                               Foreground="{ThemeResource DkTextPrimaryBrush}"
+                                               VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Bottom">
+                                    <TextBlock x:Name="VibrationValue" Text="0"
+                                               Style="{StaticResource MetricValueStyle}" Typography.NumeralAlignment="Tabular"
+                                               Foreground="{ThemeResource SensorAccentLightBrush}"/>
+                                    <TextBlock Text="mm/s" Style="{StaticResource MetricLabelStyle}"
+                                               VerticalAlignment="Bottom" Margin="0,0,0,4"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <Border Grid.Row="1" Style="{StaticResource ChartFrameStyle}">
+                                <lvc:CartesianChart Series="{x:Bind VibrationSeries, Mode=OneTime}"
+                                                    XAxes="{x:Bind VibrationXAxes, Mode=OneTime}"
+                                                    YAxes="{x:Bind VibrationYAxes, Mode=OneTime}"
+                                                    TooltipPosition="Top"/>
+                            </Border>
+
+                            <Grid Grid.Row="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="MIN" Style="{StaticResource StatCaptionStyle}"/>
+                                    <TextBlock x:Name="VibMin" Text="0.8 mm/s" Style="{StaticResource StatValueStyle}" Typography.NumeralAlignment="Tabular"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="TRUNG BÌNH" Style="{StaticResource StatCaptionStyle}"/>
+                                    <TextBlock x:Name="VibAvg" Text="1.9 mm/s" Style="{StaticResource StatValueStyle}" Typography.NumeralAlignment="Tabular"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="MAX" Style="{StaticResource StatCaptionStyle}"/>
+                                    <TextBlock x:Name="VibMax" Text="4.2 mm/s" Style="{StaticResource StatValueStyle}" Typography.NumeralAlignment="Tabular"/>
+                                </StackPanel>
+                            </Grid>
+                        </Grid>
+                    </Border>
+
+                    <Border Style="{StaticResource ChartCardStyle}">
+                        <Grid RowSpacing="12">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <Grid Grid.Row="0" ColumnSpacing="12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                                    <Border Background="{ThemeResource DkSurfaceBrush}"
+                                            BorderBrush="{ThemeResource DkBorderBrush}"
+                                            BorderThickness="1" CornerRadius="4" Padding="8,3">
+                                        <TextBlock Text="MOT" Style="{StaticResource DkTagTextStyle}"
+                                                   Foreground="{ThemeResource SensorAccentRadarBrush}"/>
+                                    </Border>
+                                    <TextBlock Text="Chuyển động"
+                                               FontSize="{StaticResource FontSizeNormal}" FontWeight="SemiBold"
+                                               Foreground="{ThemeResource DkTextPrimaryBrush}"
+                                               VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Bottom">
+                                    <TextBlock x:Name="MotionValue" Text="0"
+                                               Style="{StaticResource MetricValueStyle}" Typography.NumeralAlignment="Tabular"
+                                               Foreground="{ThemeResource SensorAccentRadarBrush}"/>
+                                    <TextBlock Text="sự kiện" Style="{StaticResource MetricLabelStyle}"
+                                               VerticalAlignment="Bottom" Margin="0,0,0,4"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <Border Grid.Row="1" Style="{StaticResource ChartFrameStyle}">
+                                <lvc:CartesianChart Series="{x:Bind MotionSeries, Mode=OneTime}"
+                                                    XAxes="{x:Bind MotionXAxes, Mode=OneTime}"
+                                                    YAxes="{x:Bind MotionYAxes, Mode=OneTime}"
+                                                    TooltipPosition="Top"/>
+                            </Border>
+
+                            <Grid Grid.Row="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="HÔM NAY" Style="{StaticResource StatCaptionStyle}"/>
+                                    <TextBlock x:Name="MotionToday" Text="12" Style="{StaticResource StatValueStyle}" Typography.NumeralAlignment="Tabular"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="TUẦN NÀY" Style="{StaticResource StatCaptionStyle}"/>
+                                    <TextBlock x:Name="MotionWeek" Text="87" Style="{StaticResource StatValueStyle}" Typography.NumeralAlignment="Tabular"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="THÁNG NÀY" Style="{StaticResource StatCaptionStyle}"/>
+                                    <TextBlock x:Name="MotionMonth" Text="342" Style="{StaticResource StatValueStyle}" Typography.NumeralAlignment="Tabular"/>
+                                </StackPanel>
+                            </Grid>
+                        </Grid>
+                    </Border>
+
+                </StackPanel>
             </StackPanel>
-         </Grid>
-           </Grid>
-             </Border>
-
-   <!-- Vibration Card -->
-   <Border Grid.Row="2" Style="{StaticResource ChartCardStyle}">
-     <Grid>
-                   <Grid.RowDefinitions>
-         <RowDefinition Height="Auto"/>
-           <RowDefinition Height="Auto"/>
-  <RowDefinition Height="Auto"/>
- </Grid.RowDefinitions>
-
-       <Grid Grid.Row="0" Margin="0,0,0,16">
-         <Grid.ColumnDefinitions>
-         <ColumnDefinition Width="Auto"/>
-     <ColumnDefinition Width="*"/>
-             <ColumnDefinition Width="Auto"/>
-   </Grid.ColumnDefinitions>
-
-               <Border Grid.Column="0"
-            Background="#3D2E14"
-     CornerRadius="6"
- Width="40"
-           Height="40"
-     Margin="0,0,12,0">
-   <FontIcon Glyph="&#xE7F4;"
-   FontSize="20"
-  Foreground="{StaticResource MonitoringRadarWarningBrush}"
-     HorizontalAlignment="Center"
-           VerticalAlignment="Center"/>
-               </Border>
-
-         <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
-           <TextBlock Text="Rung động"
-          FontSize="14"
-          FontWeight="SemiBold"
-           Foreground="{StaticResource MonitoringTextPrimaryBrush}"/>
-               </StackPanel>
-
-            <StackPanel Grid.Column="2" HorizontalAlignment="Right">
-                  <TextBlock x:Name="VibrationValue"
-              Text="2.4"
-      Style="{StaticResource MetricValueStyle}"
-       Foreground="{StaticResource MonitoringRadarWarningBrush}"
-     TextAlignment="Right"/>
-  <TextBlock Text="mm/s"
-        Style="{StaticResource MetricLabelStyle}"
-             TextAlignment="Right"/>
-               </StackPanel>
-        </Grid>
-
-           <!-- Chart -->
-  <Border Grid.Row="1" Background="{StaticResource MonitoringPanelBackgroundBrush}"
-              BorderBrush="{StaticResource MonitoringBorderBrush}"
-        BorderThickness="1"
-       CornerRadius="6"
-         Padding="8"
-       Height="250">
-          <lvc:CartesianChart Series="{x:Bind VibrationSeries, Mode=OneTime}"
-   XAxes="{x:Bind VibrationXAxes, Mode=OneTime}"
-           YAxes="{x:Bind VibrationYAxes, Mode=OneTime}"
-                  TooltipPosition="Top"/>
-                  </Border>
-
-      <!-- Stats -->
-             <Grid Grid.Row="2" Margin="0,12,0,0">
-    <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="*"/>
-        <ColumnDefinition Width="*"/>
-        <ColumnDefinition Width="*"/>
-    </Grid.ColumnDefinitions>
-
-       <StackPanel Grid.Column="0">
-                <TextBlock Text="Min"
-            FontSize="10"
-       Foreground="{StaticResource MonitoringTextSecondaryBrush}"/>
-       <TextBlock x:Name="VibMin"
-            Text="0.8 mm/s"
-        FontSize="13"
-    FontWeight="SemiBold"
-       Foreground="{StaticResource MonitoringTextPrimaryBrush}"
-    Margin="0,2,0,0"/>
-   </StackPanel>
-
-               <StackPanel Grid.Column="1">
-    <TextBlock Text="Trung bình"
-               FontSize="10"
-        Foreground="{StaticResource MonitoringTextSecondaryBrush}"/>
-    <TextBlock x:Name="VibAvg"
-            Text="1.9 mm/s"
-          FontSize="13"
-       FontWeight="SemiBold"
-              Foreground="{StaticResource MonitoringTextPrimaryBrush}"
-            Margin="0,2,0,0"/>
-     </StackPanel>
-
-                <StackPanel Grid.Column="2">
-     <TextBlock Text="Max"
-          FontSize="10"
-         Foreground="{StaticResource MonitoringTextSecondaryBrush}"/>
-  <TextBlock x:Name="VibMax"
-                Text="4.2 mm/s"
-   FontSize="13"
-       FontWeight="SemiBold"
-      Foreground="{StaticResource MonitoringTextPrimaryBrush}"
-       Margin="0,2,0,0"/>
-        </StackPanel>
-          </Grid>
-                 </Grid>
-      </Border>
-
-        <!-- Motion Card -->
-               <Border Grid.Row="3" Style="{StaticResource ChartCardStyle}">
-   <Grid>
-              <Grid.RowDefinitions>
-     <RowDefinition Height="Auto"/>
-      <RowDefinition Height="Auto"/>
-       <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-
-        <Grid Grid.Row="0" Margin="0,0,0,16">
-          <Grid.ColumnDefinitions>
-           <ColumnDefinition Width="Auto"/>
-        <ColumnDefinition Width="*"/>
-          <ColumnDefinition Width="Auto"/>
-        </Grid.ColumnDefinitions>
-
-                    <Border Grid.Column="0"
-           Background="#14332B"
-        CornerRadius="6"
-      Width="40"
-      Height="40"
-     Margin="0,0,12,0">
-      <FontIcon Glyph="&#xE73E;"
-     FontSize="20"
-                  Foreground="{StaticResource MonitoringNodeNormalBrush}"
-         HorizontalAlignment="Center"
-            VerticalAlignment="Center"/>
-        </Border>
-
-    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
-            <TextBlock Text="Chuyển động"
-             FontSize="14"
-           FontWeight="SemiBold"
-        Foreground="{StaticResource MonitoringTextPrimaryBrush}"/>
-  </StackPanel>
-
-  <StackPanel Grid.Column="2" HorizontalAlignment="Right">
-               <TextBlock x:Name="MotionValue"
-    Text="12"
-               Style="{StaticResource MetricValueStyle}"
- Foreground="{StaticResource MonitoringNodeNormalBrush}"
-             TextAlignment="Right"/>
-       <TextBlock Text="events"
-   Style="{StaticResource MetricLabelStyle}"
-          TextAlignment="Right"/>
-           </StackPanel>
-              </Grid>
-
-           <!-- Chart -->
-  <Border Grid.Row="1" Background="{StaticResource MonitoringPanelBackgroundBrush}"
- BorderBrush="{StaticResource MonitoringBorderBrush}"
-    BorderThickness="1"
-    CornerRadius="6"
-                Padding="8"
-    Height="250">
-            <lvc:CartesianChart Series="{x:Bind MotionSeries, Mode=OneTime}"
-         XAxes="{x:Bind MotionXAxes, Mode=OneTime}"
-         YAxes="{x:Bind MotionYAxes, Mode=OneTime}"
-         TooltipPosition="Top"/>
-        </Border>
-
- <!-- Stats -->
-         <Grid Grid.Row="2" Margin="0,12,0,0">
-           <Grid.ColumnDefinitions>
-    <ColumnDefinition Width="*"/>
-    <ColumnDefinition Width="*"/>
-      <ColumnDefinition Width="*"/>
-       </Grid.ColumnDefinitions>
-
-   <StackPanel Grid.Column="0">
-        <TextBlock Text="Hôm nay"
-            FontSize="10"
-     Foreground="{StaticResource MonitoringTextSecondaryBrush}"/>
-        <TextBlock x:Name="MotionToday"
-           Text="12"
-      FontSize="13"
-  FontWeight="SemiBold"
-                   Foreground="{StaticResource MonitoringTextPrimaryBrush}"
- Margin="0,2,0,0"/>
-      </StackPanel>
-
-     <StackPanel Grid.Column="1">
-      <TextBlock Text="Tuần này"
-          FontSize="10"
-        Foreground="{StaticResource MonitoringTextSecondaryBrush}"/>
-          <TextBlock x:Name="MotionWeek"
-    Text="87"
-              FontSize="13"
-              FontWeight="SemiBold"
-       Foreground="{StaticResource MonitoringTextPrimaryBrush}"
-      Margin="0,2,0,0"/>
-          </StackPanel>
-
-     <StackPanel Grid.Column="2">
-        <TextBlock Text="Tháng này"
-    FontSize="10"
-            Foreground="{StaticResource MonitoringTextSecondaryBrush}"/>
-    <TextBlock x:Name="MotionMonth"
-         Text="342"
-FontSize="13"
-     FontWeight="SemiBold"
-             Foreground="{StaticResource MonitoringTextPrimaryBrush}"
-           Margin="0,2,0,0"/>
-         </StackPanel>
-  </Grid>
-  </Grid>
-      </Border>
-  </Grid>
-  </StackPanel>
-    </ScrollViewer>
+        </ScrollViewer>
     </Grid>
 </ContentDialog>

@@ -3,326 +3,299 @@
     x:Class="Station.Dialogs.AddNodeDialog"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Title="Thêm Thiết bị Node mới"
-    PrimaryButtonText="THÊM THIẾT BỊ"
+    Title="Thêm thiết bị node mới"
+    PrimaryButtonText="Thêm node"
     CloseButtonText="Hủy bỏ"
+    PrimaryButtonStyle="{StaticResource DkPrimaryButtonStyle}"
+    CloseButtonStyle="{StaticResource DkSecondaryButtonStyle}"
     DefaultButton="Primary"
     PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
-    CornerRadius="16"
-    Background="#0F172A"
-    RequestedTheme="Dark">
+    
+    Background="{ThemeResource DkSurfaceBrush}"
+    BorderBrush="{ThemeResource DkBorderBrush}"
+    BorderThickness="1"
+    CornerRadius="12"
+    Padding="24">
 
     <ContentDialog.Resources>
-        <LinearGradientBrush x:Key="CyberTitleGradient" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="#00C6FF" Offset="0.0"/>
-            <GradientStop Color="#0072FF" Offset="1.0"/>
-        </LinearGradientBrush>
-
-        <LinearGradientBrush x:Key="ButtonGradient" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="#00F2FE" Offset="0.0"/>
-            <GradientStop Color="#4FACFE" Offset="1.0"/>
-        </LinearGradientBrush>
-
-        <!-- Tối ưu hiệu suất: Khai báo màu một lần ở đây để UI load nhanh hơn -->
-        <SolidColorBrush x:Key="NeonAccent" Color="#00E5FF"/>
-        <SolidColorBrush x:Key="GlassBg" Color="#0AFFFFFF"/>
-        <SolidColorBrush x:Key="GlassBorder" Color="#1AFFFFFF"/>
-        <SolidColorBrush x:Key="InputBg" Color="#14FFFFFF"/>
-        <SolidColorBrush x:Key="InputBorder" Color="#33FFFFFF"/>
-        <SolidColorBrush x:Key="TextPrimary" Color="#F8FAFC"/>
-        <SolidColorBrush x:Key="TextSecondary" Color="#94A3B8"/>
-        <SolidColorBrush x:Key="RequiredColor" Color="#EF4444"/>
-
-        <!-- ÉP XUNG NÚT PRIMARY: Cấm hệ thống can thiệp -->
-        <Style x:Key="ForcePrimaryButtonStyle" TargetType="Button">
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="CharacterSpacing" Value="30"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{StaticResource ButtonGradient}" CornerRadius="8" MinHeight="46" Margin="0,0,8,0">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
+        <Style x:Key="DlgTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource DkSearchBoxStyle}">
+            <Setter Property="Padding" Value="12,8"/>
         </Style>
-
-        <!-- ÉP XUNG NÚT CLOSE -->
-        <Style x:Key="ForceCloseButtonStyle" TargetType="Button">
-            <Setter Property="Foreground" Value="White"/>
+        <Style x:Key="DlgFieldLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource FontSizeSmall}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="#1AFFFFFF" BorderBrush="#33FFFFFF" BorderThickness="1" CornerRadius="8" MinHeight="46" Margin="8,0,0,0">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
+            <Setter Property="Foreground" Value="{ThemeResource DkTextSecondaryBrush}"/>
+            <Setter Property="Margin" Value="0,0,0,6"/>
         </Style>
     </ContentDialog.Resources>
 
-    <!-- Gắn Style Ép Xung vào ContentDialog -->
-    <ContentDialog.PrimaryButtonStyle>
-        <StaticResource ResourceKey="ForcePrimaryButtonStyle"/>
-    </ContentDialog.PrimaryButtonStyle>
-    <ContentDialog.CloseButtonStyle>
-        <StaticResource ResourceKey="ForceCloseButtonStyle"/>
-    </ContentDialog.CloseButtonStyle>
-
     <ContentDialog.TitleTemplate>
         <DataTemplate>
-            <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,0,0,12">
-                <Border Background="#1A0072FF" Width="44" Height="44" CornerRadius="12">
-                    <FontIcon Glyph="&#xE710;" FontSize="20" Foreground="{StaticResource CyberTitleGradient}"/>
-                </Border>
-                <TextBlock Text="Thêm Node mới" FontSize="22" FontWeight="Bold" Foreground="{StaticResource CyberTitleGradient}" VerticalAlignment="Center"/>
+            <StackPanel Spacing="2" Margin="0,0,0,16">
+                <TextBlock Text="{Binding}"
+                           FontSize="{StaticResource FontSizeTitle}" FontWeight="SemiBold"
+                           Foreground="{ThemeResource DkTextPrimaryBrush}"/>
+                <TextBlock Text="Khai báo node và 7 cảm biến đi kèm"
+                           FontSize="{StaticResource FontSizeCompact}"
+                           Foreground="{ThemeResource DkTextMutedBrush}"/>
             </StackPanel>
         </DataTemplate>
     </ContentDialog.TitleTemplate>
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="650" Margin="-4,0,-24,0" Padding="4,0,24,0">
-        <StackPanel Spacing="24">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="620" Width="680" Padding="0,0,16,0">
+        <StackPanel Spacing="20">
 
-            <!-- ========================================== -->
-            <!-- SECTION 1: THÔNG TIN NODE                  -->
-            <!-- ========================================== -->
-            <StackPanel Spacing="12">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <FontIcon Glyph="&#xE81E;" FontSize="18" Foreground="{StaticResource NeonAccent}"/>
-                    <TextBlock Text="Thông tin cơ bản" FontSize="16" FontWeight="Bold" Foreground="{StaticResource TextPrimary}"/>
-                </StackPanel>
+            <!-- SECTION 1: NODE INFO -->
+            <StackPanel Spacing="10">
+                <TextBlock Text="THÔNG TIN CƠ BẢN" Style="{StaticResource DkLabelStyle}"/>
 
-                <Border Background="{StaticResource GlassBg}" BorderBrush="{StaticResource GlassBorder}" BorderThickness="1" CornerRadius="12" Padding="20">
-                    <!-- Tối ưu: Dùng Grid tổng thay vì nhiều StackPanel con -->
-                    <Grid RowSpacing="16">
+                <Border Background="{ThemeResource DkInputBgBrush}" BorderBrush="{ThemeResource DkBorderBrush}"
+                        BorderThickness="1" CornerRadius="12" Padding="20">
+                    <Grid RowSpacing="16" ColumnSpacing="12">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
 
-                        <!-- Node Name -->
-                        <StackPanel Grid.Row="0" Spacing="4">
-                            <TextBlock Foreground="{StaticResource TextSecondary}" FontSize="13" FontWeight="SemiBold">Tên Node <Run Foreground="{StaticResource RequiredColor}">*</Run></TextBlock>
-                            <TextBox x:Name="NodeNameTextBox" PlaceholderText="Ví dụ: N1, Node-01..." Background="{StaticResource InputBg}" BorderBrush="{StaticResource InputBorder}" Foreground="{StaticResource TextPrimary}" Height="40" CornerRadius="6" BorderThickness="1"/>
+                        <StackPanel Grid.Row="0" Grid.Column="0">
+                            <TextBlock Text="Tên node *" Style="{StaticResource DlgFieldLabelStyle}"/>
+                            <TextBox x:Name="NodeNameTextBox" PlaceholderText="Ví dụ: N1, Node-01..." Style="{StaticResource DlgTextBoxStyle}"/>
                         </StackPanel>
 
-                        <!-- Line Selection -->
-                        <StackPanel Grid.Row="1" Spacing="4">
-                            <TextBlock Foreground="{StaticResource TextSecondary}" FontSize="13" FontWeight="SemiBold">Tuyến <Run Foreground="{StaticResource RequiredColor}">*</Run></TextBlock>
-                            <ComboBox x:Name="LineComboBox" HorizontalAlignment="Stretch" PlaceholderText="Chọn tuyến" Background="{StaticResource InputBg}" BorderBrush="{StaticResource InputBorder}" Foreground="{StaticResource TextPrimary}" Height="40" CornerRadius="6" BorderThickness="1">
+                        <StackPanel Grid.Row="0" Grid.Column="1">
+                            <TextBlock Text="Tuyến *" Style="{StaticResource DlgFieldLabelStyle}"/>
+                            <ComboBox x:Name="LineComboBox" PlaceholderText="Chọn tuyến" Style="{StaticResource DkComboBoxStyle}">
                                 <ComboBoxItem Content="Tuyến A1"/>
                                 <ComboBoxItem Content="Tuyến A2"/>
                                 <ComboBoxItem Content="Tuyến A3"/>
                             </ComboBox>
                         </StackPanel>
 
-                        <!-- Location -->
-                        <StackPanel Grid.Row="2" Spacing="4">
-                            <TextBlock Foreground="{StaticResource TextSecondary}" FontSize="13" FontWeight="SemiBold">Vị trí <Run Foreground="{StaticResource RequiredColor}">*</Run></TextBlock>
-                            <TextBox x:Name="LocationTextBox" PlaceholderText="Ví dụ: R1, Khu vực 1..." Background="{StaticResource InputBg}" BorderBrush="{StaticResource InputBorder}" Foreground="{StaticResource TextPrimary}" Height="40" CornerRadius="6" BorderThickness="1"/>
+                        <StackPanel Grid.Row="1" Grid.ColumnSpan="2">
+                            <TextBlock Text="Vị trí *" Style="{StaticResource DlgFieldLabelStyle}"/>
+                            <TextBox x:Name="LocationTextBox" PlaceholderText="Ví dụ: R1, Khu vực 1..." Style="{StaticResource DlgTextBoxStyle}"/>
                         </StackPanel>
 
-                        <!-- Description -->
-                        <StackPanel Grid.Row="3" Spacing="4">
-                            <TextBlock Text="Mô tả / Ghi chú" Foreground="{StaticResource TextSecondary}" FontSize="13" FontWeight="SemiBold"/>
-                            <TextBox x:Name="DescriptionTextBox" PlaceholderText="Mô tả vị trí hoặc ghi chú..." AcceptsReturn="True" TextWrapping="Wrap" MinHeight="60" Background="{StaticResource InputBg}" BorderBrush="{StaticResource InputBorder}" Foreground="{StaticResource TextPrimary}" CornerRadius="6" BorderThickness="1"/>
+                        <StackPanel Grid.Row="2" Grid.ColumnSpan="2">
+                            <TextBlock Text="Mô tả / ghi chú" Style="{StaticResource DlgFieldLabelStyle}"/>
+                            <TextBox x:Name="DescriptionTextBox" PlaceholderText="Mô tả vị trí hoặc ghi chú..."
+                                     AcceptsReturn="True" TextWrapping="Wrap" MinHeight="64"
+                                     Style="{StaticResource DlgTextBoxStyle}"/>
                         </StackPanel>
                     </Grid>
                 </Border>
             </StackPanel>
 
-            <!-- ========================================== -->
-            <!-- SECTION 2: CẤU HÌNH CẢM BIẾN (TỐI ƯU LOAD) -->
-            <!-- ========================================== -->
-            <StackPanel Spacing="12">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <FontIcon Glyph="&#xE957;" FontSize="18" Foreground="{StaticResource NeonAccent}"/>
-                    <TextBlock Text="Cấu hình 7 Cảm biến" FontSize="16" FontWeight="Bold" Foreground="{StaticResource TextPrimary}"/>
-                </StackPanel>
+            <!-- SECTION 2: SENSORS -->
+            <StackPanel Spacing="10">
+                <TextBlock Text="CẢM BIẾN ĐI KÈM (7)" Style="{StaticResource DkLabelStyle}"/>
 
-                <!-- Các khối cảm biến đã được gọt bỏ bớt lớp StackPanel thừa để mở cực nhanh -->
-                <StackPanel Spacing="10">
+                <Border Background="{ThemeResource DkInputBgBrush}" BorderBrush="{ThemeResource DkBorderBrush}"
+                        BorderThickness="1" CornerRadius="12">
+                    <StackPanel>
+                        <!-- Column headers -->
+                        <Border Background="{ThemeResource DkSurfaceBrush}" BorderBrush="{ThemeResource DkBorderBrush}"
+                                BorderThickness="0,0,0,1" CornerRadius="11,11,0,0" Padding="16,9">
+                            <Grid ColumnSpacing="12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="52"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="140"/>
+                                    <ColumnDefinition Width="130"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="LOẠI" Style="{StaticResource DkLabelStyle}"/>
+                                <TextBlock Grid.Column="1" Text="CẢM BIẾN" Style="{StaticResource DkLabelStyle}"/>
+                                <TextBlock Grid.Column="2" Text="ID" Style="{StaticResource DkLabelStyle}"/>
+                                <TextBlock Grid.Column="3" Text="TRẠNG THÁI" Style="{StaticResource DkLabelStyle}"/>
+                            </Grid>
+                        </Border>
 
-                    <!-- 1. Radar -->
-                    <Border Background="{StaticResource GlassBg}" BorderBrush="{StaticResource GlassBorder}" BorderThickness="1" CornerRadius="10" Padding="16">
-                        <Grid RowSpacing="12" ColumnSpacing="16">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Orientation="Horizontal" Spacing="8">
-                                <FontIcon Glyph="&#xE701;" FontSize="16" Foreground="{StaticResource NeonAccent}"/>
-                                <TextBlock Text="1. Radar phát hiện người" FontSize="14" FontWeight="Bold" Foreground="{StaticResource TextPrimary}"/>
-                            </StackPanel>
-                            <TextBox Grid.Row="1" Grid.Column="0" x:Name="RadarIdTextBox" Header="ID Cảm biến" PlaceholderText="RAD-001" Background="{StaticResource InputBg}" BorderBrush="{StaticResource InputBorder}" Height="48" CornerRadius="6"/>
-                            <ComboBox Grid.Row="1" Grid.Column="1" x:Name="RadarStatusComboBox" Header="Trạng thái" HorizontalAlignment="Stretch" SelectedIndex="0" Background="{StaticResource InputBg}" BorderBrush="{StaticResource InputBorder}" Height="48" CornerRadius="6">
-                                <ComboBoxItem Content="Hoạt động"/>
-                                <ComboBoxItem Content="Tắt"/>
-                            </ComboBox>
-                        </Grid>
-                    </Border>
+                            <Border BorderBrush="{ThemeResource DkBorderSubtleBrush}" BorderThickness="0,0,0,1" Padding="16,10">
+                                <Grid ColumnSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="52"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="140"/>
+                                        <ColumnDefinition Width="130"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" Background="{ThemeResource DkSurfaceBrush}" BorderBrush="{ThemeResource DkBorderBrush}"
+                                            BorderThickness="1" CornerRadius="4" Padding="0,3" VerticalAlignment="Center">
+                                        <TextBlock Text="RAD" Style="{StaticResource DkTagTextStyle}" HorizontalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock Grid.Column="1" Text="1. Radar phát hiện người" FontSize="{StaticResource FontSizeBody}"
+                                               Foreground="{ThemeResource DkTextPrimaryBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                    <TextBox Grid.Column="2" x:Name="RadarIdTextBox" PlaceholderText="RAD-001"
+                                             AutomationProperties.Name="ID cảm biến RAD"
+                                             Style="{StaticResource DlgTextBoxStyle}" VerticalAlignment="Center"/>
+                                    <ComboBox Grid.Column="3" x:Name="RadarStatusComboBox" SelectedIndex="0"
+                                              AutomationProperties.Name="Trạng thái cảm biến RAD"
+                                              Style="{StaticResource DkComboBoxStyle}" VerticalAlignment="Center">
+                                        <ComboBoxItem Content="Hoạt động"/>
+                                        <ComboBoxItem Content="Tắt"/>
+                                    </ComboBox>
+                                </Grid>
+                            </Border>
+                            <Border BorderBrush="{ThemeResource DkBorderSubtleBrush}" BorderThickness="0,0,0,1" Padding="16,10">
+                                <Grid ColumnSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="52"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="140"/>
+                                        <ColumnDefinition Width="130"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" Background="{ThemeResource DkSurfaceBrush}" BorderBrush="{ThemeResource DkBorderBrush}"
+                                            BorderThickness="1" CornerRadius="4" Padding="0,3" VerticalAlignment="Center">
+                                        <TextBlock Text="CAM" Style="{StaticResource DkTagTextStyle}" HorizontalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock Grid.Column="1" Text="2. Camera hồng ngoại" FontSize="{StaticResource FontSizeBody}"
+                                               Foreground="{ThemeResource DkTextPrimaryBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                    <TextBox Grid.Column="2" x:Name="CameraIdTextBox" PlaceholderText="CAM-001"
+                                             AutomationProperties.Name="ID cảm biến CAM"
+                                             Style="{StaticResource DlgTextBoxStyle}" VerticalAlignment="Center"/>
+                                    <ComboBox Grid.Column="3" x:Name="CameraStatusComboBox" SelectedIndex="0"
+                                              AutomationProperties.Name="Trạng thái cảm biến CAM"
+                                              Style="{StaticResource DkComboBoxStyle}" VerticalAlignment="Center">
+                                        <ComboBoxItem Content="Hoạt động"/>
+                                        <ComboBoxItem Content="Tắt"/>
+                                    </ComboBox>
+                                </Grid>
+                            </Border>
+                            <Border BorderBrush="{ThemeResource DkBorderSubtleBrush}" BorderThickness="0,0,0,1" Padding="16,10">
+                                <Grid ColumnSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="52"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="140"/>
+                                        <ColumnDefinition Width="130"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" Background="{ThemeResource DkSurfaceBrush}" BorderBrush="{ThemeResource DkBorderBrush}"
+                                            BorderThickness="1" CornerRadius="4" Padding="0,3" VerticalAlignment="Center">
+                                        <TextBlock Text="PIR" Style="{StaticResource DkTagTextStyle}" HorizontalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock Grid.Column="1" Text="3. Cảm biến hồng ngoại (PIR)" FontSize="{StaticResource FontSizeBody}"
+                                               Foreground="{ThemeResource DkTextPrimaryBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                    <TextBox Grid.Column="2" x:Name="PirIdTextBox" PlaceholderText="PIR-001"
+                                             AutomationProperties.Name="ID cảm biến PIR"
+                                             Style="{StaticResource DlgTextBoxStyle}" VerticalAlignment="Center"/>
+                                    <ComboBox Grid.Column="3" x:Name="PirStatusComboBox" SelectedIndex="0"
+                                              AutomationProperties.Name="Trạng thái cảm biến PIR"
+                                              Style="{StaticResource DkComboBoxStyle}" VerticalAlignment="Center">
+                                        <ComboBoxItem Content="Hoạt động"/>
+                                        <ComboBoxItem Content="Tắt"/>
+                                    </ComboBox>
+                                </Grid>
+                            </Border>
+                            <Border BorderBrush="{ThemeResource DkBorderSubtleBrush}" BorderThickness="0,0,0,1" Padding="16,10">
+                                <Grid ColumnSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="52"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="140"/>
+                                        <ColumnDefinition Width="130"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" Background="{ThemeResource DkSurfaceBrush}" BorderBrush="{ThemeResource DkBorderBrush}"
+                                            BorderThickness="1" CornerRadius="4" Padding="0,3" VerticalAlignment="Center">
+                                        <TextBlock Text="THM" Style="{StaticResource DkTagTextStyle}" HorizontalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock Grid.Column="1" Text="4. Cảm biến nhiệt độ và độ ẩm" FontSize="{StaticResource FontSizeBody}"
+                                               Foreground="{ThemeResource DkTextPrimaryBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                    <TextBox Grid.Column="2" x:Name="TempHumidIdTextBox" PlaceholderText="THM-001"
+                                             AutomationProperties.Name="ID cảm biến THM"
+                                             Style="{StaticResource DlgTextBoxStyle}" VerticalAlignment="Center"/>
+                                    <ComboBox Grid.Column="3" x:Name="TempHumidStatusComboBox" SelectedIndex="0"
+                                              AutomationProperties.Name="Trạng thái cảm biến THM"
+                                              Style="{StaticResource DkComboBoxStyle}" VerticalAlignment="Center">
+                                        <ComboBoxItem Content="Hoạt động"/>
+                                        <ComboBoxItem Content="Tắt"/>
+                                    </ComboBox>
+                                </Grid>
+                            </Border>
+                            <Border BorderBrush="{ThemeResource DkBorderSubtleBrush}" BorderThickness="0,0,0,1" Padding="16,10">
+                                <Grid ColumnSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="52"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="140"/>
+                                        <ColumnDefinition Width="130"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" Background="{ThemeResource DkSurfaceBrush}" BorderBrush="{ThemeResource DkBorderBrush}"
+                                            BorderThickness="1" CornerRadius="4" Padding="0,3" VerticalAlignment="Center">
+                                        <TextBlock Text="LUX" Style="{StaticResource DkTagTextStyle}" HorizontalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock Grid.Column="1" Text="5. Cảm biến ánh sáng" FontSize="{StaticResource FontSizeBody}"
+                                               Foreground="{ThemeResource DkTextPrimaryBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                    <TextBox Grid.Column="2" x:Name="LightIdTextBox" PlaceholderText="LUX-001"
+                                             AutomationProperties.Name="ID cảm biến LUX"
+                                             Style="{StaticResource DlgTextBoxStyle}" VerticalAlignment="Center"/>
+                                    <ComboBox Grid.Column="3" x:Name="LightStatusComboBox" SelectedIndex="0"
+                                              AutomationProperties.Name="Trạng thái cảm biến LUX"
+                                              Style="{StaticResource DkComboBoxStyle}" VerticalAlignment="Center">
+                                        <ComboBoxItem Content="Hoạt động"/>
+                                        <ComboBoxItem Content="Tắt"/>
+                                    </ComboBox>
+                                </Grid>
+                            </Border>
+                            <Border BorderBrush="{ThemeResource DkBorderSubtleBrush}" BorderThickness="0,0,0,1" Padding="16,10">
+                                <Grid ColumnSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="52"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="140"/>
+                                        <ColumnDefinition Width="130"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" Background="{ThemeResource DkSurfaceBrush}" BorderBrush="{ThemeResource DkBorderBrush}"
+                                            BorderThickness="1" CornerRadius="4" Padding="0,3" VerticalAlignment="Center">
+                                        <TextBlock Text="LVL" Style="{StaticResource DkTagTextStyle}" HorizontalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock Grid.Column="1" Text="6. Cảm biến mực nước" FontSize="{StaticResource FontSizeBody}"
+                                               Foreground="{ThemeResource DkTextPrimaryBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                    <TextBox Grid.Column="2" x:Name="WaterIdTextBox" PlaceholderText="WTR-001"
+                                             AutomationProperties.Name="ID cảm biến LVL"
+                                             Style="{StaticResource DlgTextBoxStyle}" VerticalAlignment="Center"/>
+                                    <ComboBox Grid.Column="3" x:Name="WaterStatusComboBox" SelectedIndex="0"
+                                              AutomationProperties.Name="Trạng thái cảm biến LVL"
+                                              Style="{StaticResource DkComboBoxStyle}" VerticalAlignment="Center">
+                                        <ComboBoxItem Content="Hoạt động"/>
+                                        <ComboBoxItem Content="Tắt"/>
+                                    </ComboBox>
+                                </Grid>
+                            </Border>
+                            <Border BorderBrush="{ThemeResource DkBorderSubtleBrush}" BorderThickness="0" Padding="16,10">
+                                <Grid ColumnSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="52"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="140"/>
+                                        <ColumnDefinition Width="130"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" Background="{ThemeResource DkSurfaceBrush}" BorderBrush="{ThemeResource DkBorderBrush}"
+                                            BorderThickness="1" CornerRadius="4" Padding="0,3" VerticalAlignment="Center">
+                                        <TextBlock Text="VIB" Style="{StaticResource DkTagTextStyle}" HorizontalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock Grid.Column="1" Text="7. Cảm biến gia tốc (rung động)" FontSize="{StaticResource FontSizeBody}"
+                                               Foreground="{ThemeResource DkTextPrimaryBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                    <TextBox Grid.Column="2" x:Name="AccelerometerIdTextBox" PlaceholderText="ACC-001"
+                                             AutomationProperties.Name="ID cảm biến VIB"
+                                             Style="{StaticResource DlgTextBoxStyle}" VerticalAlignment="Center"/>
+                                    <ComboBox Grid.Column="3" x:Name="AccelerometerStatusComboBox" SelectedIndex="0"
+                                              AutomationProperties.Name="Trạng thái cảm biến VIB"
+                                              Style="{StaticResource DkComboBoxStyle}" VerticalAlignment="Center">
+                                        <ComboBoxItem Content="Hoạt động"/>
+                                        <ComboBoxItem Content="Tắt"/>
+                                    </ComboBox>
+                                </Grid>
+                            </Border>
+                    </StackPanel>
+                </Border>
 
-                    <!-- 2. Camera -->
-                    <Border Background="{StaticResource GlassBg}" BorderBrush="{StaticResource GlassBorder}" BorderThickness="1" CornerRadius="10" Padding="16">
-                        <Grid RowSpacing="12" ColumnSpacing="16">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Orientation="Horizontal" Spacing="8">
-                                <FontIcon Glyph="&#xE714;" FontSize="16" Foreground="{StaticResource NeonAccent}"/>
-                                <TextBlock Text="2. Camera hồng ngoại" FontSize="14" FontWeight="Bold" Foreground="{StaticResource TextPrimary}"/>
-                            </StackPanel>
-                            <TextBox Grid.Row="1" Grid.Column="0" x:Name="CameraIdTextBox" Header="ID Cảm biến" PlaceholderText="CAM-001" Background="{StaticResource InputBg}" BorderBrush="{StaticResource InputBorder}" Height="48" CornerRadius="6"/>
-                            <ComboBox Grid.Row="1" Grid.Column="1" x:Name="CameraStatusComboBox" Header="Trạng thái" HorizontalAlignment="Stretch" SelectedIndex="0" Background="{StaticResource InputBg}" BorderBrush="{StaticResource InputBorder}" Height="48" CornerRadius="6">
-                                <ComboBoxItem Content="Hoạt động"/>
-                                <ComboBoxItem Content="Tắt"/>
-                            </ComboBox>
-                        </Grid>
-                    </Border>
-
-                    <!-- 3. PIR -->
-                    <Border Background="{StaticResource GlassBg}" BorderBrush="{StaticResource GlassBorder}" BorderThickness="1" CornerRadius="10" Padding="16">
-                        <Grid RowSpacing="12" ColumnSpacing="16">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Orientation="Horizontal" Spacing="8">
-                                <FontIcon Glyph="&#xE7C1;" FontSize="16" Foreground="{StaticResource NeonAccent}"/>
-                                <TextBlock Text="3. Cảm biến hồng ngoại (PIR)" FontSize="14" FontWeight="Bold" Foreground="{StaticResource TextPrimary}"/>
-                            </StackPanel>
-                            <TextBox Grid.Row="1" Grid.Column="0" x:Name="PirIdTextBox" Header="ID Cảm biến" PlaceholderText="PIR-001" Background="{StaticResource InputBg}" BorderBrush="{StaticResource InputBorder}" Height="48" CornerRadius="6"/>
-                            <ComboBox Grid.Row="1" Grid.Column="1" x:Name="PirStatusComboBox" Header="Trạng thái" HorizontalAlignment="Stretch" SelectedIndex="0" Background="{StaticResource InputBg}" BorderBrush="{StaticResource InputBorder}" Height="48" CornerRadius="6">
-                                <ComboBoxItem Content="Hoạt động"/>
-                                <ComboBoxItem Content="Tắt"/>
-                            </ComboBox>
-                        </Grid>
-                    </Border>
-
-                    <!-- 4. Nhiệt ẩm -->
-                    <Border Background="{StaticResource GlassBg}" BorderBrush="{StaticResource GlassBorder}" BorderThickness="1" CornerRadius="10" Padding="16">
-                        <Grid RowSpacing="12" ColumnSpacing="16">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Orientation="Horizontal" Spacing="8">
-                                <FontIcon Glyph="&#xE9CA;" FontSize="16" Foreground="{StaticResource NeonAccent}"/>
-                                <TextBlock Text="4. Cảm biến nhiệt độ và độ ẩm" FontSize="14" FontWeight="Bold" Foreground="{StaticResource TextPrimary}"/>
-                            </StackPanel>
-                            <TextBox Grid.Row="1" Grid.Column="0" x:Name="TempHumidIdTextBox" Header="ID Cảm biến" PlaceholderText="THM-001" Background="{StaticResource InputBg}" BorderBrush="{StaticResource InputBorder}" Height="48" CornerRadius="6"/>
-                            <ComboBox Grid.Row="1" Grid.Column="1" x:Name="TempHumidStatusComboBox" Header="Trạng thái" HorizontalAlignment="Stretch" SelectedIndex="0" Background="{StaticResource InputBg}" BorderBrush="{StaticResource InputBorder}" Height="48" CornerRadius="6">
-                                <ComboBoxItem Content="Hoạt động"/>
-                                <ComboBoxItem Content="Tắt"/>
-                            </ComboBox>
-                        </Grid>
-                    </Border>
-
-                    <!-- 5. Ánh sáng -->
-                    <Border Background="{StaticResource GlassBg}" BorderBrush="{StaticResource GlassBorder}" BorderThickness="1" CornerRadius="10" Padding="16">
-                        <Grid RowSpacing="12" ColumnSpacing="16">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Orientation="Horizontal" Spacing="8">
-                                <FontIcon Glyph="&#xE706;" FontSize="16" Foreground="{StaticResource NeonAccent}"/>
-                                <TextBlock Text="5. Cảm biến ánh sáng" FontSize="14" FontWeight="Bold" Foreground="{StaticResource TextPrimary}"/>
-                            </StackPanel>
-                            <TextBox Grid.Row="1" Grid.Column="0" x:Name="LightIdTextBox" Header="ID Cảm biến" PlaceholderText="LUX-001" Background="{StaticResource InputBg}" BorderBrush="{StaticResource InputBorder}" Height="48" CornerRadius="6"/>
-                            <ComboBox Grid.Row="1" Grid.Column="1" x:Name="LightStatusComboBox" Header="Trạng thái" HorizontalAlignment="Stretch" SelectedIndex="0" Background="{StaticResource InputBg}" BorderBrush="{StaticResource InputBorder}" Height="48" CornerRadius="6">
-                                <ComboBoxItem Content="Hoạt động"/>
-                                <ComboBoxItem Content="Tắt"/>
-                            </ComboBox>
-                        </Grid>
-                    </Border>
-
-                    <!-- 6. Nước -->
-                    <Border Background="{StaticResource GlassBg}" BorderBrush="{StaticResource GlassBorder}" BorderThickness="1" CornerRadius="10" Padding="16">
-                        <Grid RowSpacing="12" ColumnSpacing="16">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Orientation="Horizontal" Spacing="8">
-                                <FontIcon Glyph="&#xE9F2;" FontSize="16" Foreground="{StaticResource NeonAccent}"/>
-                                <TextBlock Text="6. Cảm biến mực nước" FontSize="14" FontWeight="Bold" Foreground="{StaticResource TextPrimary}"/>
-                            </StackPanel>
-                            <TextBox Grid.Row="1" Grid.Column="0" x:Name="WaterIdTextBox" Header="ID Cảm biến" PlaceholderText="WTR-001" Background="{StaticResource InputBg}" BorderBrush="{StaticResource InputBorder}" Height="48" CornerRadius="6"/>
-                            <ComboBox Grid.Row="1" Grid.Column="1" x:Name="WaterStatusComboBox" Header="Trạng thái" HorizontalAlignment="Stretch" SelectedIndex="0" Background="{StaticResource InputBg}" BorderBrush="{StaticResource InputBorder}" Height="48" CornerRadius="6">
-                                <ComboBoxItem Content="Hoạt động"/>
-                                <ComboBoxItem Content="Tắt"/>
-                            </ComboBox>
-                        </Grid>
-                    </Border>
-
-                    <!-- 7. Gia tốc -->
-                    <Border Background="{StaticResource GlassBg}" BorderBrush="{StaticResource GlassBorder}" BorderThickness="1" CornerRadius="10" Padding="16">
-                        <Grid RowSpacing="12" ColumnSpacing="16">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Orientation="Horizontal" Spacing="8">
-                                <FontIcon Glyph="&#xEDA4;" FontSize="16" Foreground="{StaticResource NeonAccent}"/>
-                                <TextBlock Text="7. Cảm biến gia tốc (rung động)" FontSize="14" FontWeight="Bold" Foreground="{StaticResource TextPrimary}"/>
-                            </StackPanel>
-                            <TextBox Grid.Row="1" Grid.Column="0" x:Name="AccelerometerIdTextBox" Header="ID Cảm biến" PlaceholderText="ACC-001" Background="{StaticResource InputBg}" BorderBrush="{StaticResource InputBorder}" Height="48" CornerRadius="6"/>
-                            <ComboBox Grid.Row="1" Grid.Column="1" x:Name="AccelerometerStatusComboBox" Header="Trạng thái" HorizontalAlignment="Stretch" SelectedIndex="0" Background="{StaticResource InputBg}" BorderBrush="{StaticResource InputBorder}" Height="48" CornerRadius="6">
-                                <ComboBoxItem Content="Hoạt động"/>
-                                <ComboBoxItem Content="Tắt"/>
-                            </ComboBox>
-                        </Grid>
-                    </Border>
-
-                </StackPanel>
+                <TextBlock TextWrapping="Wrap" FontSize="{StaticResource FontSizeSmall}" Foreground="{ThemeResource DkTextMutedBrush}"
+                           Text="Mỗi node được tự động cấu hình với 7 loại cảm biến cơ bản. Có thể chỉnh sửa ID và trạng thái bật/tắt cho từng cảm biến theo thực tế. ID để trống sẽ được tạo tự động."/>
             </StackPanel>
-
-            <!-- INFO NOTE -->
-            <Border Background="#1A00E5FF" BorderBrush="#3300C6FF" BorderThickness="1" CornerRadius="8" Padding="16" Margin="0,0,0,16">
-                <StackPanel Orientation="Horizontal" Spacing="12">
-                    <FontIcon Glyph="&#xE946;" FontSize="20" Foreground="{StaticResource NeonAccent}" VerticalAlignment="Top"/>
-                    <TextBlock TextWrapping="Wrap" FontSize="13" Foreground="{StaticResource TextPrimary}" LineHeight="20">
-                        <Run Text="Mỗi node sẽ được tự động cấu hình với"/> <Run Text="7 loại cảm biến cơ bản" FontWeight="Bold" Foreground="{StaticResource NeonAccent}"/>.<LineBreak/>
-                        <Run Text="Bạn có thể chỉnh sửa ID và trạng thái bật/tắt cho từng cảm biến theo thực tế."/>
-                    </TextBlock>
-                </StackPanel>
-            </Border>
 
         </StackPanel>
     </ScrollViewer>

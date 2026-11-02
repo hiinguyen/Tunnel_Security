@@ -1,4 +1,4 @@
-﻿using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
@@ -23,6 +23,7 @@ namespace Station.Dialogs
         public DeviceControlDialog()
         {
             this.InitializeComponent();
+            RequestedTheme = Station.Services.ThemeService.Instance.CurrentTheme;
         }
 
         public DeviceControlDialog(DeviceItemViewModel device) : this()
@@ -151,10 +152,12 @@ namespace Station.Dialogs
                             Unit = s.Unit ?? "",
                             Icon = GetSensorIcon(s.Type, s.Name),
                             IconBackground = GetSensorIconBackground(s.Type),
-                            ValueColor = GetValueColor(s)
+                            ValueColor = GetValueColor(s),
+                            StateText = GetStateText(s)
                         }).ToList();
 
                         SensorsItemsControl.ItemsSource = sensorViewModels;
+                        SensorEmptyState.Visibility = Visibility.Collapsed;
                     }
                     else
                     {
@@ -192,32 +195,28 @@ namespace Station.Dialogs
             }
         }
 
+        private static Brush Res(string key) => (Brush)Station.Services.ThemeBrushes.Get(key);
+
+        // DESIGN palette: green = online, yellow = warning, red = critical, gray = offline.
+        // Every state carries a geometric marker so it never relies on color alone.
         private void UpdateStatusBadge(int status)
         {
-            var (bgColor, fgColor, text) = status switch
+            var (bgKey, fgKey, text) = status switch
             {
-                0 => ("#1F6B3A", "#10B981", "● Online"),
-                1 => ("#3D3A1F", "#F59E0B", "● Warning"),
-                2 => ("#3D1F1F", "#EF4444", "● Critical"),
-                3 => ("#1F2937", "#6B7280", "● Offline"),
-                _ => ("#1F2937", "#94A3B8", "● Unknown")
+                0 => ("DkGreenBgBrush", "DkGreenBrush", "\u25CF Online"),
+                1 => ("DkYellowBgBrush", "DkYellowBrush", "\u25B2 Warning"),
+                2 => ("DkRedBgBrush", "DkRedBrush", "\u25B2 Critical"),
+                3 => ("DkGrayBgBrush", "DkGrayBrush", "\u25CB Offline"),
+                _ => ("DkGrayBgBrush", "DkGrayBrush", "\u25CB Unknown")
             };
 
-            StatusBadge.Background = new SolidColorBrush(
-                Microsoft.UI.ColorHelper.FromArgb(255,
-                    Convert.ToByte(bgColor.Substring(1, 2), 16),
-                    Convert.ToByte(bgColor.Substring(3, 2), 16),
-                    Convert.ToByte(bgColor.Substring(5, 2), 16)));
-            
-            // Find TextBlock child and update
+            StatusBadge.Background = Res(bgKey);
+            StatusBadge.BorderBrush = Res(fgKey);
+
             if (StatusBadge.Child is TextBlock statusText)
             {
                 statusText.Text = text;
-                statusText.Foreground = new SolidColorBrush(
-                    Microsoft.UI.ColorHelper.FromArgb(255,
-                        Convert.ToByte(fgColor.Substring(1, 2), 16),
-                        Convert.ToByte(fgColor.Substring(3, 2), 16),
-                        Convert.ToByte(fgColor.Substring(5, 2), 16)));
+                statusText.Foreground = Res(fgKey);
             }
         }
 
@@ -258,17 +257,19 @@ namespace Station.Dialogs
             };
         }
 
+        // Short instrument tag instead of an emoji pictogram. Same vocabulary as the map popup
+        // (Assets/Map/map.html getSensorTag) and the SEN/CAM/RAD IDs used elsewhere in the app.
         private string GetSensorIcon(int type, string name)
         {
             return type switch
             {
-                0 => "📡",
-                1 => "🌡️",
-                2 => "💧",
-                3 => "📳",
-                4 => "🌊",
-                5 => "🔥",
-                _ => "📊"
+                0 => "RAD",
+                1 => "TEMP",
+                2 => "HUM",
+                3 => "VIB",
+                4 => "LVL",
+                5 => "FIRE",
+                _ => "SEN"
             };
         }
 
@@ -292,14 +293,28 @@ namespace Station.Dialogs
                     Convert.ToByte(color.Substring(5, 2), 16)));
         }
 
+        private static SolidColorBrush ResBrush(string key) => (SolidColorBrush)Station.Services.ThemeBrushes.Get(key);
+
         private SolidColorBrush GetValueColor(SensorData sensor)
         {
             if (sensor.CriticalThreshold.HasValue && sensor.CurrentValue >= sensor.CriticalThreshold)
-                return new SolidColorBrush(Microsoft.UI.Colors.Red);
+                return ResBrush("DkRedBrush");
             if (sensor.WarningThreshold.HasValue && sensor.CurrentValue >= sensor.WarningThreshold)
-                return new SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 245, 158, 11));
-            return new SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 16, 185, 129));
+                return ResBrush("DkYellowBrush");
+            return ResBrush("DkTextPrimaryBrush");
         }
+
+        // Text state with geometric marker, paired with the value color.
+        private string GetStateText(SensorData sensor)
+        {
+            if (sensor.CriticalThreshold.HasValue && sensor.CurrentValue >= sensor.CriticalThreshold)
+                return "\u25B2 Nghiêm trọng";
+            if (sensor.WarningThreshold.HasValue && sensor.CurrentValue >= sensor.WarningThreshold)
+                return "\u25B2 Cảnh báo";
+            return "\u25CF Bình thường";
+        }
+
+        private void HeaderClose_Click(object sender, RoutedEventArgs e) => Hide();
 
         private async void ViewCameraButton_Click(object sender, RoutedEventArgs e)
         {
@@ -368,20 +383,13 @@ namespace Station.Dialogs
         private void SensorCard_PointerEntered(object sender, PointerRoutedEventArgs e)
         {
             if (sender is Border border)
-            {
-                var originalBrush = border.Background;
-                border.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(
-                    Microsoft.UI.Colors.Gray) { Opacity = 0.05 };
-            }
+                border.Background = Res("DkHoverSurfaceBrush");
         }
 
         private void SensorCard_PointerExited(object sender, PointerRoutedEventArgs e)
         {
             if (sender is Border border)
-            {
-                border.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(
-                    Microsoft.UI.Colors.Transparent);
-            }
+                border.Background = Res("DkInputBgBrush");
         }
 
         private async void ShowNotification(string message, InfoBarSeverity severity = InfoBarSeverity.Success)
@@ -426,5 +434,6 @@ namespace Station.Dialogs
         public string Icon { get; set; }
         public SolidColorBrush IconBackground { get; set; }
         public SolidColorBrush ValueColor { get; set; }
+        public string StateText { get; set; }
     }
 }

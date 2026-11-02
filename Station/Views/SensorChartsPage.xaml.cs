@@ -95,7 +95,7 @@ public sealed partial class SensorChartsPage : Page
     // sync with the shared design tokens instead of duplicating raw ARGB values here —
     // same pattern as LiveVideoViewModel.ResolveBrush().
     private static Color ResolveColor(string key, Color fallback) =>
-        Application.Current.Resources.TryGetValue(key, out var resource) && resource is SolidColorBrush brush
+        Station.Services.ThemeBrushes.TryGet(key, out var resource) && resource is SolidColorBrush brush
             ? brush.Color
             : fallback;
 
@@ -550,7 +550,7 @@ public sealed partial class SensorChartsPage : Page
         {
             Text         = nodeName,
             FontSize     = 11,
-            FontFamily   = new FontFamily("Consolas"),
+            FontFamily   = new FontFamily("Segoe UI Variable"),
             FontWeight   = Microsoft.UI.Text.FontWeights.SemiBold,
             Foreground   = ResolveBrush("DkTextSubtleBrush", Color.FromArgb(255, 194, 198, 214)),
             TextTrimming = TextTrimming.CharacterEllipsis,
@@ -563,7 +563,7 @@ public sealed partial class SensorChartsPage : Page
         {
             Text       = $"{assignedCount}/{sensors.Count}",
             FontSize   = 9,
-            FontFamily = new FontFamily("Consolas"),
+            FontFamily = new FontFamily("Segoe UI Variable"),
             Foreground = ResolveBrush("DkTextFaintBrush", Color.FromArgb(255, 90, 97, 110)),
             VerticalAlignment = VerticalAlignment.Center
         };
@@ -613,14 +613,14 @@ public sealed partial class SensorChartsPage : Page
         row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
-        var dot = new Rectangle { Width = 3, Height = 14, Fill = new SolidColorBrush(accent), VerticalAlignment = VerticalAlignment.Center };
+        var dot = new Rectangle { Width = 8, Height = 8, RadiusX = 2, RadiusY = 2, Fill = new SolidColorBrush(accent), VerticalAlignment = VerticalAlignment.Center };
         Grid.SetColumn(dot, 0);
 
         var nameTb = new TextBlock
         {
             Text       = SensorLabel(type),
             FontSize   = 11,
-            FontFamily = new FontFamily("Consolas"),
+            FontFamily = new FontFamily("Segoe UI Variable"),
             Foreground = ResolveBrush("DkTextSubtleBrush", Color.FromArgb(255, 194, 198, 214)),
             TextTrimming = TextTrimming.CharacterEllipsis
         };
@@ -768,8 +768,8 @@ public sealed partial class SensorChartsPage : Page
             Stroke          = ResolveBrush("DkBlueLightBrush", Color.FromArgb(255, 96, 165, 250)),
             StrokeThickness = 2,
             StrokeDashArray = new DoubleCollection { 4, 3 },
-            RadiusX         = 4,
-            RadiusY         = 4,
+            RadiusX         = 12,
+            RadiusY         = 12,
             Fill            = new SolidColorBrush(WithAlpha(ResolveColor("DkBlueLightBrush", Color.FromArgb(255, 96, 165, 250)), 40)),
             Opacity         = 0
         };
@@ -779,24 +779,25 @@ public sealed partial class SensorChartsPage : Page
             Stroke          = ResolveBrush("DkBorderBrush", Color.FromArgb(255, 45, 50, 56)),
             StrokeThickness = 1.5,
             StrokeDashArray = new DoubleCollection { 4, 3 },
-            RadiusX         = 4,
-            RadiusY         = 4
+            RadiusX         = 12,
+            RadiusY         = 12
         };
 
         var iconWrap = new Border
         {
-            Width               = 48,
-            Height              = 48,
-            CornerRadius        = new CornerRadius(24),
-            Background          = ResolveBrush("DkSurfaceBrush", Color.FromArgb(255, 23, 30, 51)),
+            CornerRadius        = new CornerRadius(4),
+            Padding             = new Thickness(8, 3, 8, 3),
+            Background          = ResolveBrush("DkInputBgBrush", Color.FromArgb(255, 17, 22, 33)),
+            BorderBrush         = ResolveBrush("DkBorderBrush", Color.FromArgb(255, 45, 53, 69)),
+            BorderThickness     = new Thickness(1),
             HorizontalAlignment = HorizontalAlignment.Center,
-            Child = new FontIcon
+            Child = new TextBlock
             {
-                Glyph               = "",
-                FontSize            = 20,
-                Foreground          = ResolveBrush("DkGrayBrush", Color.FromArgb(255, 123, 126, 133)),
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment   = VerticalAlignment.Center
+                Text             = $"Ô {index + 1:00}",
+                FontSize         = 10,
+                FontWeight       = Microsoft.UI.Text.FontWeights.Bold,
+                CharacterSpacing = 80,
+                Foreground       = ResolveBrush("DkTextSecondaryBrush", Color.FromArgb(255, 148, 163, 184))
             }
         };
 
@@ -810,9 +811,9 @@ public sealed partial class SensorChartsPage : Page
         };
         var label = new TextBlock
         {
-            Text                = $"Trống (Ô {index + 1:00})",
+            Text                = "Ô trống",
             FontSize            = 11,
-            FontFamily          = new FontFamily("Consolas"),
+            FontFamily          = new FontFamily("Segoe UI Variable"),
             Foreground          = ResolveBrush("DkTextFaintBrush", Color.FromArgb(255, 90, 97, 110)),
             HorizontalAlignment = HorizontalAlignment.Center
         };
@@ -910,7 +911,7 @@ public sealed partial class SensorChartsPage : Page
         {
             Text        = $"{initialValue:F1}",
             FontSize    = 32,
-            FontFamily  = new FontFamily("Consolas"),
+            FontFamily  = new FontFamily("Segoe UI Variable"),
             FontWeight  = Microsoft.UI.Text.FontWeights.Bold,
             Foreground  = ResolveBrush("DkChartValueBrush", Color.FromArgb(255, 218, 226, 253))
         };
@@ -928,7 +929,7 @@ public sealed partial class SensorChartsPage : Page
         {
             Text              = "NORMAL",
             FontSize          = 8,
-            FontFamily        = new FontFamily("Consolas"),
+            FontFamily        = new FontFamily("Segoe UI Variable"),
             Foreground        = ResolveBrush("DkGreenBrush", Color.FromArgb(255, 63, 207, 142)),
             VerticalAlignment = VerticalAlignment.Center
         };
@@ -955,6 +956,7 @@ public sealed partial class SensorChartsPage : Page
             Background      = ResolveBrush("DkSurfaceBrush", Color.FromArgb(255, 23, 30, 51)),
             BorderBrush     = ResolveBrush("DkBorderBrush", Color.FromArgb(255, 45, 50, 56)),
             BorderThickness = new Thickness(1),
+            CornerRadius    = new CornerRadius(12),
             AllowDrop       = true,
             CanDrag         = true
         };
@@ -974,7 +976,7 @@ public sealed partial class SensorChartsPage : Page
         {
             Text       = SensorLabel(type),
             FontSize   = 10,
-            FontFamily = new FontFamily("Consolas"),
+            FontFamily = new FontFamily("Segoe UI Variable"),
             FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
             Foreground = new SolidColorBrush(accent)
         };
@@ -1061,7 +1063,7 @@ public sealed partial class SensorChartsPage : Page
         {
             Text              = SensorUnit(type),
             FontSize          = 12,
-            FontFamily        = new FontFamily("Consolas"),
+            FontFamily        = new FontFamily("Segoe UI Variable"),
             Foreground        = new SolidColorBrush(accent),
             VerticalAlignment = VerticalAlignment.Bottom,
             Margin            = new Thickness(2, 0, 0, 5)
@@ -1437,13 +1439,13 @@ public sealed partial class SensorChartsPage : Page
         if (connected)
         {
             ConnectionDot.Fill       = ResolveBrush("DkGreenBrush", Color.FromArgb(255, 63, 207, 142));
-            ConnectionText.Text      = "CONNECTED";
+            ConnectionText.Text      = "ĐÃ KẾT NỐI";
             ConnectionText.Foreground = ResolveBrush("DkBlueLightBrush", Color.FromArgb(255, 96, 165, 250));
         }
         else
         {
             ConnectionDot.Fill       = ResolveBrush("DkConnectionOfflineBrush", Color.FromArgb(255, 61, 96, 112));
-            ConnectionText.Text      = "CONNECTING...";
+            ConnectionText.Text      = "ĐANG KẾT NỐI";
             ConnectionText.Foreground = ResolveBrush("DkConnectionOfflineBrush", Color.FromArgb(255, 61, 96, 112));
         }
     }

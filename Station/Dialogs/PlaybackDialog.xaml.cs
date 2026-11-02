@@ -24,9 +24,12 @@ namespace Station.Dialogs
         public PlaybackDialog()
         {
             this.InitializeComponent();
+            RequestedTheme = Station.Services.ThemeService.Instance.CurrentTheme;
             InitializePlaybackTimer();
             LoadInitialData();
         }
+
+        private void HeaderClose_Click(object sender, RoutedEventArgs e) => Hide();
 
         public PlaybackDialog(DeviceItemViewModel device) : this()
         {

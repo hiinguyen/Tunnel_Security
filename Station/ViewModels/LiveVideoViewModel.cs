@@ -588,7 +588,7 @@ namespace Station.ViewModels
         // sync with Colors.xaml (incl. Light/Dark variants) instead of duplicating
         // hex values here — same pattern as ColorConverters.cs / DevicesPage.xaml.cs.
         private static SolidColorBrush ResolveBrush(string key, Windows.UI.Color fallback) =>
-            Application.Current.Resources.TryGetValue(key, out var resource) && resource is SolidColorBrush brush
+            Station.Services.ThemeBrushes.TryGet(key, out var resource) && resource is SolidColorBrush brush
                 ? brush
                 : new SolidColorBrush(fallback);
 

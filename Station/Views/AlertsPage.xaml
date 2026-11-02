@@ -4,336 +4,261 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:Station.ViewModels"
+    xmlns:views="using:Station.Views"
     xmlns:conv="using:Station.Converters"
     xmlns:lvc="using:LiveChartsCore.SkiaSharpView.WinUI"
-    Background="#111621">
+    Background="{ThemeResource DkBgBrush}">
 
     <Page.Resources>
         <conv:BoolToVisibilityConverter  x:Key="BoolToVisibilityConverter"/>
         <conv:ZeroToVisibilityConverter  x:Key="ZeroToVisibilityConverter"/>
         <!-- Suppress default ListView/ListViewItem background -->
         <SolidColorBrush x:Key="ListViewItemBackground"              Color="Transparent"/>
-        <SolidColorBrush x:Key="ListViewItemBackgroundSelected"      Color="#0F3460"/>
-        <SolidColorBrush x:Key="ListViewItemBackgroundPointerOver"   Color="#0A1628"/>
+        <SolidColorBrush x:Key="ListViewItemBackgroundSelected"      Color="Transparent"/>
+        <SolidColorBrush x:Key="ListViewItemBackgroundPointerOver"   Color="Transparent"/>
         <SolidColorBrush x:Key="ListViewBackground"                  Color="Transparent"/>
         <SolidColorBrush x:Key="ListViewBorderBrush"                 Color="Transparent"/>
     </Page.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>  <!-- Header -->
-            <RowDefinition Height="*"/>     <!-- Scrollable content -->
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- ══════════════════════════════════════════════════════════════ -->
-        <!-- STICKY HEADER                                                   -->
-        <!-- ══════════════════════════════════════════════════════════════ -->
+        <!-- HEADER -->
         <Border Grid.Row="0"
-                Background="#1C222D"
-                BorderBrush="#2D3545" BorderThickness="0,0,0,1"
-                Padding="24,14,24,14">
+                Background="{ThemeResource DkSurfaceBrush}"
+                BorderBrush="{ThemeResource DkBorderBrush}"
+                BorderThickness="0,0,0,1"
+                Padding="24,12">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Title -->
-                <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                    <TextBlock Text="Quản lý Cảnh báo &amp; Sự cố"
-                               FontSize="20" FontWeight="Bold" Foreground="#F1F5F9"/>
-                    <TextBlock Text="Trung tâm điều hành giám sát hệ thống thời gian thực"
-                               FontSize="12" Foreground="#64748B" Margin="0,2,0,0"/>
-                </StackPanel>
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="20" VerticalAlignment="Center">
+                    <TextBlock Text="Quản lý cảnh báo và sự cố"
+                               FontSize="{StaticResource FontSizeTitle}"
+                               FontWeight="SemiBold"
+                               Foreground="{ThemeResource DkTextPrimaryBrush}"
+                               VerticalAlignment="Center"/>
 
-                <!-- Period toggle + actions -->
-                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
-
-                    <!-- Hiện tại / Lịch sử toggle -->
-                    <Border Background="#0F1526" BorderBrush="#2D3545" BorderThickness="1"
-                            CornerRadius="8" Padding="4">
-                        <StackPanel Orientation="Horizontal">
+                    <!-- Hiện tại / Lịch sử -->
+                    <Border Background="{ThemeResource DkInputBgBrush}"
+                            BorderBrush="{ThemeResource DkBorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Padding="2">
+                        <StackPanel Orientation="Horizontal" Spacing="2">
                             <Button x:Name="CurrentViewButton"
-                                    Content="Hiện tại"
+                                    Style="{StaticResource DkSegmentButtonStyle}"
                                     Click="CurrentViewButton_Click"
-                                    Background="#144BB8" Foreground="White"
-                                    BorderThickness="0" CornerRadius="6"
-                                    Padding="16,6" FontSize="13" FontWeight="SemiBold"/>
+                                    Content="Hiện tại"/>
                             <Button x:Name="HistoryViewButton"
-                                    Content="Lịch sử"
+                                    Style="{StaticResource DkSegmentButtonStyle}"
                                     Click="HistoryViewButton_Click"
-                                    Background="Transparent" Foreground="#94A3B8"
-                                    BorderThickness="0" CornerRadius="6"
-                                    Padding="16,6" FontSize="13"/>
+                                    Content="Lịch sử"/>
                         </StackPanel>
                     </Border>
-
-                    <!-- Export CSV -->
-                    <Button Click="ExportCsvButton_Click"
-                            Background="#1C222D" BorderBrush="#2D3545" BorderThickness="1"
-                            CornerRadius="8" Padding="12,8" Foreground="#94A3B8"
-                            ToolTipService.ToolTip="Xuất CSV">
-                        <StackPanel Orientation="Horizontal" Spacing="6">
-                            <FontIcon Glyph="&#xE74E;" FontSize="14"/>
-                            <TextBlock Text="Xuất CSV" FontSize="13"/>
-                        </StackPanel>
-                    </Button>
                 </StackPanel>
+
+                <Button Grid.Column="1"
+                        Style="{StaticResource DkSecondaryButtonStyle}"
+                        Click="ExportCsvButton_Click"
+                        ToolTipService.ToolTip="Xuất CSV"
+                        Content="Xuất CSV"
+                        VerticalAlignment="Center"/>
             </Grid>
         </Border>
 
-        <!-- ══════════════════════════════════════════════════════════════ -->
-        <!-- SCROLLABLE MAIN CONTENT                                         -->
-        <!-- ══════════════════════════════════════════════════════════════ -->
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-            <StackPanel Spacing="0" Padding="24,20,24,24">
+            <StackPanel Padding="24,16,24,24" Spacing="16">
 
-                <!-- ── STAT CARDS ─────────────────────────────────────── -->
-                <Grid Margin="0,0,0,20">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="16"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="16"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <!-- Critical -->
-                    <Border Grid.Column="0"
-                            Background="#1C222D"
-                            BorderBrush="#2D3545" BorderThickness="1"
-                            CornerRadius="12" Padding="0">
-                        <Grid>
-                            <!-- Colored left accent bar -->
-                            <Border Width="4" HorizontalAlignment="Left"
-                                    Background="#EF4444" CornerRadius="12,0,0,12"/>
-                            <Grid Margin="20,18,18,18">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                                    <TextBlock Text="NGHIÊM TRỌNG"
-                                               FontSize="11" FontWeight="Bold"
-                                               Foreground="#64748B" CharacterSpacing="60"/>
-                                    <TextBlock Text="{x:Bind ViewModel.CriticalCount, Mode=OneWay}"
-                                               FontSize="38" FontWeight="Bold"
-                                               Foreground="#EF4444" Margin="0,4,0,0"/>
-                                    <TextBlock Text="cảnh báo nguy cấp" FontSize="11" Foreground="#475569"/>
-                                </StackPanel>
-                                <Border Grid.Column="1"
-                                        Background="#1F0E0E" CornerRadius="50"
-                                        Width="48" Height="48" VerticalAlignment="Center">
-                                    <FontIcon Glyph="&#xEB90;" FontSize="22" Foreground="#EF4444"/>
-                                </Border>
-                            </Grid>
-                        </Grid>
-                    </Border>
-
-                    <!-- Warning (High + Medium) -->
-                    <Border Grid.Column="2"
-                            Background="#1C222D"
-                            BorderBrush="#2D3545" BorderThickness="1"
-                            CornerRadius="12" Padding="0">
-                        <Grid>
-                            <Border Width="4" HorizontalAlignment="Left"
-                                    Background="#F59E0B" CornerRadius="12,0,0,12"/>
-                            <Grid Margin="20,18,18,18">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                                    <TextBlock Text="CẢNH BÁO"
-                                               FontSize="11" FontWeight="Bold"
-                                               Foreground="#64748B" CharacterSpacing="60"/>
-                                    <TextBlock Text="{x:Bind ViewModel.WarningCount, Mode=OneWay}"
-                                               FontSize="38" FontWeight="Bold"
-                                               Foreground="#F59E0B" Margin="0,4,0,0"/>
-                                    <TextBlock Text="mức cao + trung bình" FontSize="11" Foreground="#475569"/>
-                                </StackPanel>
-                                <Border Grid.Column="1"
-                                        Background="#1C1407" CornerRadius="50"
-                                        Width="48" Height="48" VerticalAlignment="Center">
-                                    <FontIcon Glyph="&#xE7BA;" FontSize="22" Foreground="#F59E0B"/>
-                                </Border>
-                            </Grid>
-                        </Grid>
-                    </Border>
-
-                    <!-- Info (Low) -->
-                    <Border Grid.Column="4"
-                            Background="#1C222D"
-                            BorderBrush="#2D3545" BorderThickness="1"
-                            CornerRadius="12" Padding="0">
-                        <Grid>
-                            <Border Width="4" HorizontalAlignment="Left"
-                                    Background="#3B82F6" CornerRadius="12,0,0,12"/>
-                            <Grid Margin="20,18,18,18">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                                    <TextBlock Text="THÔNG TIN"
-                                               FontSize="11" FontWeight="Bold"
-                                               Foreground="#64748B" CharacterSpacing="60"/>
-                                    <TextBlock Text="{x:Bind ViewModel.LowCount, Mode=OneWay}"
-                                               FontSize="38" FontWeight="Bold"
-                                               Foreground="#3B82F6" Margin="0,4,0,0"/>
-                                    <TextBlock Text="mức thấp / thông tin" FontSize="11" Foreground="#475569"/>
-                                </StackPanel>
-                                <Border Grid.Column="1"
-                                        Background="#0A1628" CornerRadius="50"
-                                        Width="48" Height="48" VerticalAlignment="Center">
-                                    <FontIcon Glyph="&#xE946;" FontSize="22" Foreground="#3B82F6"/>
-                                </Border>
-                            </Grid>
-                        </Grid>
-                    </Border>
-                </Grid>
-
-                <!-- ── FILTER BAR ──────────────────────────────────────── -->
-                <Border Background="#1C222D"
-                        BorderBrush="#2D3545" BorderThickness="1"
-                        CornerRadius="12" Padding="16,14"
-                        Margin="0,0,0,16">
+                <!-- SEVERITY SUMMARY: one strip, each cell carries a geometric marker -->
+                <Border Background="{ThemeResource DkSurfaceBrush}"
+                        BorderBrush="{ThemeResource DkBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="12">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="1"/>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="1"/>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="12"/>
-                            <ColumnDefinition Width="1.8*"/>
-                            <ColumnDefinition Width="12"/>
-                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <!-- Severity filter -->
-                        <StackPanel Grid.Column="0" Spacing="6">
-                            <TextBlock Text="MỨC ĐỘ" FontSize="10" FontWeight="Bold"
-                                       Foreground="#64748B" CharacterSpacing="60"/>
-                            <ComboBox ItemsSource="{x:Bind ViewModel.Severities}"
-                                      SelectedItem="{x:Bind ViewModel.SelectedSeverity, Mode=TwoWay}"
-                                      Background="#111621" BorderBrush="#2D3545"
-                                      Foreground="#E2E8F0" FontSize="13"
-                                      HorizontalAlignment="Stretch" CornerRadius="8"/>
+                        <!-- Nghiêm trọng -->
+                        <StackPanel Grid.Column="0" Padding="24,16" Spacing="8">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Rectangle Width="9" Height="9" RadiusX="2" RadiusY="2"
+                                           Fill="{ThemeResource DkRedBrush}"
+                                           VerticalAlignment="Center"/>
+                                <TextBlock Text="Nghiêm trọng"
+                                           FontSize="{StaticResource FontSizeSmall}"
+                                           Foreground="{ThemeResource DkTextSecondaryBrush}"/>
+                            </StackPanel>
+                            <TextBlock Text="{x:Bind ViewModel.CriticalCount, Mode=OneWay}"
+                                       FontSize="{StaticResource FontSizeXXLarge}" FontWeight="Bold"
+                                       Foreground="{x:Bind views:AlertsPage.CriticalCountBrush(ViewModel.CriticalCount), Mode=OneWay}"
+                                       Typography.NumeralAlignment="Tabular"/>
+                            <TextBlock Text="cảnh báo nguy cấp"
+                                       FontSize="{StaticResource FontSizeCompact}"
+                                       Foreground="{ThemeResource DkTextMutedBrush}"/>
                         </StackPanel>
 
-                        <!-- Status filter -->
-                        <StackPanel Grid.Column="2" Spacing="6">
-                            <TextBlock Text="TRẠNG THÁI" FontSize="10" FontWeight="Bold"
-                                       Foreground="#64748B" CharacterSpacing="60"/>
-                            <ComboBox ItemsSource="{x:Bind ViewModel.Statuses}"
-                                      SelectedItem="{x:Bind ViewModel.SelectedStatus, Mode=TwoWay}"
-                                      Background="#111621" BorderBrush="#2D3545"
-                                      Foreground="#E2E8F0" FontSize="13"
-                                      HorizontalAlignment="Stretch" CornerRadius="8"/>
+                        <Rectangle Grid.Column="1" Fill="{ThemeResource DkBorderBrush}"/>
+
+                        <!-- Cảnh báo -->
+                        <StackPanel Grid.Column="2" Padding="24,16" Spacing="8">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Polygon Points="4.5,0 9,8 0,8"
+                                         Fill="{ThemeResource DkYellowBrush}"
+                                         VerticalAlignment="Center"/>
+                                <TextBlock Text="Cảnh báo"
+                                           FontSize="{StaticResource FontSizeSmall}"
+                                           Foreground="{ThemeResource DkTextSecondaryBrush}"/>
+                            </StackPanel>
+                            <TextBlock Text="{x:Bind ViewModel.WarningCount, Mode=OneWay}"
+                                       FontSize="{StaticResource FontSizeXXLarge}" FontWeight="Bold"
+                                       Foreground="{x:Bind views:AlertsPage.WarningCountBrush(ViewModel.WarningCount), Mode=OneWay}"
+                                       Typography.NumeralAlignment="Tabular"/>
+                            <TextBlock Text="mức cao và trung bình"
+                                       FontSize="{StaticResource FontSizeCompact}"
+                                       Foreground="{ThemeResource DkTextMutedBrush}"/>
                         </StackPanel>
 
-                        <!-- Category filter -->
-                        <StackPanel Grid.Column="4" Spacing="6">
-                            <TextBlock Text="LOẠI CẢNH BÁO" FontSize="10" FontWeight="Bold"
-                                       Foreground="#64748B" CharacterSpacing="60"/>
-                            <ComboBox ItemsSource="{x:Bind ViewModel.Categories}"
-                                      SelectedItem="{x:Bind ViewModel.SelectedCategory, Mode=TwoWay}"
-                                      Background="#111621" BorderBrush="#2D3545"
-                                      Foreground="#E2E8F0" FontSize="13"
-                                      HorizontalAlignment="Stretch" CornerRadius="8"/>
-                        </StackPanel>
+                        <Rectangle Grid.Column="3" Fill="{ThemeResource DkBorderBrush}"/>
 
-                        <!-- Search -->
-                        <StackPanel Grid.Column="6" Spacing="6">
-                            <TextBlock Text="TÌM KIẾM" FontSize="10" FontWeight="Bold"
-                                       Foreground="#64748B" CharacterSpacing="60"/>
-                            <Grid>
-                                <TextBox x:Name="SearchBox"
-                                         Text="{x:Bind ViewModel.SearchQuery, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                         PlaceholderText="Tìm trạm, mô tả, nút..."
-                                         Background="#111621" BorderBrush="#2D3545"
-                                         Foreground="#E2E8F0" FontSize="13"
-                                         CornerRadius="8" Padding="36,8,8,8"/>
-                                <FontIcon Glyph="&#xE721;" FontSize="14" Foreground="#64748B"
-                                          HorizontalAlignment="Left" VerticalAlignment="Center"
-                                          Margin="12,0,0,0" IsHitTestVisible="False"/>
-                            </Grid>
-                        </StackPanel>
-
-                        <!-- Buttons -->
-                        <StackPanel Grid.Column="8" Orientation="Horizontal" Spacing="8" VerticalAlignment="Bottom">
-                            <Button Click="RefreshButton_Click"
-                                    Background="#111621" BorderBrush="#2D3545" BorderThickness="1"
-                                    CornerRadius="8" Width="40" Height="40" Padding="0"
-                                    ToolTipService.ToolTip="Làm mới">
-                                <FontIcon Glyph="&#xE72C;" FontSize="15" Foreground="#94A3B8"/>
-                            </Button>
-                            <Button Click="ClearFiltersButton_Click"
-                                    Background="#111621" BorderBrush="#2D3545" BorderThickness="1"
-                                    CornerRadius="8" Width="40" Height="40" Padding="0"
-                                    ToolTipService.ToolTip="Xóa bộ lọc">
-                                <FontIcon Glyph="&#xE711;" FontSize="15" Foreground="#94A3B8"/>
-                            </Button>
+                        <!-- Thông tin -->
+                        <StackPanel Grid.Column="4" Padding="24,16" Spacing="8">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Ellipse Width="9" Height="9"
+                                         Fill="{ThemeResource DkTextSecondaryBrush}"
+                                         VerticalAlignment="Center"/>
+                                <TextBlock Text="Thông tin"
+                                           FontSize="{StaticResource FontSizeSmall}"
+                                           Foreground="{ThemeResource DkTextSecondaryBrush}"/>
+                            </StackPanel>
+                            <TextBlock Text="{x:Bind ViewModel.LowCount, Mode=OneWay}"
+                                       FontSize="{StaticResource FontSizeXXLarge}" FontWeight="Bold"
+                                       Foreground="{ThemeResource DkTextPrimaryBrush}"
+                                       Typography.NumeralAlignment="Tabular"/>
+                            <TextBlock Text="mức thấp"
+                                       FontSize="{StaticResource FontSizeCompact}"
+                                       Foreground="{ThemeResource DkTextMutedBrush}"/>
                         </StackPanel>
                     </Grid>
                 </Border>
 
-                <!-- ── ALERT TABLE ─────────────────────────────────────── -->
-                <Border Background="#1C222D"
-                        BorderBrush="#2D3545" BorderThickness="1"
-                        CornerRadius="12"                        Margin="0,0,0,20">
+                <!-- FILTER BAR -->
+                <Grid ColumnSpacing="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
 
-                    <!-- Table header -->
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                        <TextBlock Text="Mức độ"
+                                   FontSize="{StaticResource FontSizeSmall}"
+                                   Foreground="{ThemeResource DkTextMutedBrush}"
+                                   VerticalAlignment="Center"/>
+                        <ComboBox Style="{StaticResource DkComboBoxStyle}"
+                                  MinWidth="140"
+                                  HorizontalAlignment="Left"
+                                  ItemsSource="{x:Bind ViewModel.Severities}"
+                                  SelectedItem="{x:Bind ViewModel.SelectedSeverity, Mode=TwoWay}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                        <TextBlock Text="Trạng thái"
+                                   FontSize="{StaticResource FontSizeSmall}"
+                                   Foreground="{ThemeResource DkTextMutedBrush}"
+                                   VerticalAlignment="Center"/>
+                        <ComboBox Style="{StaticResource DkComboBoxStyle}"
+                                  MinWidth="140"
+                                  HorizontalAlignment="Left"
+                                  ItemsSource="{x:Bind ViewModel.Statuses}"
+                                  SelectedItem="{x:Bind ViewModel.SelectedStatus, Mode=TwoWay}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                        <TextBlock Text="Loại"
+                                   FontSize="{StaticResource FontSizeSmall}"
+                                   Foreground="{ThemeResource DkTextMutedBrush}"
+                                   VerticalAlignment="Center"/>
+                        <ComboBox Style="{StaticResource DkComboBoxStyle}"
+                                  MinWidth="150"
+                                  HorizontalAlignment="Left"
+                                  ItemsSource="{x:Bind ViewModel.Categories}"
+                                  SelectedItem="{x:Bind ViewModel.SelectedCategory, Mode=TwoWay}"/>
+                    </StackPanel>
+
+                    <Grid Grid.Column="3">
+                        <TextBox x:Name="SearchBox"
+                                 Style="{StaticResource DkSearchBoxStyle}"
+                                 Text="{x:Bind ViewModel.SearchQuery, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 PlaceholderText="Tìm trạm, mô tả, nút..."
+                                 HorizontalAlignment="Stretch"/>
+                        <FontIcon Glyph="&#xE721;" FontSize="{StaticResource FontSizeBody}"
+                                  Foreground="{ThemeResource DkTextMutedBrush}"
+                                  HorizontalAlignment="Left" VerticalAlignment="Center"
+                                  Margin="12,0,0,0" IsHitTestVisible="False"/>
+                    </Grid>
+
+                    <StackPanel Grid.Column="4" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                        <Button Style="{StaticResource DkIconButtonStyle}"
+                                Click="RefreshButton_Click"
+                                ToolTipService.ToolTip="Làm mới"
+                                AutomationProperties.Name="Làm mới">
+                            <FontIcon Glyph="&#xE72C;" FontSize="{StaticResource FontSizeSmall}"/>
+                        </Button>
+                        <Button Style="{StaticResource DkIconButtonStyle}"
+                                Click="ClearFiltersButton_Click"
+                                ToolTipService.ToolTip="Xóa bộ lọc"
+                                AutomationProperties.Name="Xóa bộ lọc">
+                            <FontIcon Glyph="&#xE711;" FontSize="{StaticResource FontSizeSmall}"/>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+
+                <!-- ALERT TABLE -->
+                <Border Background="{ThemeResource DkSurfaceBrush}"
+                        BorderBrush="{ThemeResource DkBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="12">
                     <StackPanel>
-                        <!-- Table title row -->
-                        <Grid Padding="20,14,20,14"
-                              BorderBrush="#2D3545" BorderThickness="0,0,0,1">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10">
-                                <TextBlock Text="Danh sách cảnh báo"
-                                           FontSize="15" FontWeight="SemiBold" Foreground="#F1F5F9"
-                                           VerticalAlignment="Center"/>
-                                <Border Background="#1F2937" CornerRadius="12" Padding="8,3">
-                                    <TextBlock FontSize="12" Foreground="#94A3B8">
-                                        <Run Text="{x:Bind ViewModel.FilteredCount, Mode=OneWay}"/>
-                                        <Run Text="/ "/>
-                                        <Run Text="{x:Bind ViewModel.TotalAlerts, Mode=OneWay}"/>
-                                        <Run Text=" cảnh báo"/>
-                                    </TextBlock>
-                                </Border>
-                            </StackPanel>
-                        </Grid>
-
                         <!-- Column headers -->
-                        <Grid Background="#0F1420" Padding="20,10,20,10"
-                              BorderBrush="#2D3545" BorderThickness="0,0,0,1">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="140"/>
-                                <ColumnDefinition Width="200"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="160"/>
-                                <ColumnDefinition Width="130"/>
-                                <ColumnDefinition Width="160"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="MỨC ĐỘ" FontSize="11" FontWeight="Bold"
-                                       Foreground="#64748B" CharacterSpacing="60"/>
-                            <TextBlock Grid.Column="1" Text="LOẠI SỰ CỐ" FontSize="11" FontWeight="Bold"
-                                       Foreground="#64748B" CharacterSpacing="60"/>
-                            <TextBlock Grid.Column="2" Text="VỊ TRÍ (TUYẾN &amp; NÚT)" FontSize="11" FontWeight="Bold"
-                                       Foreground="#64748B" CharacterSpacing="60"/>
-                            <TextBlock Grid.Column="3" Text="THỜI GIAN" FontSize="11" FontWeight="Bold"
-                                       Foreground="#64748B" CharacterSpacing="60"/>
-                            <TextBlock Grid.Column="4" Text="TRẠNG THÁI" FontSize="11" FontWeight="Bold"
-                                       Foreground="#64748B" CharacterSpacing="60"/>
-                            <TextBlock Grid.Column="5" Text="THAO TÁC" FontSize="11" FontWeight="Bold"
-                                       Foreground="#64748B" CharacterSpacing="60" HorizontalAlignment="Right"/>
-                        </Grid>
+                        <Border Background="{ThemeResource DkInputBgBrush}"
+                                BorderBrush="{ThemeResource DkBorderBrush}"
+                                BorderThickness="0,0,0,1"
+                                CornerRadius="11,11,0,0"
+                                Padding="24,11">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="140"/>
+                                    <ColumnDefinition Width="200"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="160"/>
+                                    <ColumnDefinition Width="150"/>
+                                    <ColumnDefinition Width="160"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="MỨC ĐỘ" Style="{StaticResource DkLabelStyle}"/>
+                                <TextBlock Grid.Column="1" Text="LOẠI SỰ CỐ" Style="{StaticResource DkLabelStyle}"/>
+                                <TextBlock Grid.Column="2" Text="VỊ TRÍ (TUYẾN VÀ NÚT)" Style="{StaticResource DkLabelStyle}"/>
+                                <TextBlock Grid.Column="3" Text="THỜI GIAN" Style="{StaticResource DkLabelStyle}"/>
+                                <TextBlock Grid.Column="4" Text="TRẠNG THÁI" Style="{StaticResource DkLabelStyle}"/>
+                                <TextBlock Grid.Column="5" Text="THAO TÁC" Style="{StaticResource DkLabelStyle}"
+                                           HorizontalAlignment="Right"/>
+                            </Grid>
+                        </Border>
 
-                        <!-- Alert rows -->
+                        <!-- Rows -->
                         <ListView x:Name="AlertListView"
                                   ItemsSource="{x:Bind ViewModel.FilteredAlerts, Mode=OneWay}"
                                   SelectionMode="None"
@@ -350,78 +275,96 @@
                             </ListView.ItemContainerStyle>
                             <ListView.ItemTemplate>
                                 <DataTemplate x:DataType="local:AlertItemViewModel">
-                                    <Grid Padding="20,14,20,14"
-                                          BorderBrush="#1E2533" BorderThickness="0,0,0,1">
+                                    <Grid Padding="24,12"
+                                          MinHeight="60"
+                                          BorderBrush="{ThemeResource DkBorderSubtleBrush}"
+                                          BorderThickness="0,0,0,1">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="140"/>
                                             <ColumnDefinition Width="200"/>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="160"/>
-                                            <ColumnDefinition Width="130"/>
+                                            <ColumnDefinition Width="150"/>
                                             <ColumnDefinition Width="160"/>
                                         </Grid.ColumnDefinitions>
 
-                                        <!-- Severity badge -->
+                                        <!-- Severity: marker shape + label -->
                                         <Border Grid.Column="0"
-                                                Background="{Binding SeverityDarkBgBrush}"
-                                                BorderBrush="{Binding SeverityDarkBorderBrush}"
-                                                BorderThickness="1" CornerRadius="20"
-                                                Padding="10,5" HorizontalAlignment="Left"
+                                                Background="{x:Bind views:AlertsPage.SeverityBgBrush(Severity)}"
+                                                BorderBrush="{x:Bind views:AlertsPage.SeverityBrush(Severity)}"
+                                                BorderThickness="1"
+                                                CornerRadius="4"
+                                                Padding="9,4"
+                                                HorizontalAlignment="Left"
                                                 VerticalAlignment="Center">
-                                            <StackPanel Orientation="Horizontal" Spacing="6">
-                                                <Ellipse Width="6" Height="6"
-                                                         Fill="{Binding SeverityDarkTextBrush}"
-                                                         VerticalAlignment="Center"/>
+                                            <StackPanel Orientation="Horizontal" Spacing="7">
+                                                <TextBlock Text="{x:Bind views:AlertsPage.SeverityMarker(Severity)}"
+                                                           FontSize="{StaticResource FontSizeCaption}"
+                                                           Foreground="{x:Bind views:AlertsPage.SeverityBrush(Severity)}"
+                                                           VerticalAlignment="Center"/>
                                                 <TextBlock Text="{Binding SeverityText}"
-                                                           FontSize="11" FontWeight="Bold"
-                                                           Foreground="{Binding SeverityDarkTextBrush}"/>
+                                                           FontSize="{StaticResource FontSizeSmall}" FontWeight="SemiBold"
+                                                           Foreground="{x:Bind views:AlertsPage.SeverityBrush(Severity)}"/>
                                             </StackPanel>
                                         </Border>
 
                                         <!-- Title + category -->
-                                        <StackPanel Grid.Column="1" Spacing="3"
+                                        <StackPanel Grid.Column="1" Spacing="2"
                                                     VerticalAlignment="Center" Margin="0,0,12,0">
                                             <TextBlock Text="{Binding Title}"
-                                                       FontSize="13" FontWeight="SemiBold"
-                                                       Foreground="#E2E8F0" TextTrimming="CharacterEllipsis"
-                                                       MaxLines="1"/>
+                                                       FontSize="{StaticResource FontSizeNormal}" FontWeight="SemiBold"
+                                                       Foreground="{ThemeResource DkTextPrimaryBrush}"
+                                                       TextTrimming="CharacterEllipsis" MaxLines="1"/>
                                             <TextBlock Text="{Binding CategoryText}"
-                                                       FontSize="11" Foreground="#64748B"/>
+                                                       FontSize="{StaticResource FontSizeCompact}"
+                                                       Foreground="{ThemeResource DkTextMutedBrush}"/>
                                         </StackPanel>
 
-                                        <!-- Location (line + node) -->
+                                        <!-- Location -->
                                         <StackPanel Grid.Column="2" Spacing="2"
                                                     VerticalAlignment="Center" Margin="0,0,12,0">
                                             <TextBlock Text="{Binding LineName}"
-                                                       FontSize="13" Foreground="#CBD5E1"
+                                                       FontSize="{StaticResource FontSizeSmall}"
+                                                       Foreground="{ThemeResource DkTextSecondaryBrush}"
                                                        TextTrimming="CharacterEllipsis"/>
                                             <TextBlock Text="{Binding NodeName}"
-                                                       FontSize="11" Foreground="#64748B"
+                                                       FontSize="{StaticResource FontSizeCompact}"
+                                                       Foreground="{ThemeResource DkTextDimBrush}"
                                                        TextTrimming="CharacterEllipsis"/>
                                         </StackPanel>
 
                                         <!-- Time -->
-                                        <StackPanel Grid.Column="3" Spacing="2"
-                                                    VerticalAlignment="Center">
+                                        <StackPanel Grid.Column="3" Spacing="2" VerticalAlignment="Center">
                                             <TextBlock Text="{Binding CreatedAtFormatted}"
-                                                       FontSize="12" Foreground="#94A3B8"/>
+                                                       FontSize="{StaticResource FontSizeSmall}"
+                                                       Foreground="{ThemeResource DkTextSecondaryBrush}"
+                                                       Typography.NumeralAlignment="Tabular"/>
                                             <TextBlock Text="{Binding TimeAgo}"
-                                                       FontSize="11" Foreground="#475569"/>
+                                                       FontSize="{StaticResource FontSizeCompact}"
+                                                       Foreground="{ThemeResource DkTextDimBrush}"/>
                                         </StackPanel>
 
-                                        <!-- State badge -->
+                                        <!-- State: marker shape + label -->
                                         <Border Grid.Column="4"
-                                                Background="{Binding StateDarkBgBrush}"
-                                                BorderBrush="{Binding StateDarkBorderBrush}"
-                                                BorderThickness="1" CornerRadius="6"
-                                                Padding="8,4" HorizontalAlignment="Left"
+                                                Background="{x:Bind views:AlertsPage.StateBgBrush(State), Mode=OneWay}"
+                                                BorderBrush="{x:Bind views:AlertsPage.StateBrush(State), Mode=OneWay}"
+                                                BorderThickness="1"
+                                                CornerRadius="4"
+                                                Padding="9,4"
+                                                HorizontalAlignment="Left"
                                                 VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding StateText}"
-                                                       FontSize="11" FontWeight="SemiBold"
-                                                       Foreground="{Binding StateColor}"/>
+                                            <StackPanel Orientation="Horizontal" Spacing="7">
+                                                <TextBlock Text="{x:Bind views:AlertsPage.StateMarker(State), Mode=OneWay}"
+                                                           FontSize="{StaticResource FontSizeCaption}"
+                                                           Foreground="{x:Bind views:AlertsPage.StateBrush(State), Mode=OneWay}"
+                                                           VerticalAlignment="Center"/>
+                                                <TextBlock Text="{Binding StateText}"
+                                                           FontSize="{StaticResource FontSizeSmall}" FontWeight="SemiBold"
+                                                           Foreground="{x:Bind views:AlertsPage.StateBrush(State), Mode=OneWay}"/>
+                                            </StackPanel>
                                         </Border>
 
-                                        <!-- Action buttons -->
+                                        <!-- Actions -->
                                         <StackPanel Grid.Column="5"
                                                     Orientation="Horizontal" Spacing="6"
                                                     HorizontalAlignment="Right"
@@ -430,15 +373,13 @@
                                                     Tag="{Binding}"
                                                     Click="AcknowledgeRowButton_Click"
                                                     Visibility="{Binding CanAcknowledge, Converter={StaticResource BoolToVisibilityConverter}}"
-                                                    Background="#144BB8" Foreground="White"
-                                                    BorderThickness="0" CornerRadius="6"
-                                                    Padding="10,5" FontSize="12" FontWeight="SemiBold"/>
+                                                    Style="{StaticResource DkPrimaryButtonStyle}"
+                                                    Padding="12,6" MinHeight="32"/>
                                             <Button Content="Chi tiết"
                                                     Tag="{Binding}"
                                                     Click="DetailRowButton_Click"
-                                                    Background="#111621" Foreground="#CBD5E1"
-                                                    BorderBrush="#2D3545" BorderThickness="1"
-                                                    CornerRadius="6" Padding="10,5" FontSize="12"/>
+                                                    Style="{StaticResource DkSecondaryButtonStyle}"
+                                                    Padding="12,6" MinHeight="32"/>
                                         </StackPanel>
                                     </Grid>
                                 </DataTemplate>
@@ -449,149 +390,182 @@
                         <Border x:Name="EmptyStatePanel"
                                 Visibility="{x:Bind ViewModel.FilteredCount, Mode=OneWay, Converter={StaticResource ZeroToVisibilityConverter}}"
                                 Padding="40,32">
-                            <StackPanel HorizontalAlignment="Center" Spacing="8">
-                                <FontIcon Glyph="&#xE7BA;" FontSize="40" Foreground="#2D3545"
-                                          HorizontalAlignment="Center"/>
-                                <TextBlock Text="Không có cảnh báo nào" FontSize="15"
-                                           Foreground="#475569" HorizontalAlignment="Center"/>
-                                <TextBlock Text="Thử thay đổi bộ lọc để xem thêm kết quả"
-                                           FontSize="12" Foreground="#374151"
+                            <StackPanel HorizontalAlignment="Center" Spacing="6">
+                                <TextBlock Text="Không có cảnh báo nào khớp với bộ lọc hiện tại"
+                                           FontSize="{StaticResource FontSizeBody}"
+                                           Foreground="{ThemeResource DkTextMutedBrush}"
+                                           HorizontalAlignment="Center"/>
+                                <TextBlock Text="Đổi hoặc xóa bộ lọc để xem thêm kết quả"
+                                           FontSize="{StaticResource FontSizeSmall}"
+                                           Foreground="{ThemeResource DkTextDimBrush}"
                                            HorizontalAlignment="Center"/>
                             </StackPanel>
+                        </Border>
+
+                        <!-- Footer -->
+                        <Border Background="{ThemeResource DkInputBgBrush}"
+                                BorderBrush="{ThemeResource DkBorderBrush}"
+                                BorderThickness="0,1,0,0"
+                                CornerRadius="0,0,11,11"
+                                Padding="24,10">
+                            <TextBlock FontSize="{StaticResource FontSizeSmall}"
+                                       Foreground="{ThemeResource DkTextMutedBrush}"
+                                       Typography.NumeralAlignment="Tabular">
+                                <Run Text="Hiển thị"/>
+                                <Run Text="{x:Bind ViewModel.FilteredCount, Mode=OneWay}"/>
+                                <Run Text="/"/>
+                                <Run Text="{x:Bind ViewModel.TotalAlerts, Mode=OneWay}"/>
+                                <Run Text="cảnh báo"/>
+                            </TextBlock>
                         </Border>
                     </StackPanel>
                 </Border>
 
-                <!-- ── TREND CHART ─────────────────────────────────────── -->
-                <Grid Margin="0,0,0,4">
+                <!-- TREND + SUMMARY -->
+                <Grid ColumnSpacing="16">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="16"/>
                         <ColumnDefinition Width="300"/>
                     </Grid.ColumnDefinitions>
 
-                    <!-- Bar chart: 24h trend -->
-                    <Border Grid.Column="0" Background="#1C222D"
-                            BorderBrush="#2D3545" BorderThickness="1"
-                            CornerRadius="12" Padding="20,18">
+                    <Border Grid.Column="0"
+                            Background="{ThemeResource DkSurfaceBrush}"
+                            BorderBrush="{ThemeResource DkBorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="12"
+                            Padding="20,16">
                         <StackPanel Spacing="12">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <FontIcon Glyph="&#xE9D2;" FontSize="16" Foreground="#3B82F6"
-                                          VerticalAlignment="Center"/>
-                                <TextBlock Text="Xu hướng cảnh báo (7 ngày)"
-                                           FontSize="14" FontWeight="SemiBold"
-                                           Foreground="#F1F5F9" VerticalAlignment="Center"/>
-                            </StackPanel>
+                            <TextBlock Text="Xu hướng cảnh báo (7 ngày)"
+                                       FontSize="{StaticResource FontSizeNormal}" FontWeight="SemiBold"
+                                       Foreground="{ThemeResource DkTextPrimaryBrush}"/>
                             <lvc:CartesianChart Series="{x:Bind ViewModel.AlertTrendSeries, Mode=OneTime}"
-                                               XAxes="{x:Bind ViewModel.AlertTrendXAxes, Mode=OneTime}"
-                                               YAxes="{x:Bind ViewModel.AlertTrendYAxes, Mode=OneTime}"
-                                               Height="160"
-                                               Background="Transparent"/>
+                                                XAxes="{x:Bind ViewModel.AlertTrendXAxes, Mode=OneTime}"
+                                                YAxes="{x:Bind ViewModel.AlertTrendYAxes, Mode=OneTime}"
+                                                Height="160"
+                                                Background="Transparent"/>
                         </StackPanel>
                     </Border>
 
-                    <!-- Stats summary panel -->
-                    <Border Grid.Column="2" Background="#1C222D"
-                            BorderBrush="#2D3545" BorderThickness="1"
-                            CornerRadius="12" Padding="20,18">
+                    <Border Grid.Column="1"
+                            Background="{ThemeResource DkSurfaceBrush}"
+                            BorderBrush="{ThemeResource DkBorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="12"
+                            Padding="20,16">
                         <StackPanel Spacing="14">
                             <TextBlock Text="Thống kê tổng hợp"
-                                       FontSize="14" FontWeight="SemiBold" Foreground="#F1F5F9"/>
+                                       FontSize="{StaticResource FontSizeNormal}" FontWeight="SemiBold"
+                                       Foreground="{ThemeResource DkTextPrimaryBrush}"/>
 
-                            <!-- Status breakdown -->
                             <StackPanel Spacing="10">
-                                <!-- Unprocessed -->
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
-                                        <Ellipse Width="8" Height="8" Fill="#EF4444" VerticalAlignment="Center"/>
-                                        <TextBlock Text="Chưa xử lý" FontSize="13" Foreground="#94A3B8"/>
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <Polygon Points="4.5,0 9,8 0,8" Fill="{ThemeResource DkRedBrush}" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Chưa xử lý" FontSize="{StaticResource FontSizeSmall}"
+                                                   Foreground="{ThemeResource DkTextSecondaryBrush}"/>
                                     </StackPanel>
                                     <TextBlock Grid.Column="1"
                                                Text="{x:Bind ViewModel.UnprocessedCount, Mode=OneWay}"
-                                               FontSize="13" FontWeight="Bold" Foreground="#EF4444"/>
+                                               FontSize="{StaticResource FontSizeSmall}" FontWeight="Bold"
+                                               Foreground="{ThemeResource DkTextPrimaryBrush}"
+                                               Typography.NumeralAlignment="Tabular"/>
                                 </Grid>
-                                <!-- Acknowledged -->
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
-                                        <Ellipse Width="8" Height="8" Fill="#3B82F6" VerticalAlignment="Center"/>
-                                        <TextBlock Text="Đã xác nhận" FontSize="13" Foreground="#94A3B8"/>
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <Ellipse Width="9" Height="9" Stroke="{ThemeResource DkBlueLightBrush}"
+                                                 StrokeThickness="1.5" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Đã xác nhận" FontSize="{StaticResource FontSizeSmall}"
+                                                   Foreground="{ThemeResource DkTextSecondaryBrush}"/>
                                     </StackPanel>
                                     <TextBlock Grid.Column="1"
                                                Text="{x:Bind ViewModel.AcknowledgedCount, Mode=OneWay}"
-                                               FontSize="13" FontWeight="Bold" Foreground="#3B82F6"/>
+                                               FontSize="{StaticResource FontSizeSmall}" FontWeight="Bold"
+                                               Foreground="{ThemeResource DkTextPrimaryBrush}"
+                                               Typography.NumeralAlignment="Tabular"/>
                                 </Grid>
-                                <!-- In Progress -->
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
-                                        <Ellipse Width="8" Height="8" Fill="#F59E0B" VerticalAlignment="Center"/>
-                                        <TextBlock Text="Đang xử lý" FontSize="13" Foreground="#94A3B8"/>
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <Polygon Points="4.5,0 9,8 0,8" Fill="{ThemeResource DkYellowBrush}" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Đang xử lý" FontSize="{StaticResource FontSizeSmall}"
+                                                   Foreground="{ThemeResource DkTextSecondaryBrush}"/>
                                     </StackPanel>
                                     <TextBlock Grid.Column="1"
                                                Text="{x:Bind ViewModel.InProgressCount, Mode=OneWay}"
-                                               FontSize="13" FontWeight="Bold" Foreground="#F59E0B"/>
+                                               FontSize="{StaticResource FontSizeSmall}" FontWeight="Bold"
+                                               Foreground="{ThemeResource DkTextPrimaryBrush}"
+                                               Typography.NumeralAlignment="Tabular"/>
                                 </Grid>
-                                <!-- Resolved -->
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
-                                        <Ellipse Width="8" Height="8" Fill="#22C55E" VerticalAlignment="Center"/>
-                                        <TextBlock Text="Đã giải quyết" FontSize="13" Foreground="#94A3B8"/>
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <Ellipse Width="9" Height="9" Fill="{ThemeResource DkGreenBrush}" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Đã giải quyết" FontSize="{StaticResource FontSizeSmall}"
+                                                   Foreground="{ThemeResource DkTextSecondaryBrush}"/>
                                     </StackPanel>
                                     <TextBlock Grid.Column="1"
                                                Text="{x:Bind ViewModel.ResolvedCount, Mode=OneWay}"
-                                               FontSize="13" FontWeight="Bold" Foreground="#22C55E"/>
+                                               FontSize="{StaticResource FontSizeSmall}" FontWeight="Bold"
+                                               Foreground="{ThemeResource DkTextPrimaryBrush}"
+                                               Typography.NumeralAlignment="Tabular"/>
                                 </Grid>
                             </StackPanel>
 
-                            <!-- Divider -->
-                            <Border Height="1" Background="#2D3545"/>
+                            <Rectangle Height="1" Fill="{ThemeResource DkBorderBrush}"/>
 
-                            <!-- Period counts -->
                             <StackPanel Spacing="8">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="Hôm nay" FontSize="12" Foreground="#64748B"/>
+                                    <TextBlock Text="Hôm nay" FontSize="{StaticResource FontSizeSmall}"
+                                               Foreground="{ThemeResource DkTextMutedBrush}"/>
                                     <TextBlock Grid.Column="1"
                                                Text="{x:Bind ViewModel.TodayCount, Mode=OneWay}"
-                                               FontSize="12" FontWeight="SemiBold" Foreground="#CBD5E1"/>
+                                               FontSize="{StaticResource FontSizeSmall}" FontWeight="SemiBold"
+                                               Foreground="{ThemeResource DkTextSecondaryBrush}"
+                                               Typography.NumeralAlignment="Tabular"/>
                                 </Grid>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="7 ngày qua" FontSize="12" Foreground="#64748B"/>
+                                    <TextBlock Text="7 ngày qua" FontSize="{StaticResource FontSizeSmall}"
+                                               Foreground="{ThemeResource DkTextMutedBrush}"/>
                                     <TextBlock Grid.Column="1"
                                                Text="{x:Bind ViewModel.WeekCount, Mode=OneWay}"
-                                               FontSize="12" FontWeight="SemiBold" Foreground="#CBD5E1"/>
+                                               FontSize="{StaticResource FontSizeSmall}" FontWeight="SemiBold"
+                                               Foreground="{ThemeResource DkTextSecondaryBrush}"
+                                               Typography.NumeralAlignment="Tabular"/>
                                 </Grid>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="30 ngày qua" FontSize="12" Foreground="#64748B"/>
+                                    <TextBlock Text="30 ngày qua" FontSize="{StaticResource FontSizeSmall}"
+                                               Foreground="{ThemeResource DkTextMutedBrush}"/>
                                     <TextBlock Grid.Column="1"
                                                Text="{x:Bind ViewModel.MonthCount, Mode=OneWay}"
-                                               FontSize="12" FontWeight="SemiBold" Foreground="#CBD5E1"/>
+                                               FontSize="{StaticResource FontSizeSmall}" FontWeight="SemiBold"
+                                               Foreground="{ThemeResource DkTextSecondaryBrush}"
+                                               Typography.NumeralAlignment="Tabular"/>
                                 </Grid>
                             </StackPanel>
                         </StackPanel>

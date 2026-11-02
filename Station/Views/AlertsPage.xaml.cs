@@ -16,6 +16,8 @@ namespace Station.Views
         {
             this.InitializeComponent();
             ViewModel = new AlertsViewModel();
+            ApplySegmentState(CurrentViewButton, true);
+            ApplySegmentState(HistoryViewButton, false);
 
             // Subscribe to live alerts from simulation
             MockDataService.Instance.AlertGenerated += OnLiveAlertGenerated;
@@ -30,29 +32,98 @@ namespace Station.Views
 
         // ── Header buttons ──────────────────────────────────────────────
 
+        private static void ApplySegmentState(Button button, bool isActive)
+        {
+            if (isActive)
+            {
+                button.Background = (Microsoft.UI.Xaml.Media.Brush)Station.Services.ThemeBrushes.Get("DkBlueBgBrush");
+                button.Foreground = (Microsoft.UI.Xaml.Media.Brush)Station.Services.ThemeBrushes.Get("DkBlueLightBrush");
+                button.BorderBrush = (Microsoft.UI.Xaml.Media.Brush)Station.Services.ThemeBrushes.Get("DkBlueBorderBrush");
+                button.FontWeight = Microsoft.UI.Text.FontWeights.SemiBold;
+            }
+            else
+            {
+                button.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Transparent);
+                button.Foreground = (Microsoft.UI.Xaml.Media.Brush)Station.Services.ThemeBrushes.Get("DkTextSecondaryBrush");
+                button.BorderBrush = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Transparent);
+                button.FontWeight = Microsoft.UI.Text.FontWeights.Normal;
+            }
+        }
+
+        // ── Severity / state markers (shape + text, never color alone) ──
+
+        private static Microsoft.UI.Xaml.Media.Brush Res(string key)
+            => (Microsoft.UI.Xaml.Media.Brush)Station.Services.ThemeBrushes.Get(key);
+
+        public static string SeverityMarker(AlertSeverity severity) => severity switch
+        {
+            AlertSeverity.Critical => "■",
+            AlertSeverity.High => "▲",
+            AlertSeverity.Medium => "▲",
+            _ => "●"
+        };
+
+        public static Microsoft.UI.Xaml.Media.Brush SeverityBrush(AlertSeverity severity) => Res(severity switch
+        {
+            AlertSeverity.Critical => "DkRedBrush",
+            AlertSeverity.High => "DkOrangeBrush",
+            AlertSeverity.Medium => "DkYellowBrush",
+            _ => "DkTextSecondaryBrush"
+        });
+
+        public static Microsoft.UI.Xaml.Media.Brush SeverityBgBrush(AlertSeverity severity) => Res(severity switch
+        {
+            AlertSeverity.Critical => "DkRedBgBrush",
+            AlertSeverity.High => "DkOrangeBgBrush",
+            AlertSeverity.Medium => "DkYellowBgBrush",
+            _ => "DkGrayBgBrush"
+        });
+
+        public static string StateMarker(AlertState state) => state switch
+        {
+            AlertState.Unprocessed => "▲",
+            AlertState.Acknowledged => "○",
+            AlertState.InProgress => "▲",
+            AlertState.Resolved => "●",
+            _ => "■"
+        };
+
+        public static Microsoft.UI.Xaml.Media.Brush StateBrush(AlertState state) => Res(state switch
+        {
+            AlertState.Unprocessed => "DkRedBrush",
+            AlertState.Acknowledged => "DkBlueLightBrush",
+            AlertState.InProgress => "DkYellowBrush",
+            AlertState.Resolved => "DkGreenBrush",
+            _ => "DkGrayBrush"
+        });
+
+        public static Microsoft.UI.Xaml.Media.Brush StateBgBrush(AlertState state) => Res(state switch
+        {
+            AlertState.Unprocessed => "DkRedBgBrush",
+            AlertState.Acknowledged => "DkBlueBgBrush",
+            AlertState.InProgress => "DkYellowBgBrush",
+            AlertState.Resolved => "DkGreenBgBrush",
+            _ => "DkGrayBgBrush"
+        });
+
+        /// <summary>Count brush: severity color only while count &gt; 0.</summary>
+        public static Microsoft.UI.Xaml.Media.Brush CountBrush(int count, string activeKey)
+            => Res(count > 0 ? activeKey : "DkTextMutedBrush");
+
+        public static Microsoft.UI.Xaml.Media.Brush CriticalCountBrush(int count) => CountBrush(count, "DkRedBrush");
+        public static Microsoft.UI.Xaml.Media.Brush WarningCountBrush(int count) => CountBrush(count, "DkYellowBrush");
+
         private void CurrentViewButton_Click(object sender, RoutedEventArgs e)
         {
-            CurrentViewButton.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(
-                Windows.UI.Color.FromArgb(255, 20, 75, 184));
-            CurrentViewButton.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(
-                Windows.UI.Color.FromArgb(255, 255, 255, 255));
-            HistoryViewButton.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(
-                Windows.UI.Color.FromArgb(0, 0, 0, 0));
-            HistoryViewButton.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(
-                Windows.UI.Color.FromArgb(255, 148, 163, 184));
+            ApplySegmentState(CurrentViewButton, true);
+            ApplySegmentState(HistoryViewButton, false);
             ViewModel.SelectedPeriod = "Hôm nay";
         }
 
         private void HistoryViewButton_Click(object sender, RoutedEventArgs e)
         {
-            HistoryViewButton.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(
-                Windows.UI.Color.FromArgb(255, 20, 75, 184));
-            HistoryViewButton.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(
-                Windows.UI.Color.FromArgb(255, 255, 255, 255));
-            CurrentViewButton.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(
-                Windows.UI.Color.FromArgb(0, 0, 0, 0));
-            CurrentViewButton.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(
-                Windows.UI.Color.FromArgb(255, 148, 163, 184));
+            ApplySegmentState(HistoryViewButton, true);
+            ApplySegmentState(CurrentViewButton, false);
             ViewModel.SelectedPeriod = "Tất cả";
         }
 
@@ -64,7 +135,7 @@ namespace Station.Views
                 Content = $"Xuất {ViewModel.FilteredCount} cảnh báo ra file CSV...\n(Tính năng đang phát triển)",
                 CloseButtonText = "Đóng",
                 XamlRoot = this.XamlRoot,
-                RequestedTheme = ElementTheme.Dark
+                RequestedTheme = Station.Services.ThemeService.Instance.CurrentTheme
             };
             await dialog.ShowAsync();
         }
@@ -125,7 +196,7 @@ namespace Station.Views
                         CloseButtonText = "Đóng",
                         PrimaryButtonText = alertVm.CanAcknowledge ? "Xác nhận" : null,
                         XamlRoot = this.XamlRoot,
-                        RequestedTheme = ElementTheme.Dark
+                        RequestedTheme = Station.Services.ThemeService.Instance.CurrentTheme
                     };
                     var result = await dialog.ShowAsync();
                     if (result == ContentDialogResult.Primary)

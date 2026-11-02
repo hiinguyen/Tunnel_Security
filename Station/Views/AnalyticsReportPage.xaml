@@ -6,148 +6,131 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:lvc="using:LiveChartsCore.SkiaSharpView.WinUI"
     xmlns:views="using:Station.Views"
-    mc:Ignorable="d">
+    mc:Ignorable="d"
+    Background="{ThemeResource DkBgBrush}">
 
     <!-- =================== RESOURCES =================== -->
     <Page.Resources>
-        <Style x:Key="AnalyticsKpiCardBorderStyle" TargetType="Border">
-            <!-- Nền hơi sáng hơn background chung để nhìn nổi lên -->
-            <Setter Property="Background" Value="{StaticResource AnalyticsKpiBackgroundBrush}"/>
-            <Setter Property="CornerRadius" Value="18"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Margin" Value="0,4,12,16"/>
-        </Style>
-
-        <SolidColorBrush x:Key="AnalyticsKpiBackgroundBrush" Color="{ThemeResource BackgroundPrimary}"/>
-        <SolidColorBrush x:Key="AnalyticsKpiBorderBrush"     Color="{ThemeResource BorderLight}"/>
-
-        <!-- Nền & card: đồng bộ với MonitoringDashboard -->
-        <SolidColorBrush x:Key="AnalyticsPageBackgroundBrush" Color="{ThemeResource BackgroundSecondary}"/>
-        <SolidColorBrush x:Key="AnalyticsCardBackgroundBrush" Color="{ThemeResource BackgroundPrimary}"/>
-        <SolidColorBrush x:Key="AnalyticsCardBorderBrush" Color="{ThemeResource BorderLight}"/>
-        <SolidColorBrush x:Key="AnalyticsTextSecondaryBrush" Color="{ThemeResource TextSecondary}"/>
-
-        <!-- Màu cho nút lọc (nút xanh trên nền tối) -->
-        <SolidColorBrush x:Key="FilterBlueBrush"                  Color="#4F8DFF"/>
-        <SolidColorBrush x:Key="FilterBlueHoverBrush"             Color="#3F7DED"/>
-        <SolidColorBrush x:Key="FilterBluePressedBrush"           Color="#305FCC"/>
-        <SolidColorBrush x:Key="FilterDropDownBackgroundBrush"    Color="{ThemeResource BackgroundPrimary}"/>
-        <SolidColorBrush x:Key="FilterDropDownItemHoverBrush"     Color="{ThemeResource BackgroundSecondary}"/>
-        <SolidColorBrush x:Key="FilterDropDownItemSelectedBrush"  Color="#1D4ED8"/>
-
-        <!-- Override brush mặc định của ComboBox chỉ trong page này -->
-        <SolidColorBrush x:Key="ComboBoxBackground"                  Color="#4F8DFF"/>
-        <SolidColorBrush x:Key="ComboBoxBackgroundPointerOver"       Color="#3F7DED"/>
-        <SolidColorBrush x:Key="ComboBoxBackgroundPressed"           Color="#305FCC"/>
-        <SolidColorBrush x:Key="ComboBoxBorderBrush"                 Color="#4F8DFF"/>
-        <SolidColorBrush x:Key="ComboBoxBorderBrushPointerOver"      Color="#3F7DED"/>
-        <SolidColorBrush x:Key="ComboBoxBorderBrushPressed"          Color="#305FCC"/>
-        <SolidColorBrush x:Key="ComboBoxForeground"                  Color="White"/>
-        <SolidColorBrush x:Key="ComboBoxDropDownBackground"          Color="{ThemeResource BackgroundPrimary}"/>
-
-        <!-- Dropdown items -->
-        <SolidColorBrush x:Key="ComboBoxItemForeground"                        Color="{ThemeResource TextPrimary}"/>
-        <SolidColorBrush x:Key="ComboBoxItemBackgroundPointerOver"            Color="{ThemeResource BackgroundSecondary}"/>
-        <SolidColorBrush x:Key="ComboBoxItemBackgroundSelected"               Color="#1D4ED8"/>
-        <SolidColorBrush x:Key="ComboBoxItemBackgroundSelectedPointerOver"    Color="#1E40AF"/>
-        <SolidColorBrush x:Key="ComboBoxItemForegroundSelected"               Color="White"/>
-
-        <!-- Style chung cho các ComboBox bộ lọc (hình pill xanh) -->
-        <Style x:Key="AnalyticsFilterComboBoxStyle" TargetType="ComboBox">
-            <Setter Property="Margin" Value="0,0,12,0"/>
-            <Setter Property="Padding" Value="20,8"/>
-            <Setter Property="CornerRadius" Value="8"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="White"/>
+        <!-- Filter combo: Dk combo, left aligned so the filter row does not stretch -->
+        <Style x:Key="AnalyticsFilterComboBoxStyle" TargetType="ComboBox" BasedOn="{StaticResource DkComboBoxStyle}">
+            <Setter Property="HorizontalAlignment" Value="Left"/>
             <Setter Property="MinWidth" Value="150"/>
-            <!-- không đụng Template, dùng template mặc định + brush override -->
         </Style>
 
+        <!-- Section card: surface, 1px border, radius 12 -->
+        <Style x:Key="AnalyticsCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="{ThemeResource DkSurfaceBrush}"/>
+            <Setter Property="BorderBrush" Value="{ThemeResource DkBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="12"/>
+        </Style>
+
+        <Style x:Key="AnalyticsCardTitleStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource FontSizeNormal}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{ThemeResource DkTextPrimaryBrush}"/>
+        </Style>
+
+        <Style x:Key="AnalyticsCardSubtitleStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource FontSizeSmall}"/>
+            <Setter Property="Foreground" Value="{ThemeResource DkTextMutedBrush}"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+
+        <Style x:Key="AnalyticsLegendTextStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource FontSizeSmall}"/>
+            <Setter Property="Foreground" Value="{ThemeResource DkTextSecondaryBrush}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="AnalyticsKpiLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource FontSizeSmall}"/>
+            <Setter Property="Foreground" Value="{ThemeResource DkTextSecondaryBrush}"/>
+        </Style>
+
+        <Style x:Key="AnalyticsKpiValueStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource FontSizeXXLarge}"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{ThemeResource DkTextPrimaryBrush}"/>
+            <Setter Property="Typography.NumeralAlignment" Value="Tabular"/>
+        </Style>
+
+        <Style x:Key="AnalyticsKpiNoteStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource FontSizeCompact}"/>
+            <Setter Property="Foreground" Value="{ThemeResource DkTextMutedBrush}"/>
+            <Setter Property="Typography.NumeralAlignment" Value="Tabular"/>
+        </Style>
     </Page.Resources>
 
     <!-- =================== PAGE LAYOUT =================== -->
-    <Grid Background="{StaticResource AnalyticsPageBackgroundBrush}"
-          Padding="16">
-
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- ========= TOP BAR: Title + Export ========= -->
-        <Grid Grid.Row="0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
+        <!-- ========= HEADER: back, title, theme, export ========= -->
+        <Border Grid.Row="0"
+                Background="{ThemeResource DkSurfaceBrush}"
+                BorderBrush="{ThemeResource DkBorderBrush}"
+                BorderThickness="0,0,0,1"
+                Padding="24,12">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                <Button Click="BackButton_Click"
-                        Margin="0,0,12,0"
-                        Style="{StaticResource NavigationBackButtonNormalStyle}">
-                    <FontIcon Glyph="&#xE72B;"/>
-                </Button>
-
-                <StackPanel>
-                    <TextBlock Text="Phân tích và Báo cáo"
-                               FontSize="22"
+                <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                    <Button Style="{StaticResource DkIconButtonStyle}"
+                            Click="BackButton_Click"
+                            ToolTipService.ToolTip="Quay lại"
+                            AutomationProperties.Name="Quay lại">
+                        <FontIcon Glyph="&#xE72B;" FontSize="{StaticResource FontSizeSmall}"/>
+                    </Button>
+                    <TextBlock Text="Phân tích và báo cáo"
+                               FontSize="{StaticResource FontSizeTitle}"
                                FontWeight="SemiBold"
-                               Foreground="{ThemeResource TextPrimaryBrush}"/>
+                               Foreground="{ThemeResource DkTextPrimaryBrush}"
+                               VerticalAlignment="Center"/>
+                    <Rectangle Width="1" Height="20" Fill="{ThemeResource DkBorderBrush}" VerticalAlignment="Center"/>
                     <TextBlock Text="Trạm Nghĩa Đô · TRM-HN-001"
-                               FontSize="13"
-                               Foreground="{StaticResource AnalyticsTextSecondaryBrush}"/>
+                               FontSize="{StaticResource FontSizeSmall}"
+                               Foreground="{ThemeResource DkTextMutedBrush}"
+                               VerticalAlignment="Center"/>
                 </StackPanel>
-            </StackPanel>
 
-            <!-- nút export -->
-            <StackPanel Grid.Column="2"
-                        Orientation="Horizontal"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Center"
-                        Spacing="8">
-                <Button x:Name="ThemeToggleButton"
-                        Click="ThemeToggleButton_Click"
-                        Background="Transparent"
-                        BorderThickness="0"
-                        Padding="8"
-                        ToolTipService.ToolTip="Chuyển đổi chế độ sáng/tối">
-                    <Grid>
-                        <FontIcon x:Name="MoonIcon"
-                                  Glyph="&#xE708;"
-                                  FontSize="18"
-                                  Foreground="{ThemeResource TextPrimaryBrush}"/>
-                        <FontIcon x:Name="SunIcon"
-                                  Glyph="&#xE706;"
-                                  FontSize="18"
-                                  Foreground="{ThemeResource TextPrimaryBrush}"
-                                  Visibility="Collapsed"/>
-                    </Grid>
-                </Button>
-                <Button Content="Xuất PDF"
-                        Click="ExportPdf_Click"/>
-                <Button Content="Xuất Excel"
-                        Click="ExportExcel_Click"/>
-            </StackPanel>
-        </Grid>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                    <Button x:Name="ThemeToggleButton"
+                            Style="{StaticResource DkIconButtonStyle}"
+                            Click="ThemeToggleButton_Click"
+                            ToolTipService.ToolTip="Chuyển đổi chế độ sáng/tối"
+                            AutomationProperties.Name="Chuyển đổi chế độ sáng/tối">
+                        <Grid>
+                            <FontIcon x:Name="MoonIcon" Glyph="&#xE708;" FontSize="{StaticResource FontSizeBody}"/>
+                            <FontIcon x:Name="SunIcon" Glyph="&#xE706;" FontSize="{StaticResource FontSizeBody}"
+                                      Visibility="Collapsed"/>
+                        </Grid>
+                    </Button>
+                    <Button Style="{StaticResource DkSecondaryButtonStyle}" Content="Xuất PDF" Click="ExportPdf_Click"/>
+                    <Button Style="{StaticResource DkPrimaryButtonStyle}" Content="Xuất Excel" Click="ExportExcel_Click"/>
+                </StackPanel>
+            </Grid>
+        </Border>
 
         <!-- =================== MAIN CONTENT =================== -->
         <ScrollViewer Grid.Row="1"
-                      Margin="0,12,0,0"
                       VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled">
-        <Grid>
-            <!-- H0: KPI; H1: Filter; H2: dashboard overview charts; H3: realtime analysis; H4: heatmap; H5: history + top node -->
+        <Grid Margin="24,16,24,24">
+            <!-- R0: KPI strip; R1: filters; R2: overview charts; R3: realtime + mix; R4: heatmap; R5: history -->
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="330"/>
                 <RowDefinition Height="320"/>
                 <RowDefinition Height="360"/>
-                <RowDefinition Height="360"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
             <Grid.ColumnDefinitions>
@@ -155,188 +138,126 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- ===== KPI CARDS ===== -->
-            <Grid Grid.Row="0" Grid.ColumnSpan="2">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
+            <!-- ===== KPI STRIP: one continuous surface, geometric marker per cell ===== -->
+            <Border Grid.Row="0" Grid.ColumnSpan="2"
+                    Style="{StaticResource AnalyticsCardStyle}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="1"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="1"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="1"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
 
-                <!-- Tổng số cảnh báo -->
-                <Border Grid.Column="0"
-        Style="{StaticResource AnalyticsKpiCardBorderStyle}">
-                    <StackPanel Margin="18">
-                        <TextBlock Text="Tổng số cảnh báo"
-                   FontSize="13"
-                   Foreground="{StaticResource AnalyticsTextSecondaryBrush}"/>
-                        <TextBlock x:Name="TotalAlertsValue"
-                   Text="0"
-                   FontSize="26"
-                   FontWeight="Bold"
-                   Foreground="{ThemeResource TextPrimaryBrush}"
-                   Margin="0,6,0,0"/>
-                        <TextBlock x:Name="TotalAlertsChange"
-                   Text="+0% so với kỳ trước"
-                   FontSize="11"
-                   Foreground="#FF35C97F"
-                   Margin="0,4,0,0"/>
-
-                        <TextBlock x:Name="ProcessedSummaryText"
-                   Text="Đã xử lý: 0 (0%)"
-                   FontSize="11"
-                   Foreground="{StaticResource AnalyticsTextSecondaryBrush}"
-                   Margin="0,8,0,0"/>
-                        <TextBlock x:Name="OpenSummaryText"
-                   Text="Đang mở: 0 (0%)"
-                   FontSize="11"
-                   Foreground="{StaticResource AnalyticsTextSecondaryBrush}"/>
+                    <!-- Tổng số cảnh báo -->
+                    <StackPanel Grid.Column="0" Padding="24,16" Spacing="6">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Rectangle Width="9" Height="9" RadiusX="2" RadiusY="2"
+                                       Fill="{ThemeResource DkTextSecondaryBrush}" VerticalAlignment="Center"/>
+                            <TextBlock Text="Tổng số cảnh báo" Style="{StaticResource AnalyticsKpiLabelStyle}"/>
+                        </StackPanel>
+                        <TextBlock x:Name="TotalAlertsValue" Text="0" Style="{StaticResource AnalyticsKpiValueStyle}"/>
+                        <TextBlock x:Name="TotalAlertsChange" Text="+0% so với kỳ trước"
+                                   FontSize="{StaticResource FontSizeCompact}"
+                                   Foreground="{ThemeResource DkTextMutedBrush}"/>
+                        <TextBlock x:Name="ProcessedSummaryText" Text="Đã xử lý: 0 (0%)"
+                                   Style="{StaticResource AnalyticsKpiNoteStyle}" Margin="0,4,0,0"/>
+                        <TextBlock x:Name="OpenSummaryText" Text="Đang mở: 0 (0%)"
+                                   Style="{StaticResource AnalyticsKpiNoteStyle}"/>
                     </StackPanel>
-                </Border>
 
+                    <Rectangle Grid.Column="1" Fill="{ThemeResource DkBorderBrush}"/>
 
-                <!-- Cảnh báo nghiêm trọng -->
-                <Border Grid.Column="1"
-        Style="{StaticResource AnalyticsKpiCardBorderStyle}">
-                    <StackPanel Margin="18">
-                        <TextBlock Text="Cảnh báo nghiêm trọng"
-                   FontSize="13"
-                   Foreground="{StaticResource AnalyticsTextSecondaryBrush}"/>
-                        <TextBlock x:Name="SevereAlertsValue"
-                   Text="9"
-                   FontSize="26"
-                   FontWeight="Bold"
-                   Foreground="{ThemeResource TextPrimaryBrush}"
-                   Margin="0,6,0,0"/>
-                        <TextBlock x:Name="SevereAlertsChange"
-                   Text="-3 so với kỳ trước"
-                   FontSize="11"
-                   Foreground="#FF35C97F"
-                   Margin="0,4,0,0"/>
-
-                        <TextBlock x:Name="LineCountText"
-                   Text="Số tuyến có cảnh báo: 0"
-                   FontSize="11"
-                   Foreground="{StaticResource AnalyticsTextSecondaryBrush}"
-                   Margin="0,8,0,0"/>
+                    <!-- Cảnh báo nghiêm trọng -->
+                    <StackPanel Grid.Column="2" Padding="24,16" Spacing="6">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Polygon Points="4.5,0 9,8 0,8" Fill="{ThemeResource DkRedBrush}" VerticalAlignment="Center"/>
+                            <TextBlock Text="Cảnh báo nghiêm trọng" Style="{StaticResource AnalyticsKpiLabelStyle}"/>
+                        </StackPanel>
+                        <TextBlock x:Name="SevereAlertsValue" Text="0" Style="{StaticResource AnalyticsKpiValueStyle}"/>
+                        <TextBlock x:Name="SevereAlertsChange" Text="0 so với kỳ trước"
+                                   FontSize="{StaticResource FontSizeCompact}"
+                                   Foreground="{ThemeResource DkTextMutedBrush}"/>
+                        <TextBlock x:Name="LineCountText" Text="Số tuyến có cảnh báo: 0"
+                                   Style="{StaticResource AnalyticsKpiNoteStyle}" Margin="0,4,0,0"/>
                     </StackPanel>
-                </Border>
 
+                    <Rectangle Grid.Column="3" Fill="{ThemeResource DkBorderBrush}"/>
 
-
-                <!-- Node lỗi nhiều nhất -->
-                <Border Grid.Column="2"
-        Style="{StaticResource AnalyticsKpiCardBorderStyle}">
-                    <StackPanel Margin="18">
-                        <TextBlock Text="Điểm nóng hiện tại"
-                   FontSize="13"
-                   Foreground="{StaticResource AnalyticsTextSecondaryBrush}"/>
-                        <TextBlock x:Name="HotspotNodeText"
-                   Text="-"
-                   FontSize="22"
-                   FontWeight="Bold"
-                   Foreground="{ThemeResource TextPrimaryBrush}"
-                   Margin="0,6,0,0"/>
-                        <TextBlock x:Name="HotspotNodeDetailText"
-                   Text="Chưa có dữ liệu"
-                   FontSize="11"
-                   Foreground="{StaticResource AnalyticsTextSecondaryBrush}"/>
+                    <!-- Điểm nóng hiện tại -->
+                    <StackPanel Grid.Column="4" Padding="24,16" Spacing="6">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Polygon Points="4.5,0 9,8 0,8" Fill="{ThemeResource DkYellowBrush}" VerticalAlignment="Center"/>
+                            <TextBlock Text="Điểm nóng hiện tại" Style="{StaticResource AnalyticsKpiLabelStyle}"/>
+                        </StackPanel>
+                        <TextBlock x:Name="HotspotNodeText" Text="-" Style="{StaticResource AnalyticsKpiValueStyle}"
+                                   TextTrimming="CharacterEllipsis"/>
+                        <TextBlock x:Name="HotspotNodeDetailText" Text="Chưa có dữ liệu"
+                                   Style="{StaticResource AnalyticsKpiNoteStyle}"/>
                     </StackPanel>
-                </Border>
 
+                    <Rectangle Grid.Column="5" Fill="{ThemeResource DkBorderBrush}"/>
 
-
-                <!-- Thiết bị hoạt động -->
-                <Border Grid.Column="3"
-        Style="{StaticResource AnalyticsKpiCardBorderStyle}">
-                    <StackPanel Margin="18">
-                        <TextBlock Text="Thiết bị đang online"
-                   FontSize="13"
-                   Foreground="{StaticResource AnalyticsTextSecondaryBrush}"/>
-                        <TextBlock x:Name="OnlineDeviceText"
-                   Text="39 / 45"
-                   FontSize="26"
-                   FontWeight="Bold"
-                   Foreground="{ThemeResource TextPrimaryBrush}"
-                   Margin="0,6,0,0"/>
-                        <TextBlock Text="86% hoạt động"
-                   FontSize="11"
-                   Foreground="{StaticResource AnalyticsTextSecondaryBrush}"/>
-
-                        <TextBlock x:Name="AvgHandleTimeText"
-                   Text="Thời gian xử lý TB: -"
-                   FontSize="11"
-                   Foreground="{StaticResource AnalyticsTextSecondaryBrush}"
-                   Margin="0,8,0,0"/>
-                        <TextBlock x:Name="RealtimeSampleText"
-                   Text="Snapshot: chờ dữ liệu"
-                   FontSize="11"
-                   Foreground="{StaticResource AnalyticsTextSecondaryBrush}"/>
+                    <!-- Thiết bị đang online -->
+                    <StackPanel Grid.Column="6" Padding="24,16" Spacing="6">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Ellipse Width="9" Height="9" Fill="{ThemeResource DkGreenBrush}" VerticalAlignment="Center"/>
+                            <TextBlock Text="Thiết bị đang online" Style="{StaticResource AnalyticsKpiLabelStyle}"/>
+                        </StackPanel>
+                        <TextBlock x:Name="OnlineDeviceText" Text="-" Style="{StaticResource AnalyticsKpiValueStyle}"/>
+                        <TextBlock x:Name="AvgHandleTimeText" Text="Thời gian xử lý TB: -"
+                                   Style="{StaticResource AnalyticsKpiNoteStyle}"/>
+                        <TextBlock x:Name="RealtimeSampleText" Text="Snapshot: chờ dữ liệu"
+                                   Style="{StaticResource AnalyticsKpiNoteStyle}"/>
                     </StackPanel>
-                </Border>
+                </Grid>
+            </Border>
 
-
-            </Grid>
-
-            <!-- ===== FILTER BAR (nút xanh) ===== -->
-            <StackPanel Grid.Row="1"
-                        Grid.ColumnSpan="2"
+            <!-- ===== FILTER BAR ===== -->
+            <StackPanel Grid.Row="1" Grid.ColumnSpan="2"
                         Orientation="Horizontal"
                         HorizontalAlignment="Left"
                         Spacing="8"
-                        Margin="0,0,0,12">
-
-                <!-- Mốc thời gian -->
+                        Margin="0,16,0,16">
                 <ComboBox x:Name="PeriodFilterComboBox"
                           Style="{StaticResource AnalyticsFilterComboBoxStyle}"
+                          AutomationProperties.Name="Mốc thời gian"
                           SelectionChanged="Filter_SelectionChanged"/>
-
-                <!-- Tuyến -->
                 <ComboBox x:Name="LineFilterComboBox"
                           Style="{StaticResource AnalyticsFilterComboBoxStyle}"
+                          AutomationProperties.Name="Tuyến"
                           SelectionChanged="Filter_SelectionChanged"/>
-
-                <!-- Nút -->
                 <ComboBox x:Name="NodeFilterComboBox"
                           Style="{StaticResource AnalyticsFilterComboBoxStyle}"
                           MinWidth="135"
+                          AutomationProperties.Name="Nút"
                           SelectionChanged="Filter_SelectionChanged"/>
-
-                <!-- Camera -->
                 <ComboBox x:Name="CameraFilterComboBox"
                           Style="{StaticResource AnalyticsFilterComboBoxStyle}"
                           MinWidth="145"
+                          AutomationProperties.Name="Camera"
                           SelectionChanged="Filter_SelectionChanged"/>
-
-                <!-- Mức cảnh báo -->
                 <ComboBox x:Name="SeverityFilterComboBox"
                           Style="{StaticResource AnalyticsFilterComboBoxStyle}"
+                          AutomationProperties.Name="Mức cảnh báo"
                           SelectionChanged="Filter_SelectionChanged"/>
-
-                <!-- Trạng thái xử lý -->
                 <ComboBox x:Name="StatusFilterComboBox"
                           Style="{StaticResource AnalyticsFilterComboBoxStyle}"
+                          AutomationProperties.Name="Trạng thái xử lý"
                           SelectionChanged="Filter_SelectionChanged"/>
             </StackPanel>
 
-            <!-- ===== HÀNG 2: 2 BIỂU ĐỒ ĐỒNG BỘ VỚI CARD NGOÀI DASHBOARD ===== -->
-            <Border Grid.Row="2"
-                    Grid.Column="0"
-                    Margin="0,0,12,12"
-                    Background="{StaticResource AnalyticsCardBackgroundBrush}"
-                    BorderBrush="{StaticResource AnalyticsCardBorderBrush}"
-                    BorderThickness="1"
-                    CornerRadius="12">
-                <StackPanel Margin="16">
-                    <TextBlock Text="Phân tích &amp; thống kê - xu hướng cảnh báo"
-                               FontSize="16"
-                               FontWeight="SemiBold"
-                               Foreground="{ThemeResource TextPrimaryBrush}"
-                               Margin="0,0,0,4"/>
-                    <TextBlock Text="Tổng số, nghiêm trọng, cảnh báo và các ngưỡng vận hành giống card ngoài dashboard"
-                               FontSize="11"
-                               Foreground="{StaticResource AnalyticsTextSecondaryBrush}"/>
+            <!-- ===== ROW 2: TREND + TOP SOURCES ===== -->
+            <Border Grid.Row="2" Grid.Column="0"
+                    Margin="0,0,8,16"
+                    Style="{StaticResource AnalyticsCardStyle}">
+                <StackPanel Margin="20">
+                    <TextBlock Text="Xu hướng cảnh báo" Style="{StaticResource AnalyticsCardTitleStyle}"/>
+                    <TextBlock Text="Tổng số, nghiêm trọng, cảnh báo và các ngưỡng vận hành"
+                               Style="{StaticResource AnalyticsCardSubtitleStyle}" Margin="0,3,0,0"/>
 
                     <lvc:CartesianChart Margin="0,12,0,0"
                                         Height="185"
@@ -347,98 +268,68 @@
                                         TooltipPosition="Top"
                                         Background="Transparent"/>
 
-                    <StackPanel Margin="0,10,0,0"
-                                Spacing="8">
-                        <StackPanel Orientation="Horizontal"
-                                    HorizontalAlignment="Center"
-                                    Spacing="24">
+                    <StackPanel Margin="0,10,0,0" Spacing="8">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="24">
                             <StackPanel Orientation="Horizontal" Spacing="8">
-                                <Ellipse Width="11" Height="11" Fill="#EF4444" VerticalAlignment="Center"/>
-                                <TextBlock Text="Ngưỡng nghiêm trọng"
-                                           FontSize="12"
-                                           Foreground="{ThemeResource TextPrimaryBrush}"/>
+                                <Rectangle Width="14" Height="3" Fill="{ThemeResource DkRedBrush}" VerticalAlignment="Center"/>
+                                <TextBlock Text="Ngưỡng nghiêm trọng" Style="{StaticResource AnalyticsLegendTextStyle}"/>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" Spacing="8">
-                                <Ellipse Width="11" Height="11" Fill="#FBBF24" VerticalAlignment="Center"/>
-                                <TextBlock Text="Ngưỡng cảnh báo"
-                                           FontSize="12"
-                                           Foreground="{ThemeResource TextPrimaryBrush}"/>
+                                <Rectangle Width="14" Height="3" Fill="{ThemeResource DkYellowBrush}" VerticalAlignment="Center"/>
+                                <TextBlock Text="Ngưỡng cảnh báo" Style="{StaticResource AnalyticsLegendTextStyle}"/>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" Spacing="8">
-                                <Ellipse Width="11" Height="11" Fill="#34D399" VerticalAlignment="Center"/>
-                                <TextBlock Text="Giá trị kỳ vọng"
-                                           FontSize="12"
-                                           Foreground="{ThemeResource TextPrimaryBrush}"/>
+                                <Rectangle Width="14" Height="3" Fill="{ThemeResource DkGreenBrush}" VerticalAlignment="Center"/>
+                                <TextBlock Text="Giá trị kỳ vọng" Style="{StaticResource AnalyticsLegendTextStyle}"/>
                             </StackPanel>
                         </StackPanel>
 
-                        <StackPanel Orientation="Horizontal"
-                                    HorizontalAlignment="Center"
-                                    Spacing="24">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="24">
                             <StackPanel Orientation="Horizontal" Spacing="8">
-                                <Ellipse Width="11" Height="11" Fill="#3B82F6" VerticalAlignment="Center"/>
-                                <TextBlock Text="Tổng số"
-                                           FontSize="12"
-                                           Foreground="{ThemeResource TextPrimaryBrush}"/>
+                                <Ellipse Width="9" Height="9" Fill="{ThemeResource DkBlueBrush}" VerticalAlignment="Center"/>
+                                <TextBlock Text="Tổng số" Style="{StaticResource AnalyticsLegendTextStyle}"/>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" Spacing="8">
-                                <Ellipse Width="11" Height="11" Fill="#EF4444" VerticalAlignment="Center"/>
-                                <TextBlock Text="Nghiêm trọng"
-                                           FontSize="12"
-                                           Foreground="{ThemeResource TextPrimaryBrush}"/>
+                                <Ellipse Width="9" Height="9" Fill="{ThemeResource DkRedBrush}" VerticalAlignment="Center"/>
+                                <TextBlock Text="Nghiêm trọng" Style="{StaticResource AnalyticsLegendTextStyle}"/>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" Spacing="8">
-                                <Ellipse Width="11" Height="11" Fill="#F97316" VerticalAlignment="Center"/>
-                                <TextBlock Text="Cảnh báo"
-                                           FontSize="12"
-                                           Foreground="{ThemeResource TextPrimaryBrush}"/>
+                                <Ellipse Width="9" Height="9" Fill="{ThemeResource DkOrangeBrush}" VerticalAlignment="Center"/>
+                                <TextBlock Text="Cảnh báo" Style="{StaticResource AnalyticsLegendTextStyle}"/>
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
                 </StackPanel>
             </Border>
 
-            <Border Grid.Row="2"
-                    Grid.Column="1"
-                    Margin="0,0,0,12"
-                    Background="{StaticResource AnalyticsCardBackgroundBrush}"
-                    BorderBrush="{StaticResource AnalyticsCardBorderBrush}"
-                    BorderThickness="1"
-                    CornerRadius="12">
-                <StackPanel Margin="16">
-                    <TextBlock Text="Top nguồn phát sinh cảnh báo"
-                               FontSize="16"
-                               FontWeight="SemiBold"
-                               Foreground="{ThemeResource TextPrimaryBrush}"
-                               Margin="0,0,0,4"/>
-                    <TextBlock Text="Các sensor/camera/radar có số cảnh báo cao nhất trong bộ lọc hiện tại"
-                               FontSize="11"
-                               Foreground="{StaticResource AnalyticsTextSecondaryBrush}"/>
+            <Border Grid.Row="2" Grid.Column="1"
+                    Margin="8,0,0,16"
+                    Style="{StaticResource AnalyticsCardStyle}">
+                <StackPanel Margin="20">
+                    <TextBlock Text="Top nguồn phát sinh cảnh báo" Style="{StaticResource AnalyticsCardTitleStyle}"/>
+                    <TextBlock Text="Các sensor, camera, radar có số cảnh báo cao nhất trong bộ lọc hiện tại"
+                               Style="{StaticResource AnalyticsCardSubtitleStyle}" Margin="0,3,0,0"/>
 
-                    <ItemsRepeater x:Name="TopSourceRepeater"
-                                   Margin="0,14,0,0">
+                    <ItemsRepeater x:Name="TopSourceRepeater" Margin="0,16,0,0">
                         <ItemsRepeater.ItemTemplate>
                             <DataTemplate x:DataType="views:TopSourceStat">
-                                <Grid Height="26"
-                                      Margin="0,0,0,8">
+                                <Grid Height="26" Margin="0,0,0,8">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="82"/>
+                                        <ColumnDefinition Width="96"/>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="42"/>
                                     </Grid.ColumnDefinitions>
 
                                     <TextBlock Text="{Binding SourceCode}"
                                                VerticalAlignment="Center"
-                                               Foreground="{ThemeResource TextPrimaryBrush}"
-                                               FontSize="12"
-                                               FontWeight="SemiBold"/>
+                                               Foreground="{ThemeResource DkTextSecondaryBrush}"
+                                               FontSize="{StaticResource FontSizeSmall}"
+                                               FontWeight="SemiBold"
+                                               Typography.NumeralAlignment="Tabular"
+                                               TextTrimming="CharacterEllipsis"/>
 
-                                    <Grid Grid.Column="1"
-                                          Height="20"
-                                          VerticalAlignment="Center"
-                                          HorizontalAlignment="Stretch">
-                                        <Border Background="#111827"
-                                                CornerRadius="4"/>
+                                    <Grid Grid.Column="1" Height="16" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+                                        <Border Background="{ThemeResource DkInputBgBrush}" CornerRadius="4"/>
                                         <Border Width="{Binding BarWidth}"
                                                 Background="{Binding BarBrush}"
                                                 CornerRadius="4"
@@ -449,9 +340,10 @@
                                                Text="{Binding AlertCount}"
                                                VerticalAlignment="Center"
                                                HorizontalAlignment="Right"
-                                               Foreground="{ThemeResource TextPrimaryBrush}"
-                                               FontSize="12"
-                                               FontWeight="Bold"/>
+                                               Foreground="{ThemeResource DkTextPrimaryBrush}"
+                                               FontSize="{StaticResource FontSizeSmall}"
+                                               FontWeight="Bold"
+                                               Typography.NumeralAlignment="Tabular"/>
                                 </Grid>
                             </DataTemplate>
                         </ItemsRepeater.ItemTemplate>
@@ -459,138 +351,102 @@
                 </StackPanel>
             </Border>
 
-            <!-- ===== HÀNG 3: NHỊP CẢNH BÁO + PHÂN BỔ MỨC ĐỘ ===== -->
-            <Grid Grid.Row="3"
-                  Grid.ColumnSpan="2"
-                  Margin="0,0,0,12">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1*"/>
-                    <ColumnDefinition Width="1*"/>
-                </Grid.ColumnDefinitions>
+            <!-- ===== ROW 3: REALTIME RHYTHM + SEVERITY MIX ===== -->
+            <Border Grid.Row="3" Grid.Column="0"
+                    Margin="0,0,8,16"
+                    Style="{StaticResource AnalyticsCardStyle}">
+                <StackPanel Margin="20">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="Nhịp cảnh báo 12 phút gần nhất" Style="{StaticResource AnalyticsCardTitleStyle}"/>
+                            <TextBlock x:Name="RealtimeWindowText"
+                                       Text="Số cảnh báo mới/phút, tách rõ rủi ro cao và cảnh báo chưa đóng"
+                                       Style="{StaticResource AnalyticsCardSubtitleStyle}" Margin="0,3,0,0"/>
+                        </StackPanel>
+                        <Border Grid.Column="1"
+                                Padding="8,3"
+                                CornerRadius="4"
+                                Margin="12,0,0,0"
+                                Background="{ThemeResource DkInputBgBrush}"
+                                BorderBrush="{ThemeResource DkBorderBrush}"
+                                BorderThickness="1"
+                                VerticalAlignment="Top">
+                            <TextBlock x:Name="RealtimeStatusText"
+                                       Text="SNAPSHOT"
+                                       Style="{StaticResource DkTagTextStyle}"/>
+                        </Border>
+                    </Grid>
 
-                <Border Grid.Column="0"
-                        Margin="0,0,12,0"
-                        Background="{StaticResource AnalyticsCardBackgroundBrush}"
-                        BorderBrush="{StaticResource AnalyticsCardBorderBrush}"
-                        BorderThickness="1"
-                        CornerRadius="12">
-                    <StackPanel Margin="16">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel>
-                                <TextBlock Text="Nhịp cảnh báo 12 phút gần nhất"
-                                           FontSize="16"
-                                           FontWeight="SemiBold"
-                                           Foreground="{ThemeResource TextPrimaryBrush}"/>
-                        <TextBlock x:Name="RealtimeWindowText"
-                                           Text="Số cảnh báo mới/phút, tách rõ rủi ro cao và cảnh báo chưa đóng"
-                                           FontSize="11"
-                                           Foreground="{StaticResource AnalyticsTextSecondaryBrush}"
-                                           Margin="0,3,0,0"/>
+                    <lvc:CartesianChart Margin="0,14,0,0"
+                                        Height="190"
+                                        Series="{x:Bind RealtimeTrendSeries}"
+                                        XAxes="{x:Bind RealtimeAxes}"
+                                        YAxes="{x:Bind RealtimeYAxes}"
+                                        Background="Transparent"
+                                        TooltipPosition="Top"/>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Row="3" Grid.Column="1"
+                    Margin="8,0,0,16"
+                    Style="{StaticResource AnalyticsCardStyle}">
+                <StackPanel Margin="20">
+                    <TextBlock Text="Cơ cấu mức độ cảnh báo" Style="{StaticResource AnalyticsCardTitleStyle}"/>
+                    <TextBlock x:Name="SeverityMixText"
+                               Text="Tỷ trọng nghiêm trọng, cao, trung bình, thấp"
+                               Style="{StaticResource AnalyticsCardSubtitleStyle}" Margin="0,3,0,0"/>
+
+                    <Grid Margin="0,14,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <lvc:PieChart Grid.Column="0"
+                                      Height="190"
+                                      Series="{x:Bind SeverityDonutSeries}"
+                                      InitialRotation="-90"
+                                      LegendPosition="Hidden"
+                                      TooltipPosition="Top"
+                                      Background="Transparent"/>
+
+                        <!-- Legend: marker shape + label, so level never relies on color alone -->
+                        <StackPanel Grid.Column="1" MinWidth="160" Margin="18,18,0,0" Spacing="10">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Polygon Points="4.5,0 9,8 0,8" Fill="{ThemeResource DkRedBrush}" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="SeverityCriticalLegendText" Text="Nghiêm trọng"
+                                           Style="{StaticResource AnalyticsLegendTextStyle}"/>
                             </StackPanel>
-                            <Border Grid.Column="1"
-                                    Padding="10,4"
-                                    CornerRadius="12"
-                                    Background="#172554"
-                                    VerticalAlignment="Top">
-                                <TextBlock x:Name="RealtimeStatusText"
-                                           Text="SNAPSHOT"
-                                           FontSize="11"
-                                           FontWeight="SemiBold"
-                                           Foreground="#93C5FD"/>
-                            </Border>
-                        </Grid>
-
-                        <lvc:CartesianChart Margin="0,14,0,0"
-                                            Height="190"
-                                            Series="{x:Bind RealtimeTrendSeries}"
-                                            XAxes="{x:Bind RealtimeAxes}"
-                                            YAxes="{x:Bind RealtimeYAxes}"
-                                            Background="Transparent"
-                                            TooltipPosition="Top"/>
-                    </StackPanel>
-                </Border>
-
-                <Border Grid.Column="1"
-                        Background="{StaticResource AnalyticsCardBackgroundBrush}"
-                        BorderBrush="{StaticResource AnalyticsCardBorderBrush}"
-                        BorderThickness="1"
-                        CornerRadius="12">
-                    <StackPanel Margin="16">
-                        <TextBlock Text="Cơ cấu mức độ cảnh báo"
-                                   FontSize="16"
-                                   FontWeight="SemiBold"
-                                   Foreground="{ThemeResource TextPrimaryBrush}"/>
-                        <TextBlock x:Name="SeverityMixText"
-                                   Text="Tỷ trọng nghiêm trọng/cao/trung bình/thấp"
-                                   FontSize="11"
-                                   Foreground="{StaticResource AnalyticsTextSecondaryBrush}"
-                                   Margin="0,3,0,0"/>
-
-                        <Grid Margin="0,14,0,0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="1*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-
-                            <lvc:PieChart Grid.Column="0"
-                                          Height="190"
-                                          Series="{x:Bind SeverityDonutSeries}"
-                                          InitialRotation="-90"
-                                          LegendPosition="Hidden"
-                                          TooltipPosition="Top"
-                                          Background="Transparent"/>
-
-                            <StackPanel Grid.Column="1"
-                                        MinWidth="150"
-                                        Margin="18,18,0,0"
-                                        Spacing="10">
-                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <Ellipse Width="10" Height="10" Fill="#EF4444" VerticalAlignment="Center"/>
-                                    <TextBlock x:Name="SeverityCriticalLegendText"
-                                               Text="Nghiêm trọng"
-                                               Foreground="{ThemeResource TextPrimaryBrush}"
-                                               FontSize="12"/>
-                                </StackPanel>
-                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <Ellipse Width="10" Height="10" Fill="#F97316" VerticalAlignment="Center"/>
-                                    <TextBlock x:Name="SeverityHighLegendText"
-                                               Text="Cao"
-                                               Foreground="{ThemeResource TextPrimaryBrush}"
-                                               FontSize="12"/>
-                                </StackPanel>
-                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <Ellipse Width="10" Height="10" Fill="#EAB308" VerticalAlignment="Center"/>
-                                    <TextBlock x:Name="SeverityMediumLegendText"
-                                               Text="Trung bình"
-                                               Foreground="{ThemeResource TextPrimaryBrush}"
-                                               FontSize="12"/>
-                                </StackPanel>
-                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <Ellipse Width="10" Height="10" Fill="#22C55E" VerticalAlignment="Center"/>
-                                    <TextBlock x:Name="SeverityLowLegendText"
-                                               Text="Thấp"
-                                               Foreground="{ThemeResource TextPrimaryBrush}"
-                                               FontSize="12"/>
-                                </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Polygon Points="4.5,0 9,8 0,8" Fill="{ThemeResource DkOrangeBrush}" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="SeverityHighLegendText" Text="Cao"
+                                           Style="{StaticResource AnalyticsLegendTextStyle}"/>
                             </StackPanel>
-                        </Grid>
-                    </StackPanel>
-                </Border>
-            </Grid>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Rectangle Width="9" Height="9" RadiusX="2" RadiusY="2"
+                                           Fill="{ThemeResource DkYellowBrush}" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="SeverityMediumLegendText" Text="Trung bình"
+                                           Style="{StaticResource AnalyticsLegendTextStyle}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Ellipse Width="9" Height="9" Fill="{ThemeResource DkGreenBrush}" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="SeverityLowLegendText" Text="Thấp"
+                                           Style="{StaticResource AnalyticsLegendTextStyle}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
 
-            <!-- ===== HÀNG 4: HEATMAP NGÀY / GIỜ ===== -->
-            <Border Grid.Row="4"
-                    Grid.ColumnSpan="2"
-                    Margin="0,0,0,12"
-                    Background="{StaticResource AnalyticsCardBackgroundBrush}"
-                    BorderBrush="{StaticResource AnalyticsCardBorderBrush}"
-                    BorderThickness="1"
-                    CornerRadius="12">
-                <Grid Margin="16">
+            <!-- ===== ROW 4: HEATMAP DAY / HOUR ===== -->
+            <Border Grid.Row="4" Grid.ColumnSpan="2"
+                    Margin="0,0,0,16"
+                    Style="{StaticResource AnalyticsCardStyle}">
+                <Grid Margin="20">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
@@ -602,24 +458,12 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <StackPanel>
-                            <TextBlock Text="Bản đồ nhịp cảnh báo theo ngày / giờ"
-                                       FontSize="16"
-                                       FontWeight="SemiBold"
-                                       Foreground="{ThemeResource TextPrimaryBrush}"/>
-                            <TextBlock Text="Màu từng ô được tính theo số cảnh báo tại chính giao điểm ngày-giờ đó; màu chuyển từ xanh sang hồng khi mật độ cảnh báo tăng"
-                                       FontSize="11"
-                                       Foreground="{StaticResource AnalyticsTextSecondaryBrush}"
-                                       Margin="0,3,0,0"/>
-                            <StackPanel Orientation="Horizontal"
-                                        Spacing="8"
-                                        Margin="0,10,0,0">
-                                <TextBlock Text="Ít"
-                                           FontSize="11"
-                                           Foreground="{StaticResource AnalyticsTextSecondaryBrush}"
-                                           VerticalAlignment="Center"/>
-                                <Border Width="160"
-                                        Height="8"
-                                        CornerRadius="4">
+                            <TextBlock Text="Bản đồ nhịp cảnh báo theo ngày / giờ" Style="{StaticResource AnalyticsCardTitleStyle}"/>
+                            <TextBlock Text="Mỗi ô là số cảnh báo tại giao điểm ngày-giờ; màu chuyển từ xanh sang hồng khi mật độ tăng"
+                                       Style="{StaticResource AnalyticsCardSubtitleStyle}" Margin="0,3,0,0"/>
+                            <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,10,0,0">
+                                <TextBlock Text="Ít" Style="{StaticResource AnalyticsLegendTextStyle}"/>
+                                <Border Width="160" Height="8" CornerRadius="4" VerticalAlignment="Center">
                                     <Border.Background>
                                         <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
                                             <GradientStop Color="#60A5FA" Offset="0"/>
@@ -629,19 +473,19 @@
                                         </LinearGradientBrush>
                                     </Border.Background>
                                 </Border>
-                                <TextBlock Text="Nhiều"
-                                           FontSize="11"
-                                           Foreground="{StaticResource AnalyticsTextSecondaryBrush}"
-                                           VerticalAlignment="Center"/>
+                                <TextBlock Text="Nhiều" Style="{StaticResource AnalyticsLegendTextStyle}"/>
                             </StackPanel>
                         </StackPanel>
-                        <TextBlock x:Name="PeakHourText"
-                                   Grid.Column="1"
-                                   Text="-"
-                                   FontSize="12"
-                                   FontWeight="SemiBold"
-                                   Foreground="#FF35C97F"
-                                   VerticalAlignment="Center"/>
+                        <Border Grid.Column="1"
+                                Padding="8,3"
+                                CornerRadius="4"
+                                Background="{ThemeResource DkInputBgBrush}"
+                                BorderBrush="{ThemeResource DkBorderBrush}"
+                                BorderThickness="1"
+                                VerticalAlignment="Top">
+                            <TextBlock x:Name="PeakHourText" Text="-" Style="{StaticResource DkTagTextStyle}"
+                                       Typography.NumeralAlignment="Tabular"/>
+                        </Border>
                     </Grid>
 
                     <Grid Grid.Row="1" Margin="0,16,0,0">
@@ -655,36 +499,26 @@
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
-                        <StackPanel Grid.Row="0"
-                                    Grid.Column="0"
-                                    VerticalAlignment="Bottom"
-                                    Margin="0,0,12,8">
-                            <TextBlock Text="Tổng theo giờ"
-                                       FontSize="11"
-                                       FontWeight="SemiBold"
-                                       Foreground="{StaticResource AnalyticsTextSecondaryBrush}"/>
+                        <StackPanel Grid.Row="0" Grid.Column="0" VerticalAlignment="Bottom" Margin="0,0,12,8">
+                            <TextBlock Text="TỔNG THEO GIỜ" Style="{StaticResource DkLabelStyle}"/>
                             <TextBlock x:Name="HeatmapTotalText"
                                        Text="0 cảnh báo"
-                                       FontSize="18"
+                                       FontSize="{StaticResource FontSizeMedium}"
                                        FontWeight="Bold"
-                                       Foreground="{ThemeResource TextPrimaryBrush}"
+                                       Foreground="{ThemeResource DkTextPrimaryBrush}"
                                        Margin="0,4,0,0"
                                        TextWrapping="NoWrap"
-                                       TextTrimming="None"/>
+                                       TextTrimming="None"
+                                       Typography.NumeralAlignment="Tabular"/>
                         </StackPanel>
 
-                        <ItemsRepeater x:Name="HeatmapHourBarsRepeater"
-                                       Grid.Row="0"
-                                       Grid.Column="1">
+                        <ItemsRepeater x:Name="HeatmapHourBarsRepeater" Grid.Row="0" Grid.Column="1">
                             <ItemsRepeater.Layout>
-                                <UniformGridLayout MaximumRowsOrColumns="24"
-                                                   MinColumnSpacing="3"
-                                                   ItemsStretch="Fill"/>
+                                <UniformGridLayout MaximumRowsOrColumns="24" MinColumnSpacing="3" ItemsStretch="Fill"/>
                             </ItemsRepeater.Layout>
                             <ItemsRepeater.ItemTemplate>
                                 <DataTemplate x:DataType="views:HourBucketStat">
-                                    <Grid Height="76"
-                                          ToolTipService.ToolTip="{Binding Tooltip}">
+                                    <Grid Height="76" ToolTipService.ToolTip="{Binding Tooltip}">
                                         <Border Width="12"
                                                 Height="{Binding BarHeight}"
                                                 Background="{Binding Brush}"
@@ -697,41 +531,31 @@
                             </ItemsRepeater.ItemTemplate>
                         </ItemsRepeater>
 
-                        <TextBlock Grid.Row="1"
-                                   Grid.Column="0"
-                                   Text="Ngày | Giờ"
-                                   FontSize="11"
-                                   FontWeight="SemiBold"
-                                   Foreground="{StaticResource AnalyticsTextSecondaryBrush}"
+                        <TextBlock Grid.Row="1" Grid.Column="0"
+                                   Text="NGÀY | GIỜ"
+                                   Style="{StaticResource DkLabelStyle}"
                                    VerticalAlignment="Center"/>
 
-                        <ItemsRepeater x:Name="HeatmapHourLabelsRepeater"
-                                       Grid.Row="1"
-                                       Grid.Column="1">
+                        <ItemsRepeater x:Name="HeatmapHourLabelsRepeater" Grid.Row="1" Grid.Column="1">
                             <ItemsRepeater.Layout>
-                                <UniformGridLayout MaximumRowsOrColumns="24"
-                                                   MinColumnSpacing="3"
-                                                   ItemsStretch="Fill"/>
+                                <UniformGridLayout MaximumRowsOrColumns="24" MinColumnSpacing="3" ItemsStretch="Fill"/>
                             </ItemsRepeater.Layout>
                             <ItemsRepeater.ItemTemplate>
                                 <DataTemplate x:DataType="x:String">
                                     <TextBlock Text="{Binding}"
                                                HorizontalAlignment="Center"
                                                VerticalAlignment="Center"
-                                               Foreground="{StaticResource AnalyticsTextSecondaryBrush}"
-                                               FontSize="11"/>
+                                               Foreground="{ThemeResource DkTextMutedBrush}"
+                                               FontSize="{StaticResource FontSizeXSmall}"
+                                               Typography.NumeralAlignment="Tabular"/>
                                 </DataTemplate>
                             </ItemsRepeater.ItemTemplate>
                         </ItemsRepeater>
 
-                        <ItemsRepeater x:Name="HeatmapDayBarsRepeater"
-                                       Grid.Row="2"
-                                       Grid.Column="0"
-                                       Margin="0,8,12,0">
+                        <ItemsRepeater x:Name="HeatmapDayBarsRepeater" Grid.Row="2" Grid.Column="0" Margin="0,8,12,0">
                             <ItemsRepeater.ItemTemplate>
                                 <DataTemplate x:DataType="views:DayBucketStat">
-                                    <Grid Height="25"
-                                          ToolTipService.ToolTip="{Binding Tooltip}">
+                                    <Grid Height="25" ToolTipService.ToolTip="{Binding Tooltip}">
                                         <Border Width="{Binding BarWidth}"
                                                 Background="{Binding Brush}"
                                                 CornerRadius="3"
@@ -742,28 +566,22 @@
                                         <TextBlock Text="{Binding Label}"
                                                    Margin="8,0,0,0"
                                                    VerticalAlignment="Center"
-                                                   FontSize="11"
+                                                   FontSize="{StaticResource FontSizeXSmall}"
                                                    FontWeight="SemiBold"
-                                                   Foreground="White"/>
+                                                   Foreground="White"
+                                                   Typography.NumeralAlignment="Tabular"/>
                                     </Grid>
                                 </DataTemplate>
                             </ItemsRepeater.ItemTemplate>
                         </ItemsRepeater>
 
-                        <ItemsRepeater x:Name="HeatmapRepeater"
-                                       Grid.Row="2"
-                                       Grid.Column="1"
-                                       Margin="0,8,0,0">
+                        <ItemsRepeater x:Name="HeatmapRepeater" Grid.Row="2" Grid.Column="1" Margin="0,8,0,0">
                             <ItemsRepeater.Layout>
-                                <UniformGridLayout MaximumRowsOrColumns="24"
-                                                   MinColumnSpacing="0"
-                                                   MinRowSpacing="0"
-                                                   ItemsStretch="Fill"/>
+                                <UniformGridLayout MaximumRowsOrColumns="24" MinColumnSpacing="0" MinRowSpacing="0" ItemsStretch="Fill"/>
                             </ItemsRepeater.Layout>
                             <ItemsRepeater.ItemTemplate>
                                 <DataTemplate x:DataType="views:HeatmapCell">
-                                    <Grid Height="25"
-                                          ToolTipService.ToolTip="{Binding Tooltip}">
+                                    <Grid Height="25" ToolTipService.ToolTip="{Binding Tooltip}">
                                         <Border BorderBrush="{Binding GridLineBrush}"
                                                 BorderThickness="0.5"
                                                 Background="{Binding CellOverlayBrush}"
@@ -774,9 +592,10 @@
                                         <TextBlock Text="{Binding CountText}"
                                                    HorizontalAlignment="Center"
                                                    VerticalAlignment="Center"
-                                                   FontSize="10"
+                                                   FontSize="{StaticResource FontSizeCaption}"
                                                    FontWeight="Bold"
-                                                   Foreground="{Binding CountForeground}"/>
+                                                   Foreground="{Binding CountForeground}"
+                                                   Typography.NumeralAlignment="Tabular"/>
                                     </Grid>
                                 </DataTemplate>
                             </ItemsRepeater.ItemTemplate>
@@ -785,99 +604,140 @@
                 </Grid>
             </Border>
 
-            <!-- ===== HÀNG 5: LỊCH SỬ CẢNH BÁO ===== -->
-            <!-- Lịch sử cảnh báo -->
-            <Border Grid.Row="5"
-                    Grid.Column="0"
-                    Grid.ColumnSpan="2"
-                    Margin="0"
-                    Background="{StaticResource AnalyticsCardBackgroundBrush}"
-                    BorderBrush="{StaticResource AnalyticsCardBorderBrush}"
-                    BorderThickness="1"
-                    CornerRadius="12">
-                <StackPanel Margin="16">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Text="Dữ liệu lịch sử cảnh báo"
-                                   FontSize="16"
-                                   FontWeight="SemiBold"
-                                   VerticalAlignment="Center"
-                                   Foreground="{ThemeResource TextPrimaryBrush}"/>
+            <!-- ===== ROW 5: ALERT HISTORY ===== -->
+            <Border Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2"
+                    Style="{StaticResource AnalyticsCardStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
-                        <Button Grid.Column="1"
-                                Content="Lọc nâng cao"
-                                Margin="12,0,0,0"
-                                HorizontalAlignment="Right"/>
-                    </Grid>
+                    <Border Grid.Row="0"
+                            BorderBrush="{ThemeResource DkBorderBrush}"
+                            BorderThickness="0,0,0,1"
+                            Padding="20,14">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Dữ liệu lịch sử cảnh báo"
+                                       Style="{StaticResource AnalyticsCardTitleStyle}"
+                                       VerticalAlignment="Center"/>
+                            <Button Grid.Column="1"
+                                    Style="{StaticResource DkSecondaryButtonStyle}"
+                                    Padding="14,6">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon Glyph="&#xE71C;" FontSize="{StaticResource FontSizeSmall}"/>
+                                    <TextBlock Text="Lọc nâng cao"/>
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+                    </Border>
+
+                    <!-- Column headers -->
+                    <Border Grid.Row="1"
+                            Background="{ThemeResource DkInputBgBrush}"
+                            BorderBrush="{ThemeResource DkBorderBrush}"
+                            BorderThickness="0,0,0,1"
+                            Padding="20,11">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="180"/>
+                                <ColumnDefinition Width="1.1*"/>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="1.2*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="THỜI GIAN" Style="{StaticResource DkLabelStyle}"/>
+                            <TextBlock Grid.Column="1" Text="TUYẾN" Style="{StaticResource DkLabelStyle}"/>
+                            <TextBlock Grid.Column="2" Text="NÚT" Style="{StaticResource DkLabelStyle}"/>
+                            <TextBlock Grid.Column="3" Text="LOẠI CẢNH BÁO" Style="{StaticResource DkLabelStyle}"/>
+                            <TextBlock Grid.Column="4" Text="MỨC ĐỘ" Style="{StaticResource DkLabelStyle}"/>
+                            <TextBlock Grid.Column="5" Text="TRẠNG THÁI XỬ LÝ" Style="{StaticResource DkLabelStyle}"/>
+                        </Grid>
+                    </Border>
 
                     <ListView x:Name="HistoryGrid"
-                              Margin="0,12,0,0"
+                              Grid.Row="2"
                               Height="360"
                               MaxHeight="360"
                               IsItemClickEnabled="False"
+                              SelectionMode="None"
                               ScrollViewer.VerticalScrollMode="Enabled"
                               ScrollViewer.VerticalScrollBarVisibility="Auto"
                               ScrollViewer.HorizontalScrollMode="Disabled"
                               ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-
-                        <ListView.Header>
-                            <Grid Padding="0,0,0,4">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="180"/>
-                                    <ColumnDefinition Width="1.1*"/>
-                                    <ColumnDefinition Width="1*"/>
-                                    <ColumnDefinition Width="2*"/>
-                                    <ColumnDefinition Width="1*"/>
-                                    <ColumnDefinition Width="1.2*"/>
-                                </Grid.ColumnDefinitions>
-
-                                <TextBlock Grid.Column="0" Text="Thời gian" FontWeight="SemiBold"
-                                           Foreground="{StaticResource AnalyticsTextSecondaryBrush}"/>
-                                <TextBlock Grid.Column="1" Text="Tuyến"     FontWeight="SemiBold"
-                                           Foreground="{StaticResource AnalyticsTextSecondaryBrush}"/>
-                                <TextBlock Grid.Column="2" Text="Nút"       FontWeight="SemiBold"
-                                           Foreground="{StaticResource AnalyticsTextSecondaryBrush}"/>
-                                <TextBlock Grid.Column="3" Text="Loại cảnh báo" FontWeight="SemiBold"
-                                           Foreground="{StaticResource AnalyticsTextSecondaryBrush}"/>
-                                <TextBlock Grid.Column="4" Text="Mức độ"    FontWeight="SemiBold"
-                                           Foreground="{StaticResource AnalyticsTextSecondaryBrush}"/>
-                                <TextBlock Grid.Column="5" Text="Trạng thái xử lý" FontWeight="SemiBold"
-                                           Foreground="{StaticResource AnalyticsTextSecondaryBrush}"/>
-                            </Grid>
-                        </ListView.Header>
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="Padding" Value="0"/>
+                                <Setter Property="MinHeight" Value="0"/>
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                            </Style>
+                        </ListView.ItemContainerStyle>
 
                         <ListView.ItemTemplate>
                             <DataTemplate>
-                                <Grid Padding="0,4,0,4">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="180"/>
-                                        <ColumnDefinition Width="1.1*"/>
-                                        <ColumnDefinition Width="1*"/>
-                                        <ColumnDefinition Width="2*"/>
-                                        <ColumnDefinition Width="1*"/>
-                                        <ColumnDefinition Width="1.2*"/>
-                                    </Grid.ColumnDefinitions>
+                                <Border BorderBrush="{ThemeResource DkBorderSubtleBrush}"
+                                        BorderThickness="0,0,0,1"
+                                        MinHeight="44"
+                                        Padding="20,8">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="180"/>
+                                            <ColumnDefinition Width="1.1*"/>
+                                            <ColumnDefinition Width="1*"/>
+                                            <ColumnDefinition Width="2*"/>
+                                            <ColumnDefinition Width="1*"/>
+                                            <ColumnDefinition Width="1.2*"/>
+                                        </Grid.ColumnDefinitions>
 
-                                    <TextBlock Grid.Column="0" Text="{Binding Timestamp}"
-                                               Foreground="{ThemeResource TextPrimaryBrush}"/>
-                                    <TextBlock Grid.Column="1" Text="{Binding Line}"
-                                               Foreground="{ThemeResource TextPrimaryBrush}"/>
-                                    <TextBlock Grid.Column="2" Text="{Binding Node}"
-                                               Foreground="{ThemeResource TextPrimaryBrush}"/>
-                                    <TextBlock Grid.Column="3" Text="{Binding AlertType}"
-                                               Foreground="{ThemeResource TextPrimaryBrush}"/>
-                                    <TextBlock Grid.Column="4" Text="{Binding Severity}"
-                                               Foreground="{ThemeResource TextPrimaryBrush}"/>
-                                    <TextBlock Grid.Column="5" Text="{Binding Status}"
-                                               Foreground="{ThemeResource TextPrimaryBrush}"/>
-                                </Grid>
+                                        <TextBlock Grid.Column="0" Text="{Binding Timestamp}"
+                                                   FontSize="{StaticResource FontSizeSmall}"
+                                                   Foreground="{ThemeResource DkTextSecondaryBrush}"
+                                                   Typography.NumeralAlignment="Tabular"
+                                                   VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding Line}"
+                                                   FontSize="{StaticResource FontSizeSmall}"
+                                                   Foreground="{ThemeResource DkTextSecondaryBrush}"
+                                                   VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding Node}"
+                                                   FontSize="{StaticResource FontSizeSmall}"
+                                                   Foreground="{ThemeResource DkTextSecondaryBrush}"
+                                                   Typography.NumeralAlignment="Tabular"
+                                                   VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="3" Text="{Binding AlertType}"
+                                                   FontSize="{StaticResource FontSizeBody}"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{ThemeResource DkTextPrimaryBrush}"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   VerticalAlignment="Center"/>
+                                        <Border Grid.Column="4"
+                                                Background="{ThemeResource DkInputBgBrush}"
+                                                BorderBrush="{ThemeResource DkBorderBrush}"
+                                                BorderThickness="1"
+                                                CornerRadius="4"
+                                                Padding="8,3"
+                                                HorizontalAlignment="Left"
+                                                VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Severity}"
+                                                       FontSize="{StaticResource FontSizeSmall}"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{ThemeResource DkTextPrimaryBrush}"/>
+                                        </Border>
+                                        <TextBlock Grid.Column="5" Text="{Binding Status}"
+                                                   FontSize="{StaticResource FontSizeSmall}"
+                                                   Foreground="{ThemeResource DkTextSecondaryBrush}"
+                                                   VerticalAlignment="Center"/>
+                                    </Grid>
+                                </Border>
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
-                </StackPanel>
+                </Grid>
             </Border>
         </Grid>
         </ScrollViewer>
