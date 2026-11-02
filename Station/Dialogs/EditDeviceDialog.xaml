@@ -8,117 +8,120 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     Title="Chỉnh sửa thiết bị"
-    PrimaryButtonText="Lưu"
+    PrimaryButtonText="Lưu thay đổi"
     CloseButtonText="Hủy"
+    PrimaryButtonStyle="{StaticResource DkPrimaryButtonStyle}"
+    CloseButtonStyle="{StaticResource DkSecondaryButtonStyle}"
     DefaultButton="Primary"
-    RequestedTheme="Dark"
-    Background="{StaticResource MonitoringPanelBackgroundBrush}"
-    BorderBrush="{StaticResource MonitoringBorderBrush}"
-    CornerRadius="8"
+    
+    Background="{ThemeResource DkSurfaceBrush}"
+    BorderBrush="{ThemeResource DkBorderBrush}"
+    BorderThickness="1"
+    CornerRadius="12"
     Padding="24">
 
     <ContentDialog.Resources>
-        <!-- Dark TextBox Style -->
-        <Style x:Key="DarkTextBoxStyle" TargetType="TextBox">
-            <Setter Property="Background" Value="{StaticResource MonitoringBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{StaticResource MonitoringTextPrimaryBrush}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource MonitoringBorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="4"/>
+        <Style x:Key="DlgTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource DkSearchBoxStyle}">
             <Setter Property="Padding" Value="12,8"/>
-            <Setter Property="Height" Value="36"/>
-            <Setter Property="FontSize" Value="13"/>
+        </Style>
+        <Style x:Key="DlgFieldLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource FontSizeSmall}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{ThemeResource DkTextSecondaryBrush}"/>
+            <Setter Property="Margin" Value="0,0,0,6"/>
         </Style>
     </ContentDialog.Resources>
 
-    <ScrollViewer MaxHeight="600" VerticalScrollBarVisibility="Auto" Width="400">
-        <StackPanel Spacing="14" Margin="0,12,0,0">
+    <ContentDialog.TitleTemplate>
+        <DataTemplate>
+            <Grid Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Spacing="2" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding}"
+                               FontSize="{StaticResource FontSizeTitle}" FontWeight="SemiBold"
+                               Foreground="{ThemeResource DkTextPrimaryBrush}"/>
+                    <TextBlock Text="Thông tin kết nối và định danh thiết bị"
+                               FontSize="{StaticResource FontSizeCompact}"
+                               Foreground="{ThemeResource DkTextMutedBrush}"/>
+                </StackPanel>
+                <Button Grid.Column="1" Style="{StaticResource DkIconButtonStyle}"
+                        Click="HeaderClose_Click"
+                        ToolTipService.ToolTip="Đóng" AutomationProperties.Name="Đóng">
+                    <FontIcon Glyph="&#xE711;" FontSize="{StaticResource FontSizeSmall}"/>
+                </Button>
+            </Grid>
+        </DataTemplate>
+    </ContentDialog.TitleTemplate>
+
+    <ScrollViewer MaxHeight="560" VerticalScrollBarVisibility="Auto" Width="440">
+        <StackPanel Spacing="14">
+
+            <Grid ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Tên thiết bị *" Style="{StaticResource DlgFieldLabelStyle}"/>
+                    <TextBox x:Name="DeviceNameTextBox"
+                             PlaceholderText="Nhập tên thiết bị"
+                             Style="{StaticResource DlgTextBoxStyle}"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1">
+                    <TextBlock Text="Mã thiết bị (không đổi)" Style="{StaticResource DlgFieldLabelStyle}"/>
+                    <TextBox x:Name="DeviceIdTextBox"
+                             IsEnabled="False"
+                             Style="{StaticResource DlgTextBoxStyle}"/>
+                </StackPanel>
+            </Grid>
+
+            <Grid ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Địa chỉ IP *" Style="{StaticResource DlgFieldLabelStyle}"/>
+                    <TextBox x:Name="IpAddressTextBox"
+                             PlaceholderText="192.168.1.100"
+                             Style="{StaticResource DlgTextBoxStyle}"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1">
+                    <TextBlock Text="Loại thiết bị" Style="{StaticResource DlgFieldLabelStyle}"/>
+                    <TextBox x:Name="TypeDisplayTextBox"
+                             PlaceholderText="Loại thiết bị"
+                             Style="{StaticResource DlgTextBoxStyle}"/>
+                </StackPanel>
+            </Grid>
+
             <StackPanel>
-
-                <!-- Device Name -->
-                <TextBlock Text="Tên thiết bị *"
-                           FontWeight="SemiBold"
-                           FontSize="13"
-                           Foreground="{StaticResource MonitoringTextPrimaryBrush}"
-                           Margin="0,0,0,6"/>
-                <TextBox x:Name="DeviceNameTextBox"
-                         PlaceholderText="Nhập tên thiết bị"
-                         Style="{StaticResource DarkTextBoxStyle}"
-                         />
-            </StackPanel>
-
-            <StackPanel>
-
-                <!-- Device ID (Read-only) -->
-                <TextBlock Text="Mã thiết bị"
-                           FontWeight="SemiBold"
-                           FontSize="13"
-                           Foreground="{StaticResource MonitoringTextPrimaryBrush}"
-                           Margin="0,0,0,6"/>
-                <TextBox x:Name="DeviceIdTextBox"
-                         IsEnabled="False"
-                         Style="{StaticResource DarkTextBoxStyle}"/>
-            </StackPanel>
-
-            <!-- Network Configuration Section -->
-            <!-- IP Address -->
-            <StackPanel>
-                <TextBlock Text="Địa chỉ IP"
-                           FontWeight="SemiBold"
-                           FontSize="13"
-                           Foreground="{StaticResource MonitoringTextPrimaryBrush}"
-                           Margin="0,0,0,6"/>
-                <TextBox x:Name="IpAddressTextBox"
-                         PlaceholderText="192.168.1.100"
-                         Style="{StaticResource DarkTextBoxStyle}"/>
-            </StackPanel>
-
-            <StackPanel>
-                <TextBlock Text="Loại thiết bị"
-                           FontWeight="SemiBold"
-                           FontSize="13"
-                           Foreground="{StaticResource MonitoringTextPrimaryBrush}"
-                           Margin="0,0,0,6"/>
-                <TextBox x:Name="TypeDisplayTextBox"
-                         PlaceholderText="Loại thiết bị"
-                         Style="{StaticResource DarkTextBoxStyle}"/>
-            </StackPanel>
-
-            <!-- Location -->
-            <StackPanel>
-                <TextBlock Text="Vị trí"
-                           FontWeight="SemiBold"
-                           FontSize="13"
-                           Foreground="{StaticResource MonitoringTextPrimaryBrush}"
-                           Margin="0,0,0,6"/>
+                <TextBlock Text="Vị trí" Style="{StaticResource DlgFieldLabelStyle}"/>
                 <TextBox x:Name="LocationTextBox"
                          PlaceholderText="A1 / R1 / N1"
-                         Style="{StaticResource DarkTextBoxStyle}"/>
+                         Style="{StaticResource DlgTextBoxStyle}"/>
             </StackPanel>
 
-            <!-- Manufacturer -->
-            <StackPanel>
-                <TextBlock Text="Hãng sản xuất"
-                           FontWeight="SemiBold"
-                           FontSize="13"
-                           Foreground="{StaticResource MonitoringTextPrimaryBrush}"
-                           Margin="0,0,0,6"/>
-                <TextBox x:Name="ManufacturerTextBox"
-                         PlaceholderText="Hikvision, Dahua, etc."
-                         Style="{StaticResource DarkTextBoxStyle}"/>
-            </StackPanel>
-
-            <StackPanel>
-                <TextBlock Text="Thông tin phiên bản"
-                           FontWeight="SemiBold"
-                           FontSize="13"
-                           Foreground="{StaticResource MonitoringTextPrimaryBrush}"
-                           Margin="0,0,0,6"/>
-                <TextBox x:Name="FirmwareVersionTextBox"
-                         PlaceholderText="V5.7.3"
-                         Style="{StaticResource DarkTextBoxStyle}"/>
-            </StackPanel>
+            <Grid ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Hãng sản xuất" Style="{StaticResource DlgFieldLabelStyle}"/>
+                    <TextBox x:Name="ManufacturerTextBox"
+                             PlaceholderText="Hikvision, Dahua, ..."
+                             Style="{StaticResource DlgTextBoxStyle}"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1">
+                    <TextBlock Text="Phiên bản firmware" Style="{StaticResource DlgFieldLabelStyle}"/>
+                    <TextBox x:Name="FirmwareVersionTextBox"
+                             PlaceholderText="V5.7.3"
+                             Style="{StaticResource DlgTextBoxStyle}"/>
+                </StackPanel>
+            </Grid>
         </StackPanel>
-
     </ScrollViewer>
 </ContentDialog>

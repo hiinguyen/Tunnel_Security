@@ -174,6 +174,58 @@
             <SolidColorBrush x:Key="NavigationViewItemBackgroundPointerOver" Color="#F0F4F8"/>
             <SolidColorBrush x:Key="NavigationViewItemBackgroundPressed" Color="#E6EDF5"/>
             <SolidColorBrush x:Key="NavigationViewSelectionIndicatorForeground" Color="#1E3A8A"/>
+                    <!-- Themed Dk/Sensor palette (light values) -->
+            <SolidColorBrush x:Key="DkBgBrush" Color="#F1F5F9"/>
+            <SolidColorBrush x:Key="DkSurfaceBrush" Color="#FFFFFF"/>
+            <SolidColorBrush x:Key="DkDeepBrush" Color="#F1F5F9"/>
+            <SolidColorBrush x:Key="DkInputBgBrush" Color="#F8FAFC"/>
+            <SolidColorBrush x:Key="DkHoverSurfaceBrush" Color="#F1F5F9"/>
+            <SolidColorBrush x:Key="DkPressedSurfaceBrush" Color="#E2E8F0"/>
+            <SolidColorBrush x:Key="DkBorderBrush" Color="#E2E8F0"/>
+            <SolidColorBrush x:Key="DkBorderSubtleBrush" Color="#EEF2F6"/>
+            <SolidColorBrush x:Key="DkBorderHoverBrush" Color="#94A3B8"/>
+            <SolidColorBrush x:Key="DkTextPrimaryBrush" Color="#0F172A"/>
+            <SolidColorBrush x:Key="DkTextSecondaryBrush" Color="#334155"/>
+            <SolidColorBrush x:Key="DkTextMutedBrush" Color="#64748B"/>
+            <SolidColorBrush x:Key="DkTextDimBrush" Color="#64748B"/>
+            <SolidColorBrush x:Key="DkBlueBrush" Color="#2563EB"/>
+            <SolidColorBrush x:Key="DkBlueMidBrush" Color="#3B82F6"/>
+            <SolidColorBrush x:Key="DkBlueLightBrush" Color="#1D4ED8"/>
+            <SolidColorBrush x:Key="DkBlueDarkBrush" Color="#1E40AF"/>
+            <SolidColorBrush x:Key="DkBlueBgBrush" Color="#DBEAFE"/>
+            <SolidColorBrush x:Key="DkBlueBorderBrush" Color="#93C5FD"/>
+            <SolidColorBrush x:Key="DkBluePressedBrush" Color="#1D4ED8"/>
+            <SolidColorBrush x:Key="DkGreenBrush" Color="#15803D"/>
+            <SolidColorBrush x:Key="DkGreenBgBrush" Color="#DCFCE7"/>
+            <SolidColorBrush x:Key="DkYellowBrush" Color="#A16207"/>
+            <SolidColorBrush x:Key="DkYellowBgBrush" Color="#FEF3C7"/>
+            <SolidColorBrush x:Key="DkOrangeBrush" Color="#C2410C"/>
+            <SolidColorBrush x:Key="DkOrangeBgBrush" Color="#FFEDD5"/>
+            <SolidColorBrush x:Key="DkRedBrush" Color="#DC2626"/>
+            <SolidColorBrush x:Key="DkRedBgBrush" Color="#FEE2E2"/>
+            <SolidColorBrush x:Key="DkGrayBrush" Color="#64748B"/>
+            <SolidColorBrush x:Key="DkGrayBgBrush" Color="#F1F5F9"/>
+            <SolidColorBrush x:Key="DkScrimBrush" Color="#990F172A"/>
+            <SolidColorBrush x:Key="MonitoringSensorTempBrush" Color="#D97706"/>
+            <SolidColorBrush x:Key="MonitoringSensorHumidityBrush" Color="#0891B2"/>
+            <SolidColorBrush x:Key="MonitoringSensorVibrationBrush" Color="#65A30D"/>
+            <SolidColorBrush x:Key="MonitoringSensorPressureBrush" Color="#4F46E5"/>
+            <SolidColorBrush x:Key="MonitoringSensorGasBrush" Color="#0D9488"/>
+            <SolidColorBrush x:Key="MonitoringSensorRadarBrush" Color="#4F46E5"/>
+            <SolidColorBrush x:Key="MonitoringSensorInfraredBrush" Color="#65A30D"/>
+            <SolidColorBrush x:Key="DkRowHoverOverlayBrush" Color="#0A0F172A"/>
+            <SolidColorBrush x:Key="DkTextSubtleBrush" Color="#475569"/>
+            <SolidColorBrush x:Key="DkTextFaintBrush" Color="#94A3B8"/>
+            <SolidColorBrush x:Key="DkChartAxisLabelBrush" Color="#64748B"/>
+            <SolidColorBrush x:Key="DkChartGridBrush" Color="#E2E8F0"/>
+            <SolidColorBrush x:Key="DkChartValueBrush" Color="#1E293B"/>
+            <SolidColorBrush x:Key="DkConnectionOfflineBrush" Color="#94A3B8"/>
+            <SolidColorBrush x:Key="SensorAccentTemperatureBrush" Color="#DC2626"/>
+            <SolidColorBrush x:Key="SensorAccentLightBrush" Color="#D97706"/>
+            <SolidColorBrush x:Key="SensorAccentWaterLevelBrush" Color="#2563EB"/>
+            <SolidColorBrush x:Key="SensorAccentRadarBrush" Color="#059669"/>
+            <SolidColorBrush x:Key="SensorAccentInfraredBrush" Color="#DB2777"/>
+            <SolidColorBrush x:Key="SensorAccentDefaultBrush" Color="#4F6BED"/>
         </ResourceDictionary>
 
         <!-- Dark Theme -->
@@ -342,6 +394,58 @@
             <SolidColorBrush x:Key="NavigationViewItemBackgroundPointerOver" Color="#1F2429"/>
             <SolidColorBrush x:Key="NavigationViewItemBackgroundPressed" Color="#2D3238"/>
             <SolidColorBrush x:Key="NavigationViewSelectionIndicatorForeground" Color="#60A5FA"/>
+                    <!-- Themed Dk/Sensor palette (dark values) -->
+            <SolidColorBrush x:Key="DkBgBrush" Color="#0F1526"/>
+            <SolidColorBrush x:Key="DkSurfaceBrush" Color="#171E33"/>
+            <SolidColorBrush x:Key="DkDeepBrush" Color="#0F1526"/>
+            <SolidColorBrush x:Key="DkInputBgBrush" Color="#0B1020"/>
+            <SolidColorBrush x:Key="DkHoverSurfaceBrush" Color="#1C222D"/>
+            <SolidColorBrush x:Key="DkPressedSurfaceBrush" Color="#2D3545"/>
+            <SolidColorBrush x:Key="DkBorderBrush" Color="#2D3238"/>
+            <SolidColorBrush x:Key="DkBorderSubtleBrush" Color="#1F2429"/>
+            <SolidColorBrush x:Key="DkBorderHoverBrush" Color="#475569"/>
+            <SolidColorBrush x:Key="DkTextPrimaryBrush" Color="#E6EEF3"/>
+            <SolidColorBrush x:Key="DkTextSecondaryBrush" Color="#C4C8CF"/>
+            <SolidColorBrush x:Key="DkTextMutedBrush" Color="#96A0B3"/>
+            <SolidColorBrush x:Key="DkTextDimBrush" Color="#8794A6"/>
+            <SolidColorBrush x:Key="DkBlueBrush" Color="#2979FF"/>
+            <SolidColorBrush x:Key="DkBlueMidBrush" Color="#3B82F6"/>
+            <SolidColorBrush x:Key="DkBlueLightBrush" Color="#60A5FA"/>
+            <SolidColorBrush x:Key="DkBlueDarkBrush" Color="#144BB8"/>
+            <SolidColorBrush x:Key="DkBlueBgBrush" Color="#0D1D3B"/>
+            <SolidColorBrush x:Key="DkBlueBorderBrush" Color="#1D4ED8"/>
+            <SolidColorBrush x:Key="DkBluePressedBrush" Color="#1E40AF"/>
+            <SolidColorBrush x:Key="DkGreenBrush" Color="#3FCF8E"/>
+            <SolidColorBrush x:Key="DkGreenBgBrush" Color="#0D2B1A"/>
+            <SolidColorBrush x:Key="DkYellowBrush" Color="#FFD166"/>
+            <SolidColorBrush x:Key="DkYellowBgBrush" Color="#3D2E14"/>
+            <SolidColorBrush x:Key="DkOrangeBrush" Color="#FF8C42"/>
+            <SolidColorBrush x:Key="DkOrangeBgBrush" Color="#3D2218"/>
+            <SolidColorBrush x:Key="DkRedBrush" Color="#FF5252"/>
+            <SolidColorBrush x:Key="DkRedBgBrush" Color="#3D1A1A"/>
+            <SolidColorBrush x:Key="DkGrayBrush" Color="#7B7E85"/>
+            <SolidColorBrush x:Key="DkGrayBgBrush" Color="#1A1F2A"/>
+            <SolidColorBrush x:Key="DkScrimBrush" Color="#CC0B1020"/>
+            <SolidColorBrush x:Key="MonitoringSensorTempBrush" Color="#FFB347"/>
+            <SolidColorBrush x:Key="MonitoringSensorHumidityBrush" Color="#22D3EE"/>
+            <SolidColorBrush x:Key="MonitoringSensorVibrationBrush" Color="#84CC16"/>
+            <SolidColorBrush x:Key="MonitoringSensorPressureBrush" Color="#818CF8"/>
+            <SolidColorBrush x:Key="MonitoringSensorGasBrush" Color="#2DD4BF"/>
+            <SolidColorBrush x:Key="MonitoringSensorRadarBrush" Color="#818CF8"/>
+            <SolidColorBrush x:Key="MonitoringSensorInfraredBrush" Color="#84CC16"/>
+            <SolidColorBrush x:Key="DkRowHoverOverlayBrush" Color="#12FFFFFF"/>
+            <SolidColorBrush x:Key="DkTextSubtleBrush" Color="#C2C6D6"/>
+            <SolidColorBrush x:Key="DkTextFaintBrush" Color="#5A616E"/>
+            <SolidColorBrush x:Key="DkChartAxisLabelBrush" Color="#646E82"/>
+            <SolidColorBrush x:Key="DkChartGridBrush" Color="#C81E2A44"/>
+            <SolidColorBrush x:Key="DkChartValueBrush" Color="#DAE2FD"/>
+            <SolidColorBrush x:Key="DkConnectionOfflineBrush" Color="#3D6070"/>
+            <SolidColorBrush x:Key="SensorAccentTemperatureBrush" Color="#FF4D4D"/>
+            <SolidColorBrush x:Key="SensorAccentLightBrush" Color="#FFB800"/>
+            <SolidColorBrush x:Key="SensorAccentWaterLevelBrush" Color="#50A0FF"/>
+            <SolidColorBrush x:Key="SensorAccentRadarBrush" Color="#00FF88"/>
+            <SolidColorBrush x:Key="SensorAccentInfraredBrush" Color="#FF69B4"/>
+            <SolidColorBrush x:Key="SensorAccentDefaultBrush" Color="#ADC6FF"/>
         </ResourceDictionary>
     </ResourceDictionary.ThemeDictionaries>
 
@@ -380,56 +484,20 @@
     ==================================== -->
 
     <!-- Backgrounds — matched to MonitoringDashboard palette -->
-    <SolidColorBrush x:Key="DkBgBrush"         Color="#0F1526"/>
-    <SolidColorBrush x:Key="DkSurfaceBrush"    Color="#171E33"/>
-    <SolidColorBrush x:Key="DkDeepBrush"       Color="#0F1526"/>
-    <SolidColorBrush x:Key="DkInputBgBrush"    Color="#0B1020"/>
-    <SolidColorBrush x:Key="DkHoverSurfaceBrush"   Color="#1C222D"/>
-    <SolidColorBrush x:Key="DkPressedSurfaceBrush" Color="#2D3545"/>
 
     <!-- Borders -->
-    <SolidColorBrush x:Key="DkBorderBrush"     Color="#2D3238"/>
-    <SolidColorBrush x:Key="DkBorderSubtleBrush" Color="#1F2429"/>
-    <SolidColorBrush x:Key="DkBorderHoverBrush"  Color="#475569"/>
 
     <!-- Text -->
-    <SolidColorBrush x:Key="DkTextPrimaryBrush"   Color="#E6EEF3"/>
-    <SolidColorBrush x:Key="DkTextSecondaryBrush" Color="#C4C8CF"/>
-    <SolidColorBrush x:Key="DkTextMutedBrush"     Color="#96A0B3"/>
-    <SolidColorBrush x:Key="DkTextDimBrush"       Color="#8794A6"/>
 
     <!-- Accent Blue -->
-    <SolidColorBrush x:Key="DkBlueBrush"       Color="#2979FF"/>
-    <SolidColorBrush x:Key="DkBlueMidBrush"    Color="#3B82F6"/>
-    <SolidColorBrush x:Key="DkBlueLightBrush"  Color="#60A5FA"/>
-    <SolidColorBrush x:Key="DkBlueDarkBrush"   Color="#144BB8"/>
-    <SolidColorBrush x:Key="DkBlueBgBrush"     Color="#0D1D3B"/>
-    <SolidColorBrush x:Key="DkBlueBorderBrush" Color="#1D4ED8"/>
-    <SolidColorBrush x:Key="DkBluePressedBrush" Color="#1E40AF"/>
 
     <!-- Status colors — exact per DESIGN.md severity grammar -->
-    <SolidColorBrush x:Key="DkGreenBrush"      Color="#3FCF8E"/>
-    <SolidColorBrush x:Key="DkGreenBgBrush"    Color="#0D2B1A"/>
-    <SolidColorBrush x:Key="DkYellowBrush"     Color="#FFD166"/>
-    <SolidColorBrush x:Key="DkYellowBgBrush"   Color="#3D2E14"/>
-    <SolidColorBrush x:Key="DkOrangeBrush"     Color="#FF8C42"/>
-    <SolidColorBrush x:Key="DkOrangeBgBrush"   Color="#3D2218"/>
-    <SolidColorBrush x:Key="DkRedBrush"        Color="#FF5252"/>
-    <SolidColorBrush x:Key="DkRedBgBrush"      Color="#3D1A1A"/>
-    <SolidColorBrush x:Key="DkGrayBrush"       Color="#7B7E85"/>
-    <SolidColorBrush x:Key="DkGrayBgBrush"     Color="#1A1F2A"/>
 
     <!-- Dimmed backdrop scrim for fullscreen/focus overlays — lets the dimmed content
          underneath still peek through instead of a fully opaque cut. -->
-    <SolidColorBrush x:Key="DkScrimBrush"      Color="#CC0B1020"/>
 
     <!-- Sensor-type visualization — sparklines in Data Monitoring panel -->
     <!-- Encode sensor identity, NOT severity state. Hues chosen outside the severity grammar. -->
-    <SolidColorBrush x:Key="MonitoringSensorTempBrush"      Color="#FFB347"/>
-    <SolidColorBrush x:Key="MonitoringSensorHumidityBrush"  Color="#22D3EE"/>
-    <SolidColorBrush x:Key="MonitoringSensorVibrationBrush" Color="#84CC16"/>
-    <SolidColorBrush x:Key="MonitoringSensorPressureBrush"  Color="#818CF8"/>
-    <SolidColorBrush x:Key="MonitoringSensorGasBrush"       Color="#2DD4BF"/>
 
     <!-- Semi-transparent overlay brushes — camera panel and critical alert surfaces -->
     <SolidColorBrush x:Key="MonitoringCameraOverlayBrush"      Color="#B0000000"/>
@@ -450,23 +518,10 @@
     <!-- ====================================
     SensorChartsPage — dark dashboard-specific tokens (không trùng bảng Dk*/Monitoring* ở trên)
     ==================================== -->
-    <SolidColorBrush x:Key="DkRowHoverOverlayBrush"   Color="#12FFFFFF"/>
-    <SolidColorBrush x:Key="DkTextSubtleBrush"        Color="#C2C6D6"/>
-    <SolidColorBrush x:Key="DkTextFaintBrush"         Color="#5A616E"/>
-    <SolidColorBrush x:Key="DkChartAxisLabelBrush"    Color="#646E82"/>
-    <SolidColorBrush x:Key="DkChartGridBrush"         Color="#C81E2A44"/>
-    <SolidColorBrush x:Key="DkChartValueBrush"        Color="#DAE2FD"/>
-    <SolidColorBrush x:Key="DkConnectionOfflineBrush" Color="#3D6070"/>
 
     <!-- Sensor-type accent colors — SensorChartsPage's own identity palette (distinct
          from MonitoringDashboard's MonitoringSensor*Brush set above; two of the eight
          happen to share a hue and reuse those brushes directly). -->
-    <SolidColorBrush x:Key="SensorAccentTemperatureBrush" Color="#FF4D4D"/>
-    <SolidColorBrush x:Key="SensorAccentLightBrush"       Color="#FFB800"/>
-    <SolidColorBrush x:Key="SensorAccentWaterLevelBrush"  Color="#50A0FF"/>
-    <SolidColorBrush x:Key="SensorAccentRadarBrush"       Color="#00FF88"/>
-    <SolidColorBrush x:Key="SensorAccentInfraredBrush"    Color="#FF69B4"/>
-    <SolidColorBrush x:Key="SensorAccentDefaultBrush"     Color="#ADC6FF"/>
 
     <!-- ====================================
     LiveVideoPage — cảnh báo camera & overlay video (luôn dark, không phụ thuộc theme,

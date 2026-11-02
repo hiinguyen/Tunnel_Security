@@ -7,41 +7,10 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Background="{StaticResource BackgroundSecondaryBrush}">
-
-    <Page.Transitions>
-        <TransitionCollection>
-            <NavigationThemeTransition/>
-        </TransitionCollection>
-    </Page.Transitions>
-
-    <Page.Resources>
-        <!-- Gradient Colors -->
-        <LinearGradientBrush x:Key="TitleGradient" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="#00C6FF" Offset="0.0"/>
-            <GradientStop Color="#0072FF" Offset="1.0"/>
-        </LinearGradientBrush>
-
-        <LinearGradientBrush x:Key="ButtonGradient" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="#4facfe" Offset="0.0"/>
-            <GradientStop Color="#00f2fe" Offset="1.0"/>
-        </LinearGradientBrush>
-
-        <LinearGradientBrush x:Key="HelpBoxGradient" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="#1A0072FF" Offset="0.0"/>
-            <GradientStop Color="#1A00C6FF" Offset="1.0"/>
-        </LinearGradientBrush>
-
-        <SolidColorBrush x:Key="IconStationColor" Color="#00E5FF"/>
-        <SolidColorBrush x:Key="IconConnectionColor" Color="#D500F9"/>
-        <SolidColorBrush x:Key="IconContactColor" Color="#00E676"/>
-        <SolidColorBrush x:Key="RequiredAsteriskColor" Color="#FF1744"/>
-
-        <CornerRadius x:Key="CardCornerRadius">12</CornerRadius>
-    </Page.Resources>
+    Background="{ThemeResource DkBgBrush}">
 
     <Grid>
-        <!-- Responsive Triggers: Tự thu về 1 cột nếu thu nhỏ cửa sổ -->
+        <!-- Responsive: collapse to one column on narrow windows -->
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="WindowStates">
                 <VisualState x:Name="WideState">
@@ -58,7 +27,7 @@
                         <Setter Target="LeftColumnDefinition.Width" Value="1*"/>
                         <Setter Target="RightPanel.(Grid.Column)" Value="0"/>
                         <Setter Target="RightPanel.(Grid.Row)" Value="1"/>
-                        <Setter Target="RightPanel.Margin" Value="0,24,0,0"/>
+                        <Setter Target="RightPanel.Margin" Value="0,20,0,0"/>
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -69,53 +38,41 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Header Section: ĐÃ CĂN TRÁI VÀ CHỈNH LỀ ĐỒNG BỘ -->
-        <Border Grid.Row="0" Background="{StaticResource BackgroundSecondaryBrush}" Padding="40,24" BorderBrush="{StaticResource BorderLightBrush}" BorderThickness="0,0,0,1">
-            <StackPanel Orientation="Horizontal" Spacing="16" VerticalAlignment="Center" HorizontalAlignment="Left">
-                <Border Background="#1A0072FF" Width="48" Height="48" CornerRadius="12">
-                    <FontIcon Glyph="&#xE713;" FontSize="24" Foreground="{StaticResource TitleGradient}"/>
-                </Border>
-                <StackPanel VerticalAlignment="Center" Spacing="2">
-                    <TextBlock Text="Cấu hình Trạm" FontSize="24" FontWeight="Bold" Foreground="{StaticResource TitleGradient}"/>
-                    <TextBlock Text="Thiết lập thông tin trạm giám sát và kết nối trung tâm hệ thống" FontSize="14" Foreground="{StaticResource TextTertiaryBrush}"/>
-                </StackPanel>
+        <!-- HEADER -->
+        <Border Grid.Row="0"
+                Background="{ThemeResource DkSurfaceBrush}"
+                BorderBrush="{ThemeResource DkBorderBrush}"
+                BorderThickness="0,0,0,1"
+                Padding="24,12">
+            <StackPanel VerticalAlignment="Center" Spacing="2">
+                <TextBlock Text="Cấu hình trạm"
+                           FontSize="{StaticResource FontSizeTitle}"
+                           FontWeight="SemiBold"
+                           Foreground="{ThemeResource DkTextPrimaryBrush}"/>
+                <TextBlock Text="Thiết lập thông tin trạm giám sát và kết nối trung tâm hệ thống"
+                           FontSize="{StaticResource FontSizeSmall}"
+                           Foreground="{ThemeResource DkTextMutedBrush}"/>
             </StackPanel>
         </Border>
 
-        <!-- Main Content -->
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="40,32">
-            <!-- ĐÃ BỎ MAXWIDTH VÀ CENTER: Giờ nó sẽ mở rộng tối đa màn hình của bạn -->
-            <Grid x:Name="MainContentGrid" ColumnSpacing="40">
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="24,20">
+            <Grid x:Name="MainContentGrid" ColumnSpacing="20">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition x:Name="LeftColumnDefinition" Width="6*"/>
-                    <!-- Cột trái chiếm 60% -->
                     <ColumnDefinition x:Name="RightColumnDefinition" Width="4*"/>
-                    <!-- Cột phải chiếm 40% -->
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <!-- ==================== CỘT TRÁI (THÔNG TIN CHÍNH) ==================== -->
-                <StackPanel x:Name="LeftPanel" Grid.Column="0" Grid.Row="0" Spacing="24">
-                    <StackPanel.ChildrenTransitions>
-                        <TransitionCollection>
-                            <EntranceThemeTransition IsStaggeringEnabled="True"/>
-                        </TransitionCollection>
-                    </StackPanel.ChildrenTransitions>
-
-                    <!-- CARD 1: Thông tin trạm -->
-                    <Border Background="{StaticResource BackgroundPrimaryBrush}" CornerRadius="{StaticResource CardCornerRadius}" BorderBrush="{StaticResource BorderLightBrush}" BorderThickness="1" Padding="28">
-                        <StackPanel Spacing="24">
-                            <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
-                                <FontIcon Glyph="&#xE81E;" FontSize="20" Foreground="{StaticResource IconStationColor}"/>
-                                <TextBlock Text="Thông tin cơ bản" FontSize="18" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
-                            </StackPanel>
-
-                            <Rectangle Height="1" Fill="{StaticResource BorderLightBrush}" Margin="0,-8,0,0"/>
-
-                            <Grid RowSpacing="24" ColumnSpacing="24">
+                <!-- LEFT: station and contact -->
+                <StackPanel x:Name="LeftPanel" Grid.Column="0" Grid.Row="0" Spacing="20">
+                    <Border Background="{ThemeResource DkSurfaceBrush}" CornerRadius="12" BorderBrush="{ThemeResource DkBorderBrush}" BorderThickness="1" Padding="24">
+                        <StackPanel Spacing="20">
+                            <TextBlock Text="Thông tin cơ bản" FontSize="{StaticResource FontSizeNormal}" FontWeight="SemiBold" Foreground="{ThemeResource DkTextPrimaryBrush}"/>
+                            <Rectangle Height="1" Fill="{ThemeResource DkBorderBrush}" Margin="0,-8,0,0"/>
+                            <Grid RowSpacing="20" ColumnSpacing="20">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="1*"/>
                                     <ColumnDefinition Width="1*"/>
@@ -124,154 +81,110 @@
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
-
-                                <StackPanel Grid.Column="0" Grid.Row="0" Spacing="10">
-                                    <StackPanel Orientation="Horizontal" Spacing="6">
-                                        <FontIcon Glyph="&#xE8A1;" FontSize="14" Foreground="{StaticResource TextSecondaryBrush}"/>
-                                        <TextBlock Text="Mã trạm" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
-                                        <TextBlock Text="*" Foreground="{StaticResource RequiredAsteriskColor}" FontWeight="Bold"/>
+                                <StackPanel Grid.Column="0" Grid.Row="0" Spacing="8">
+                                    <StackPanel Orientation="Horizontal" Spacing="4">
+                                        <TextBlock Text="Mã trạm" FontSize="{StaticResource FontSizeSmall}" FontWeight="SemiBold" Foreground="{ThemeResource DkTextSecondaryBrush}"/>
+                                        <TextBlock Text="*" Foreground="{ThemeResource DkRedBrush}" FontWeight="Bold"/>
                                     </StackPanel>
-                                    <TextBox Style="{StaticResource StandardTextBoxStyle}" Text="{x:Bind ViewModel.StationCode, Mode=TwoWay}" Height="44" CornerRadius="6" />
+                                    <TextBox Style="{StaticResource DkSearchBoxStyle}" Padding="12,8" MinHeight="40" Text="{x:Bind ViewModel.StationCode, Mode=TwoWay}"/>
                                 </StackPanel>
-
-                                <StackPanel Grid.Column="1" Grid.Row="0" Spacing="10">
-                                    <StackPanel Orientation="Horizontal" Spacing="6">
-                                        <FontIcon Glyph="&#xE80F;" FontSize="14" Foreground="{StaticResource TextSecondaryBrush}"/>
-                                        <TextBlock Text="Tên trạm" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
-                                        <TextBlock Text="*" Foreground="{StaticResource RequiredAsteriskColor}" FontWeight="Bold"/>
+                                <StackPanel Grid.Column="1" Grid.Row="0" Spacing="8">
+                                    <StackPanel Orientation="Horizontal" Spacing="4">
+                                        <TextBlock Text="Tên trạm" FontSize="{StaticResource FontSizeSmall}" FontWeight="SemiBold" Foreground="{ThemeResource DkTextSecondaryBrush}"/>
+                                        <TextBlock Text="*" Foreground="{ThemeResource DkRedBrush}" FontWeight="Bold"/>
                                     </StackPanel>
-                                    <TextBox Style="{StaticResource StandardTextBoxStyle}" Text="{x:Bind ViewModel.StationName, Mode=TwoWay}" PlaceholderText="VD: Trạm giám sát 01" Height="44" CornerRadius="6"/>
+                                    <TextBox Style="{StaticResource DkSearchBoxStyle}" Padding="12,8" MinHeight="40" Text="{x:Bind ViewModel.StationName, Mode=TwoWay}" PlaceholderText="VD: Trạm giám sát 01"/>
                                 </StackPanel>
-
-                                <StackPanel Grid.Column="0" Grid.Row="1" Spacing="10">
-                                    <StackPanel Orientation="Horizontal" Spacing="6">
-                                        <FontIcon Glyph="&#xE81D;" FontSize="14" Foreground="{StaticResource TextSecondaryBrush}"/>
-                                        <TextBlock Text="Khu vực" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
-                                        <TextBlock Text="*" Foreground="{StaticResource RequiredAsteriskColor}" FontWeight="Bold"/>
+                                <StackPanel Grid.Column="0" Grid.Row="1" Spacing="8">
+                                    <StackPanel Orientation="Horizontal" Spacing="4">
+                                        <TextBlock Text="Khu vực" FontSize="{StaticResource FontSizeSmall}" FontWeight="SemiBold" Foreground="{ThemeResource DkTextSecondaryBrush}"/>
+                                        <TextBlock Text="*" Foreground="{ThemeResource DkRedBrush}" FontWeight="Bold"/>
                                     </StackPanel>
-                                    <TextBox Style="{StaticResource StandardTextBoxStyle}" Text="{x:Bind ViewModel.Area, Mode=TwoWay}" PlaceholderText="VD: Miền Bắc" Height="44" CornerRadius="6"/>
+                                    <TextBox Style="{StaticResource DkSearchBoxStyle}" Padding="12,8" MinHeight="40" Text="{x:Bind ViewModel.Area, Mode=TwoWay}" PlaceholderText="VD: Miền Bắc"/>
                                 </StackPanel>
-
-                                <StackPanel Grid.Column="1" Grid.Row="1" Spacing="10">
-                                    <StackPanel Orientation="Horizontal" Spacing="6">
-                                        <FontIcon Glyph="&#xE707;" FontSize="14" Foreground="{StaticResource TextSecondaryBrush}"/>
-                                        <TextBlock Text="Tuyến" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
-                                        <TextBlock Text="*" Foreground="{StaticResource RequiredAsteriskColor}" FontWeight="Bold"/>
+                                <StackPanel Grid.Column="1" Grid.Row="1" Spacing="8">
+                                    <StackPanel Orientation="Horizontal" Spacing="4">
+                                        <TextBlock Text="Tuyến" FontSize="{StaticResource FontSizeSmall}" FontWeight="SemiBold" Foreground="{ThemeResource DkTextSecondaryBrush}"/>
+                                        <TextBlock Text="*" Foreground="{ThemeResource DkRedBrush}" FontWeight="Bold"/>
                                     </StackPanel>
-                                    <TextBox Style="{StaticResource StandardTextBoxStyle}" Text="{x:Bind ViewModel.Route, Mode=TwoWay}" PlaceholderText="VD: Tuyến 1A" Height="44" CornerRadius="6"/>
+                                    <TextBox Style="{StaticResource DkSearchBoxStyle}" Padding="12,8" MinHeight="40" Text="{x:Bind ViewModel.Route, Mode=TwoWay}" PlaceholderText="VD: Tuyến 1A"/>
                                 </StackPanel>
                             </Grid>
                         </StackPanel>
                     </Border>
-
-                    <!-- CARD 3: Contact -->
-                    <Border Background="{StaticResource BackgroundPrimaryBrush}" CornerRadius="{StaticResource CardCornerRadius}" BorderBrush="{StaticResource BorderLightBrush}" BorderThickness="1" Padding="28">
-                        <StackPanel Spacing="24">
-                            <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
-                                <FontIcon Glyph="&#xE77B;" FontSize="20" Foreground="{StaticResource IconContactColor}"/>
-                                <TextBlock Text="Thông tin liên hệ" FontSize="18" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
-                            </StackPanel>
-
-                            <Rectangle Height="1" Fill="{StaticResource BorderLightBrush}" Margin="0,-8,0,0"/>
-
-                            <Grid ColumnSpacing="24">
+                    <Border Background="{ThemeResource DkSurfaceBrush}" CornerRadius="12" BorderBrush="{ThemeResource DkBorderBrush}" BorderThickness="1" Padding="24">
+                        <StackPanel Spacing="20">
+                            <TextBlock Text="Thông tin liên hệ" FontSize="{StaticResource FontSizeNormal}" FontWeight="SemiBold" Foreground="{ThemeResource DkTextPrimaryBrush}"/>
+                            <Rectangle Height="1" Fill="{ThemeResource DkBorderBrush}" Margin="0,-8,0,0"/>
+                            <Grid ColumnSpacing="20">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="1*"/>
                                     <ColumnDefinition Width="1*"/>
                                 </Grid.ColumnDefinitions>
-
-                                <StackPanel Grid.Column="0" Spacing="10">
-                                    <StackPanel Orientation="Horizontal" Spacing="6">
-                                        <FontIcon Glyph="&#xE8D4;" FontSize="14" Foreground="{StaticResource TextSecondaryBrush}"/>
-                                        <TextBlock Text="Người phụ trách" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                <StackPanel Grid.Column="0" Spacing="8">
+                                    <StackPanel Orientation="Horizontal" Spacing="4">
+                                        <TextBlock Text="Người phụ trách" FontSize="{StaticResource FontSizeSmall}" FontWeight="SemiBold" Foreground="{ThemeResource DkTextSecondaryBrush}"/>
                                     </StackPanel>
-                                    <TextBox Style="{StaticResource StandardTextBoxStyle}" Text="{x:Bind ViewModel.ContactPerson, Mode=TwoWay}" PlaceholderText="Họ và tên" Height="44" CornerRadius="6"/>
+                                    <TextBox Style="{StaticResource DkSearchBoxStyle}" Padding="12,8" MinHeight="40" Text="{x:Bind ViewModel.ContactPerson, Mode=TwoWay}" PlaceholderText="Họ và tên"/>
                                 </StackPanel>
-
-                                <StackPanel Grid.Column="1" Spacing="10">
-                                    <StackPanel Orientation="Horizontal" Spacing="6">
-                                        <FontIcon Glyph="&#xE717;" FontSize="14" Foreground="{StaticResource TextSecondaryBrush}"/>
-                                        <TextBlock Text="Số điện thoại / Hotline" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                <StackPanel Grid.Column="1" Spacing="8">
+                                    <StackPanel Orientation="Horizontal" Spacing="4">
+                                        <TextBlock Text="Số điện thoại / Hotline" FontSize="{StaticResource FontSizeSmall}" FontWeight="SemiBold" Foreground="{ThemeResource DkTextSecondaryBrush}"/>
                                     </StackPanel>
-                                    <TextBox Style="{StaticResource StandardTextBoxStyle}" Text="{x:Bind ViewModel.Phone, Mode=TwoWay}" PlaceholderText="0123 456 789" Height="44" CornerRadius="6"/>
+                                    <TextBox Style="{StaticResource DkSearchBoxStyle}" Padding="12,8" MinHeight="40" Text="{x:Bind ViewModel.Phone, Mode=TwoWay}" PlaceholderText="0123 456 789"/>
                                 </StackPanel>
                             </Grid>
                         </StackPanel>
                     </Border>
                 </StackPanel>
 
-                <!-- ==================== CỘT PHẢI (HỆ THỐNG & ACTION) ==================== -->
-                <StackPanel x:Name="RightPanel" Grid.Column="1" Grid.Row="0" Spacing="24">
-                    <StackPanel.ChildrenTransitions>
-                        <TransitionCollection>
-                            <EntranceThemeTransition IsStaggeringEnabled="True" FromVerticalOffset="50"/>
-                        </TransitionCollection>
-                    </StackPanel.ChildrenTransitions>
-
-                    <!-- CARD 2: Connection -->
-                    <Border Background="{StaticResource BackgroundPrimaryBrush}" CornerRadius="{StaticResource CardCornerRadius}" BorderBrush="{StaticResource BorderLightBrush}" BorderThickness="1" Padding="28">
-                        <StackPanel Spacing="24">
-                            <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
-                                <FontIcon Glyph="&#xE8CE;" FontSize="20" Foreground="{StaticResource IconConnectionColor}"/>
-                                <TextBlock Text="Cấu hình kết nối" FontSize="18" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
-                            </StackPanel>
-
-                            <Rectangle Height="1" Fill="{StaticResource BorderLightBrush}" Margin="0,-8,0,0"/>
-
-                            <StackPanel Spacing="10">
-                                <StackPanel Orientation="Horizontal" Spacing="6">
-                                    <FontIcon Glyph="&#xE8EB;" FontSize="14" Foreground="{StaticResource TextSecondaryBrush}"/>
-                                    <TextBlock Text="URL Trung tâm" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
-                                    <TextBlock Text="*" Foreground="{StaticResource RequiredAsteriskColor}" FontWeight="Bold"/>
+                <!-- RIGHT: connection, guidance, save -->
+                <StackPanel x:Name="RightPanel" Grid.Column="1" Grid.Row="0" Spacing="20">
+                    <Border Background="{ThemeResource DkSurfaceBrush}" CornerRadius="12" BorderBrush="{ThemeResource DkBorderBrush}" BorderThickness="1" Padding="24">
+                        <StackPanel Spacing="20">
+                            <TextBlock Text="Cấu hình kết nối" FontSize="{StaticResource FontSizeNormal}" FontWeight="SemiBold" Foreground="{ThemeResource DkTextPrimaryBrush}"/>
+                            <Rectangle Height="1" Fill="{ThemeResource DkBorderBrush}" Margin="0,-8,0,0"/>
+                                <StackPanel Spacing="8">
+                                    <StackPanel Orientation="Horizontal" Spacing="4">
+                                        <TextBlock Text="URL Trung tâm" FontSize="{StaticResource FontSizeSmall}" FontWeight="SemiBold" Foreground="{ThemeResource DkTextSecondaryBrush}"/>
+                                        <TextBlock Text="*" Foreground="{ThemeResource DkRedBrush}" FontWeight="Bold"/>
+                                    </StackPanel>
+                                    <TextBox Style="{StaticResource DkSearchBoxStyle}" Padding="12,8" MinHeight="40" Text="{x:Bind ViewModel.CenterUrl, Mode=TwoWay}" PlaceholderText="https://center-server.com:5000"/>
                                 </StackPanel>
-                                <TextBox Style="{StaticResource StandardTextBoxStyle}" Text="{x:Bind ViewModel.CenterUrl, Mode=TwoWay}" PlaceholderText="https://center-server.com:5000" Height="44" CornerRadius="6"/>
-                            </StackPanel>
                         </StackPanel>
                     </Border>
 
-                    <!-- Help Box -->
-                    <Border Background="{StaticResource HelpBoxGradient}" BorderBrush="#3300C6FF" BorderThickness="1" CornerRadius="{StaticResource CardCornerRadius}" Padding="24">
-                        <StackPanel Spacing="12">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <FontIcon Glyph="&#xE946;" FontSize="20" Foreground="#00C6FF"/>
-                                <TextBlock Text="Hướng dẫn thiết lập" FontSize="15" FontWeight="Bold" Foreground="#00C6FF"/>
-                            </StackPanel>
-                            <TextBlock TextWrapping="Wrap" FontSize="14" Foreground="{StaticResource TextSecondaryBrush}" LineHeight="26">
-                                <Run Text="• Các trường có dấu "/>
-                                <Run Text="*" Foreground="{StaticResource RequiredAsteriskColor}" FontWeight="Bold"/>
+                    <!-- Guidance -->
+                    <Border Background="{ThemeResource DkInputBgBrush}" BorderBrush="{ThemeResource DkBorderBrush}" BorderThickness="1" CornerRadius="12" Padding="20">
+                        <StackPanel Spacing="10">
+                            <TextBlock Text="HƯỚNG DẪN THIẾT LẬP" Style="{StaticResource DkLabelStyle}"/>
+                            <TextBlock TextWrapping="Wrap" FontSize="{StaticResource FontSizeSmall}" Foreground="{ThemeResource DkTextSecondaryBrush}" LineHeight="22">
+                                <Run Text="Các trường có dấu "/>
+                                <Run Text="*" Foreground="{ThemeResource DkRedBrush}" FontWeight="Bold"/>
                                 <Run Text=" là bắt buộc nhập."/>
                                 <LineBreak/>
-                                <Run Text="• Đảm bảo "/>
-                                <Run Text="URL Trung tâm" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
-                                <Run Text=" luôn bắt đầu bằng "/>
-                                <Run Text="http://" FontStyle="Italic"/>
-                                <Run Text=" hoặc "/>
-                                <Run Text="https://" FontStyle="Italic"/>
+                                <Run Text="URL Trung tâm" FontWeight="SemiBold" Foreground="{ThemeResource DkTextPrimaryBrush}"/>
+                                <Run Text=" phải bắt đầu bằng http:// hoặc https://"/>
                             </TextBlock>
                         </StackPanel>
                     </Border>
 
-                    <!-- InfoBars & Loading -->
+                    <!-- Feedback -->
                     <StackPanel Spacing="12">
                         <InfoBar x:Name="SuccessInfoBar" IsOpen="{x:Bind ViewModel.HasSuccessMessage, Mode=OneWay}" Severity="Success" Title="Thành công" Message="{x:Bind ViewModel.SuccessMessage, Mode=OneWay}" IsClosable="True" CornerRadius="8"/>
                         <InfoBar x:Name="ErrorInfoBar" IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}" Severity="Error" Title="Đã có lỗi xảy ra" Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}" IsClosable="True" CornerRadius="8"/>
                     </StackPanel>
 
-                    <StackPanel Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay}" Spacing="12" HorizontalAlignment="Center" Margin="0,4,0,4">
-                        <ProgressRing IsActive="True" Width="40" Height="40" Foreground="{StaticResource TitleGradient}"/>
-                        <TextBlock Text="Đang xử lý..." FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource TextSecondaryBrush}" HorizontalAlignment="Center"/>
+                    <StackPanel Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay}" Orientation="Horizontal" Spacing="12" HorizontalAlignment="Center">
+                        <ProgressRing IsActive="True" Width="24" Height="24"/>
+                        <TextBlock Text="Đang xử lý..." FontSize="{StaticResource FontSizeSmall}" Foreground="{ThemeResource DkTextSecondaryBrush}" VerticalAlignment="Center"/>
                     </StackPanel>
 
-                    <!-- Save Button -->
-                    <Border Background="{StaticResource ButtonGradient}" CornerRadius="8" Height="52" Margin="0,8,0,0">
-                        <Button Style="{StaticResource PrimaryButtonStyle}" Command="{x:Bind ViewModel.SaveConfigurationCommand}" Background="Transparent" BorderThickness="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                            <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center" HorizontalAlignment="Center">
-                                <FontIcon Glyph="&#xE74E;" FontSize="20" Foreground="White" FontWeight="Bold"/>
-                                <TextBlock Text="LƯU CẤU HÌNH" FontSize="16" FontWeight="Bold" Foreground="White" CharacterSpacing="50"/>
-                            </StackPanel>
-                        </Button>
-                    </Border>
-
+                    <Button Style="{StaticResource DkPrimaryButtonStyle}"
+                            Command="{x:Bind ViewModel.SaveConfigurationCommand}"
+                            HorizontalAlignment="Stretch"
+                            MinHeight="42"
+                            Content="Lưu cấu hình"/>
                 </StackPanel>
             </Grid>
         </ScrollViewer>

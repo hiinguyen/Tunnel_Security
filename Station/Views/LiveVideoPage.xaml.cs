@@ -38,6 +38,10 @@ namespace Station.Views
     {
         public LiveVideoViewModel ViewModel { get; }
 
+        /// <summary>x:Bind helper: shows an empty state when the count is zero.</summary>
+        public static Visibility ZeroToVisible(int count) =>
+            count == 0 ? Visibility.Visible : Visibility.Collapsed;
+
         public LiveVideoPage()
         {
             this.InitializeComponent();
@@ -50,14 +54,16 @@ namespace Station.Views
 
         private async void OnAlertDialogRequested(CameraStreamViewModel camera)
         {
+            var simCam = Station.Services.DataServiceLocator.Current.Cameras
+                .FirstOrDefault(c => c.CameraId == camera.CameraId);
             var alert = new Alert
             {
                 Title = camera.AlertTitle,
                 Description = camera.AlertDescription,
                 Severity = camera.AlertSeverityLevel,
                 CameraId = camera.CameraId,
-                NodeId = camera.CameraId,
-                NodeName = camera.CameraName,
+                NodeId = simCam?.NodeId ?? camera.CameraId,
+                NodeName = simCam?.NodeName ?? camera.CameraName,
                 CreatedAt = camera.AlertTime
             };
 
@@ -89,7 +95,7 @@ namespace Station.Views
         // with the shared design tokens instead of duplicating raw ARGB values here —
         // same pattern as LiveVideoViewModel.ResolveBrush().
         private static SolidColorBrush ResolveBrush(string key, Windows.UI.Color fallback) =>
-            Application.Current.Resources.TryGetValue(key, out var resource) && resource is SolidColorBrush brush
+            Station.Services.ThemeBrushes.TryGet(key, out var resource) && resource is SolidColorBrush brush
                 ? brush
                 : new SolidColorBrush(fallback);
 

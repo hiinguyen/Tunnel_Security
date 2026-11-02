@@ -6,16 +6,76 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Title=""
+    Title="Cấu hình cảm biến"
     PrimaryButtonText="Lưu cấu hình"
     CloseButtonText="Hủy"
+    PrimaryButtonStyle="{StaticResource DkPrimaryButtonStyle}"
+    CloseButtonStyle="{StaticResource DkSecondaryButtonStyle}"
     DefaultButton="Primary"
-    RequestedTheme="Dark"
-    Background="#0D1117"
-    BorderBrush="#30363D"
+    
+    Background="{ThemeResource DkSurfaceBrush}"
+    BorderBrush="{ThemeResource DkBorderBrush}"
+    BorderThickness="1"
     CornerRadius="12"
     PrimaryButtonClick="SaveButton_Click"
-    Padding="0">
+    Padding="24">
+
+    <ContentDialog.Resources>
+        <Style x:Key="DlgInputStyle" TargetType="TextBox" BasedOn="{StaticResource DkSearchBoxStyle}">
+            <Setter Property="Padding" Value="8,8"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+        </Style>
+        <Style x:Key="DlgNameInputStyle" TargetType="TextBox" BasedOn="{StaticResource DkSearchBoxStyle}">
+            <Setter Property="Padding" Value="12,8"/>
+        </Style>
+        <Style x:Key="DlgSectionStyle" TargetType="Border">
+            <Setter Property="Background" Value="{ThemeResource DkInputBgBrush}"/>
+            <Setter Property="BorderBrush" Value="{ThemeResource DkBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="16"/>
+        </Style>
+        <Style x:Key="DlgRowTitleStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource FontSizeSmall}"/>
+            <Setter Property="Foreground" Value="{ThemeResource DkTextSecondaryBrush}"/>
+        </Style>
+        <Style x:Key="DlgRowHintStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource FontSizeCompact}"/>
+            <Setter Property="Foreground" Value="{ThemeResource DkTextMutedBrush}"/>
+            <Setter Property="Margin" Value="0,2,0,0"/>
+        </Style>
+        <Style x:Key="DlgRowValueStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource FontSizeSmall}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{ThemeResource DkTextPrimaryBrush}"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+        </Style>
+    </ContentDialog.Resources>
+
+    <ContentDialog.TitleTemplate>
+        <DataTemplate>
+            <Grid Margin="0,0,0,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Spacing="2" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding}"
+                               FontSize="{StaticResource FontSizeTitle}" FontWeight="SemiBold"
+                               Foreground="{ThemeResource DkTextPrimaryBrush}"
+                               TextTrimming="CharacterEllipsis"/>
+                    <TextBlock Text="Tần suất lấy mẫu, ngưỡng cảnh báo và hiệu chỉnh"
+                               FontSize="{StaticResource FontSizeCompact}"
+                               Foreground="{ThemeResource DkTextMutedBrush}"/>
+                </StackPanel>
+                <Button Grid.Column="1" Style="{StaticResource DkIconButtonStyle}"
+                        Click="HeaderClose_Click"
+                        ToolTipService.ToolTip="Đóng" AutomationProperties.Name="Đóng">
+                    <FontIcon Glyph="&#xE711;" FontSize="{StaticResource FontSizeSmall}"/>
+                </Button>
+            </Grid>
+        </DataTemplate>
+    </ContentDialog.TitleTemplate>
 
     <Grid Width="500" MinHeight="400" MaxHeight="600">
         <Grid.RowDefinitions>
@@ -23,352 +83,263 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- ═══════════════════════════════════════════════════════════════ -->
-        <!-- SENSOR HEADER -->
-        <!-- ═══════════════════════════════════════════════════════════════ -->
-        <Border Grid.Row="0" 
-                Background="Transparent"
-                Padding="24,20,24,16">
-            <Grid>
+        <!-- Sensor summary: instrument tag, name, status, live value -->
+        <Border Grid.Row="0" Style="{StaticResource DlgSectionStyle}" Margin="0,0,0,16">
+            <Grid ColumnSpacing="12">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Sensor Icon -->
-                <Border Grid.Column="0" 
-                        Width="48" 
-                        Height="48"
-                        CornerRadius="10"
-                        Margin="0,0,12,0"
-                        x:Name="SensorIconBorder">
+                <Border x:Name="SensorIconBorder" Grid.Column="0"
+                        MinWidth="48" CornerRadius="4" Padding="8,4"
+                        BorderBrush="{ThemeResource DkBorderBrush}" BorderThickness="1"
+                        VerticalAlignment="Center">
                     <TextBlock x:Name="SensorIconText"
-                               Text="📡"
-                               FontSize="24"
+                               Text="RAD"
+                               Style="{StaticResource DkTagTextStyle}"
+                               Foreground="{ThemeResource DkTextPrimaryBrush}"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"/>
                 </Border>
 
-                <!-- Sensor Info -->
                 <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="4">
                     <TextBlock x:Name="SensorNameText"
                                Text="Radar biến động"
-                               FontSize="18"
-                               FontWeight="Bold"
-                               Foreground="White"/>
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <Border Background="#21262D" CornerRadius="4" Padding="6,2">
-                            <TextBlock x:Name="SensorTypeText"
-                                       Text="RADAR"
-                                       FontSize="10"
-                                       Foreground="#8B949E"/>
-                        </Border>
+                               FontSize="{StaticResource FontSizeNormal}"
+                               FontWeight="SemiBold"
+                               Foreground="{ThemeResource DkTextPrimaryBrush}"/>
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <TextBlock x:Name="SensorTypeText"
+                                   Text="RADAR"
+                                   Style="{StaticResource DkLabelStyle}"
+                                   VerticalAlignment="Center"/>
                         <TextBlock x:Name="SensorStatusText"
-                                   Text="• Hoạt động"
-                                   FontSize="11"
-                                   Foreground="#10B981"
+                                   Text="&#x25CF; Hoạt động"
+                                   FontSize="{StaticResource FontSizeCompact}"
+                                   Foreground="{ThemeResource DkGreenBrush}"
                                    VerticalAlignment="Center"/>
                     </StackPanel>
                 </StackPanel>
 
-                <!-- Current Value Display -->
-                <Border Grid.Column="2" 
-                        Background="#161B22"
-                        CornerRadius="8"
-                        Padding="12,8"
-                        VerticalAlignment="Center">
-                    <StackPanel HorizontalAlignment="Right">
-                        <TextBlock x:Name="CurrentValueText"
-                                   FontSize="16"
-                                   FontWeight="Bold"
-                                   Foreground="#10B981"
-                                   TextAlignment="Right">
-                            <Run x:Name="ValueRun" Text="1.35"/>
-                            <Run x:Name="UnitRun" Text="mm" FontSize="12" Foreground="#8B949E"/>
-                        </TextBlock>
-                        <TextBlock Text="Giá trị hiện tại"
-                                   FontSize="9"
-                                   Foreground="#8B949E"
-                                   TextAlignment="Right"/>
-                    </StackPanel>
-                </Border>
+                <StackPanel Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center" Spacing="2">
+                    <TextBlock x:Name="CurrentValueText"
+                               FontSize="{StaticResource FontSizeMedium}"
+                               FontWeight="Bold"
+                               Foreground="{ThemeResource DkTextPrimaryBrush}"
+                               TextAlignment="Right"
+                               Typography.NumeralAlignment="Tabular">
+                        <Run x:Name="ValueRun" Text="1.35"/>
+                        <Run x:Name="UnitRun" Text="mm" FontSize="{StaticResource FontSizeSmall}" Foreground="{ThemeResource DkTextMutedBrush}"/>
+                    </TextBlock>
+                    <TextBlock Text="Giá trị hiện tại"
+                               FontSize="{StaticResource FontSizeCompact}"
+                               Foreground="{ThemeResource DkTextMutedBrush}"
+                               TextAlignment="Right"/>
+                </StackPanel>
             </Grid>
         </Border>
 
-        <!-- ═══════════════════════════════════════════════════════════════ -->
-        <!-- CONFIGURATION CONTENT -->
-        <!-- ═══════════════════════════════════════════════════════════════ -->
-        <ScrollViewer Grid.Row="1" Padding="24,0,24,20" VerticalScrollBarVisibility="Auto">
+        <!-- Configuration -->
+        <ScrollViewer Grid.Row="1" Padding="0,0,12,0" VerticalScrollBarVisibility="Auto">
             <StackPanel Spacing="16">
-                
-                <!-- Basic Settings -->
-                <Border Background="#161B22" BorderBrush="#30363D" BorderThickness="1" CornerRadius="10" Padding="16">
-                    <StackPanel Spacing="12">
-                        <TextBlock Text="⚙️ Cài đặt cơ bản"
-                                   FontSize="14"
-                                   FontWeight="SemiBold"
-                                   Foreground="White"/>
 
-                        <!-- Sensor Name -->
-                        <StackPanel Spacing="6">
-                            <TextBlock Text="Tên cảm biến"
-                                       FontSize="12"
-                                       Foreground="#8B949E"/>
-                            <TextBox x:Name="SensorNameInput"
-                                     PlaceholderText="Nhập tên cảm biến..."
-                                     Background="#0D1117"
-                                     Foreground="White"
-                                     BorderBrush="#30363D"
-                                     Height="36"
-                                     CornerRadius="6"/>
-                        </StackPanel>
-
-                        <!-- Enabled Toggle -->
-                        <Grid>
-                            <StackPanel>
-                                <TextBlock Text="Trạng thái hoạt động"
-                                           FontSize="12"
-                                           Foreground="#8B949E"/>
-                                <TextBlock Text="Bật/tắt cảm biến"
-                                           FontSize="11"
-                                           Foreground="#6B7280"
-                                           Margin="0,2,0,0"/>
+                <!-- Basic settings -->
+                <StackPanel Spacing="8">
+                    <TextBlock Text="CÀI ĐẶT CƠ BẢN" Style="{StaticResource DkLabelStyle}"/>
+                    <Border Style="{StaticResource DlgSectionStyle}">
+                        <StackPanel Spacing="14">
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="Tên cảm biến" Style="{StaticResource DlgRowTitleStyle}"/>
+                                <TextBox x:Name="SensorNameInput"
+                                         PlaceholderText="Nhập tên cảm biến..."
+                                         Style="{StaticResource DlgNameInputStyle}"/>
                             </StackPanel>
-                            <ToggleSwitch x:Name="EnabledToggle"
-                                          HorizontalAlignment="Right"
-                                          OnContent="Bật"
-                                          OffContent="Tắt"/>
-                        </Grid>
 
-                        <!-- Sampling Rate -->
-                        <StackPanel Spacing="6">
-                            <Grid>
-                                <TextBlock Text="Tần suất lấy mẫu"
-                                           FontSize="12"
-                                           Foreground="#8B949E"/>
-                                <TextBlock x:Name="SamplingRateValue"
-                                           Text="5 giây"
-                                           FontSize="12"
-                                           Foreground="White"
-                                           HorizontalAlignment="Right"/>
-                            </Grid>
-                            <Slider x:Name="SamplingRateSlider"
-                                    Minimum="1"
-                                    Maximum="60"
-                                    Value="5"
-                                    StepFrequency="1"
-                                    ValueChanged="SamplingRateSlider_ValueChanged"/>
-                            <TextBlock Text="1s - 60s"
-                                       FontSize="10"
-                                       Foreground="#6B7280"
-                                       HorizontalAlignment="Center"/>
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
-
-                <!-- Threshold Settings -->
-                <Border Background="#161B22" BorderBrush="#30363D" BorderThickness="1" CornerRadius="10" Padding="16">
-                    <StackPanel Spacing="12">
-                        <TextBlock Text="⚠️ Ngưỡng cảnh báo"
-                                   FontSize="14"
-                                   FontWeight="SemiBold"
-                                   Foreground="White"/>
-
-                        <!-- Warning Threshold -->
-                        <StackPanel Spacing="6">
                             <Grid>
                                 <StackPanel>
-                                    <TextBlock Text="Ngưỡng cảnh báo (Warning)"
-                                               FontSize="12"
-                                               Foreground="#F59E0B"/>
-                                    <TextBlock Text="Cảnh báo mức độ thấp"
-                                               FontSize="11"
-                                               Foreground="#6B7280"
-                                               Margin="0,2,0,0"/>
+                                    <TextBlock Text="Trạng thái hoạt động" Style="{StaticResource DlgRowTitleStyle}"/>
+                                    <TextBlock Text="Bật/tắt cảm biến" Style="{StaticResource DlgRowHintStyle}"/>
                                 </StackPanel>
-                                <TextBlock x:Name="WarningValueText"
-                                           Text="0.0"
-                                           FontSize="12"
-                                           Foreground="White"
-                                           HorizontalAlignment="Right"/>
+                                <ToggleSwitch x:Name="EnabledToggle"
+                                              HorizontalAlignment="Right"
+                                              OnContent="Bật"
+                                              OffContent="Tắt"/>
                             </Grid>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="8"/>
-                                    <ColumnDefinition Width="80"/>
-                                </Grid.ColumnDefinitions>
-                                <Slider x:Name="WarningThresholdSlider"
-                                        Grid.Column="0"
-                                        Minimum="0"
-                                        Maximum="100"
-                                        Value="30"
-                                        ValueChanged="WarningThresholdSlider_ValueChanged"/>
-                                <TextBox x:Name="WarningThresholdInput"
-                                         Grid.Column="2"
-                                         Text="30"
-                                         TextAlignment="Center"
-                                         Background="#0D1117"
-                                         Foreground="White"
-                                         BorderBrush="#30363D"
-                                         Height="32"
-                                         CornerRadius="6"
-                                         TextChanged="WarningThresholdInput_TextChanged"/>
-                            </Grid>
-                        </StackPanel>
 
-                        <!-- Critical Threshold -->
-                        <StackPanel Spacing="6">
+                            <StackPanel Spacing="6">
+                                <Grid>
+                                    <TextBlock Text="Tần suất lấy mẫu" Style="{StaticResource DlgRowTitleStyle}"/>
+                                    <TextBlock x:Name="SamplingRateValue"
+                                               Text="5 giây"
+                                               Style="{StaticResource DlgRowValueStyle}"
+                                               Typography.NumeralAlignment="Tabular"/>
+                                </Grid>
+                                <Slider x:Name="SamplingRateSlider"
+                                        Minimum="1"
+                                        Maximum="60"
+                                        Value="5"
+                                        StepFrequency="1"
+                                        ValueChanged="SamplingRateSlider_ValueChanged"/>
+                                <TextBlock Text="Từ 1 đến 60 giây" Style="{StaticResource DlgRowHintStyle}" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <!-- Threshold settings -->
+                <StackPanel Spacing="8">
+                    <TextBlock Text="NGƯỠNG CẢNH BÁO" Style="{StaticResource DkLabelStyle}"/>
+                    <Border Style="{StaticResource DlgSectionStyle}">
+                        <StackPanel Spacing="16">
+
+                            <StackPanel Spacing="6">
+                                <Grid>
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <TextBlock Text="&#x25B2;" FontSize="{StaticResource FontSizeCaption}"
+                                                       Foreground="{ThemeResource DkYellowBrush}" VerticalAlignment="Center"/>
+                                            <TextBlock Text="Ngưỡng cảnh báo (Warning)" Style="{StaticResource DlgRowTitleStyle}"
+                                                       Foreground="{ThemeResource DkYellowBrush}"/>
+                                        </StackPanel>
+                                        <TextBlock Text="Cảnh báo mức độ thấp" Style="{StaticResource DlgRowHintStyle}"/>
+                                    </StackPanel>
+                                    <TextBlock x:Name="WarningValueText"
+                                               Text="0.0"
+                                               Style="{StaticResource DlgRowValueStyle}"
+                                               Typography.NumeralAlignment="Tabular"/>
+                                </Grid>
+                                <Grid ColumnSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="80"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Slider x:Name="WarningThresholdSlider"
+                                            Grid.Column="0"
+                                            Minimum="0"
+                                            Maximum="100"
+                                            Value="30"
+                                            ValueChanged="WarningThresholdSlider_ValueChanged"/>
+                                    <TextBox x:Name="WarningThresholdInput"
+                                             Grid.Column="1"
+                                             Text="30"
+                                             Style="{StaticResource DlgInputStyle}"
+                                             TextChanged="WarningThresholdInput_TextChanged"/>
+                                </Grid>
+                            </StackPanel>
+
+                            <StackPanel Spacing="6">
+                                <Grid>
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <TextBlock Text="&#x25B2;" FontSize="{StaticResource FontSizeCaption}"
+                                                       Foreground="{ThemeResource DkRedBrush}" VerticalAlignment="Center"/>
+                                            <TextBlock Text="Ngưỡng nghiêm trọng (Critical)" Style="{StaticResource DlgRowTitleStyle}"
+                                                       Foreground="{ThemeResource DkRedBrush}"/>
+                                        </StackPanel>
+                                        <TextBlock Text="Cảnh báo mức độ cao" Style="{StaticResource DlgRowHintStyle}"/>
+                                    </StackPanel>
+                                    <TextBlock x:Name="CriticalValueText"
+                                               Text="0.0"
+                                               Style="{StaticResource DlgRowValueStyle}"
+                                               Typography.NumeralAlignment="Tabular"/>
+                                </Grid>
+                                <Grid ColumnSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="80"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Slider x:Name="CriticalThresholdSlider"
+                                            Grid.Column="0"
+                                            Minimum="0"
+                                            Maximum="100"
+                                            Value="70"
+                                            ValueChanged="CriticalThresholdSlider_ValueChanged"/>
+                                    <TextBox x:Name="CriticalThresholdInput"
+                                             Grid.Column="1"
+                                             Text="70"
+                                             Style="{StaticResource DlgInputStyle}"
+                                             TextChanged="CriticalThresholdInput_TextChanged"/>
+                                </Grid>
+                            </StackPanel>
+
                             <Grid>
                                 <StackPanel>
-                                    <TextBlock Text="Ngưỡng nghiêm trọng (Critical)"
-                                               FontSize="12"
-                                               Foreground="#EF4444"/>
-                                    <TextBlock Text="Cảnh báo mức độ cao"
-                                               FontSize="11"
-                                               Foreground="#6B7280"
-                                               Margin="0,2,0,0"/>
+                                    <TextBlock Text="Gửi cảnh báo" Style="{StaticResource DlgRowTitleStyle}"/>
+                                    <TextBlock Text="Thông báo khi vượt ngưỡng" Style="{StaticResource DlgRowHintStyle}"/>
                                 </StackPanel>
-                                <TextBlock x:Name="CriticalValueText"
-                                           Text="0.0"
-                                           FontSize="12"
-                                           Foreground="White"
-                                           HorizontalAlignment="Right"/>
-                            </Grid>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="8"/>
-                                    <ColumnDefinition Width="80"/>
-                                </Grid.ColumnDefinitions>
-                                <Slider x:Name="CriticalThresholdSlider"
-                                        Grid.Column="0"
-                                        Minimum="0"
-                                        Maximum="100"
-                                        Value="70"
-                                        ValueChanged="CriticalThresholdSlider_ValueChanged"/>
-                                <TextBox x:Name="CriticalThresholdInput"
-                                         Grid.Column="2"
-                                         Text="70"
-                                         TextAlignment="Center"
-                                         Background="#0D1117"
-                                         Foreground="White"
-                                         BorderBrush="#30363D"
-                                         Height="32"
-                                         CornerRadius="6"
-                                         TextChanged="CriticalThresholdInput_TextChanged"/>
+                                <ToggleSwitch x:Name="AlertEnabledToggle"
+                                              HorizontalAlignment="Right"
+                                              IsOn="True"
+                                              OnContent="Bật"
+                                              OffContent="Tắt"/>
                             </Grid>
                         </StackPanel>
+                    </Border>
+                </StackPanel>
 
-                        <!-- Alert Enabled -->
-                        <Grid>
-                            <StackPanel>
-                                <TextBlock Text="Gửi cảnh báo"
-                                           FontSize="12"
-                                           Foreground="#8B949E"/>
-                                <TextBlock Text="Thông báo khi vượt ngưỡng"
-                                           FontSize="11"
-                                           Foreground="#6B7280"
-                                           Margin="0,2,0,0"/>
-                            </StackPanel>
-                            <ToggleSwitch x:Name="AlertEnabledToggle"
-                                          HorizontalAlignment="Right"
-                                          IsOn="True"
-                                          OnContent="Bật"
-                                          OffContent="Tắt"/>
-                        </Grid>
-                    </StackPanel>
-                </Border>
+                <!-- Advanced settings -->
+                <StackPanel Spacing="8">
+                    <TextBlock Text="CÀI ĐẶT NÂNG CAO" Style="{StaticResource DkLabelStyle}"/>
+                    <Border Style="{StaticResource DlgSectionStyle}">
+                        <StackPanel Spacing="16">
 
-                <!-- Advanced Settings -->
-                <Border Background="#161B22" BorderBrush="#30363D" BorderThickness="1" CornerRadius="10" Padding="16">
-                    <StackPanel Spacing="12">
-                        <TextBlock Text="🔧 Cài đặt nâng cao"
-                                   FontSize="14"
-                                   FontWeight="SemiBold"
-                                   Foreground="White"/>
-
-                        <!-- Data Smoothing -->
-                        <StackPanel Spacing="6">
-                            <Grid>
-                                <TextBlock Text="Làm mịn dữ liệu (Moving Average)"
-                                           FontSize="12"
-                                           Foreground="#8B949E"/>
-                                <TextBlock x:Name="SmoothingValue"
-                                           Text="3 mẫu"
-                                           FontSize="12"
-                                           Foreground="White"
-                                           HorizontalAlignment="Right"/>
-                            </Grid>
-                            <Slider x:Name="SmoothingSlider"
-                                    Minimum="1"
-                                    Maximum="10"
-                                    Value="3"
-                                    StepFrequency="1"
-                                    ValueChanged="SmoothingSlider_ValueChanged"/>
-                            <TextBlock Text="1 - 10 mẫu"
-                                       FontSize="10"
-                                       Foreground="#6B7280"
-                                       HorizontalAlignment="Center"/>
-                        </StackPanel>
-
-                        <!-- Calibration Offset -->
-                        <StackPanel Spacing="6">
-                            <TextBlock Text="Hiệu chỉnh độ lệch (Calibration Offset)"
-                                       FontSize="12"
-                                       Foreground="#8B949E"/>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="8"/>
-                                    <ColumnDefinition Width="100"/>
-                                </Grid.ColumnDefinitions>
-                                <Slider x:Name="CalibrationSlider"
-                                        Grid.Column="0"
-                                        Minimum="-10"
+                            <StackPanel Spacing="6">
+                                <Grid>
+                                    <TextBlock Text="Làm mịn dữ liệu (Moving Average)" Style="{StaticResource DlgRowTitleStyle}"/>
+                                    <TextBlock x:Name="SmoothingValue"
+                                               Text="3 mẫu"
+                                               Style="{StaticResource DlgRowValueStyle}"
+                                               Typography.NumeralAlignment="Tabular"/>
+                                </Grid>
+                                <Slider x:Name="SmoothingSlider"
+                                        Minimum="1"
                                         Maximum="10"
-                                        Value="0"
-                                        StepFrequency="0.1"
-                                        ValueChanged="CalibrationSlider_ValueChanged"/>
-                                <TextBox x:Name="CalibrationInput"
-                                         Grid.Column="2"
-                                         Text="0.0"
-                                         TextAlignment="Center"
-                                         Background="#0D1117"
-                                         Foreground="White"
-                                         BorderBrush="#30363D"
-                                         Height="32"
-                                         CornerRadius="6"
-                                         TextChanged="CalibrationInput_TextChanged"/>
-                            </Grid>
-                            <TextBlock Text="-10.0 đến +10.0"
-                                       FontSize="10"
-                                       Foreground="#6B7280"
-                                       HorizontalAlignment="Center"/>
-                        </StackPanel>
-
-                        <!-- Auto Reset -->
-                        <Grid>
-                            <StackPanel>
-                                <TextBlock Text="Tự động reset cảnh báo"
-                                           FontSize="12"
-                                           Foreground="#8B949E"/>
-                                <TextBlock Text="Reset sau khi giá trị trở lại bình thường"
-                                           FontSize="11"
-                                           Foreground="#6B7280"
-                                           Margin="0,2,0,0"/>
+                                        Value="3"
+                                        StepFrequency="1"
+                                        ValueChanged="SmoothingSlider_ValueChanged"/>
+                                <TextBlock Text="Từ 1 đến 10 mẫu" Style="{StaticResource DlgRowHintStyle}" HorizontalAlignment="Center"/>
                             </StackPanel>
-                            <ToggleSwitch x:Name="AutoResetToggle"
-                                          HorizontalAlignment="Right"
-                                          IsOn="True"
-                                          OnContent="Bật"
-                                          OffContent="Tắt"/>
-                        </Grid>
-                    </StackPanel>
-                </Border>
 
-                <!-- Info Note -->
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="Hiệu chỉnh độ lệch (Calibration Offset)" Style="{StaticResource DlgRowTitleStyle}"/>
+                                <Grid ColumnSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="100"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Slider x:Name="CalibrationSlider"
+                                            Grid.Column="0"
+                                            Minimum="-10"
+                                            Maximum="10"
+                                            Value="0"
+                                            StepFrequency="0.1"
+                                            ValueChanged="CalibrationSlider_ValueChanged"/>
+                                    <TextBox x:Name="CalibrationInput"
+                                             Grid.Column="1"
+                                             Text="0.0"
+                                             Style="{StaticResource DlgInputStyle}"
+                                             TextChanged="CalibrationInput_TextChanged"/>
+                                </Grid>
+                                <TextBlock Text="Từ -10.0 đến +10.0" Style="{StaticResource DlgRowHintStyle}" HorizontalAlignment="Center"/>
+                            </StackPanel>
+
+                            <Grid>
+                                <StackPanel>
+                                    <TextBlock Text="Tự động reset cảnh báo" Style="{StaticResource DlgRowTitleStyle}"/>
+                                    <TextBlock Text="Reset sau khi giá trị trở lại bình thường" Style="{StaticResource DlgRowHintStyle}"/>
+                                </StackPanel>
+                                <ToggleSwitch x:Name="AutoResetToggle"
+                                              HorizontalAlignment="Right"
+                                              IsOn="True"
+                                              OnContent="Bật"
+                                              OffContent="Tắt"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
                 <InfoBar x:Name="ConfigInfoBar"
                          IsOpen="False"
                          Severity="Informational"

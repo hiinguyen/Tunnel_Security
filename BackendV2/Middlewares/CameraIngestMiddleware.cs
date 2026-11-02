@@ -38,26 +38,39 @@ public class CameraIngestMiddleware
 
         var buffer = new byte[8192];
 
-        while (socket.State == WebSocketState.Open)
+        try
         {
-            using var frameStream = new MemoryStream();
-            WebSocketReceiveResult result;
-
-            do
+            while (socket.State == WebSocketState.Open)
             {
-                result = await socket.ReceiveAsync(buffer, context.RequestAborted);
+                using var message = new MemoryStream();
+                WebSocketReceiveResult result;
 
-                if (result.MessageType == WebSocketMessageType.Close)
+                do
                 {
-                    await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", context.RequestAborted);
-                    return;
+                    result = await socket.ReceiveAsync(buffer, context.RequestAborted);
+
+                    if (result.MessageType == WebSocketMessageType.Close)
+                    {
+                        await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", context.RequestAborted);
+                        return;
+                    }
+
+                    if (message.Length + result.Count > CameraRelayRegistry.MaxMessageBytes)
+                    {
+                        await socket.CloseAsync(WebSocketCloseStatus.MessageTooBig, "Message too big", context.RequestAborted);
+                        return;
+                    }
+
+                    message.Write(buffer, 0, result.Count);
                 }
+                while (!result.EndOfMessage);
 
-                frameStream.Write(buffer, 0, result.Count);
+                await _registry.BroadcastAsync(cameraId, message.ToArray(), result.MessageType, context.RequestAborted);
             }
-            while (!result.EndOfMessage);
-
-            await _registry.BroadcastFrameAsync(cameraId, frameStream.ToArray(), context.RequestAborted);
+        }
+        catch (Exception ex) when (ex is WebSocketException or OperationCanceledException)
+        {
+            // The sender went away without a close handshake (gateway killed, link dropped): the normal end of a stream.
         }
     }
 }

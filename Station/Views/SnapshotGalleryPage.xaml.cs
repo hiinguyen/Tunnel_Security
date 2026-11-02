@@ -38,6 +38,7 @@ public sealed partial class SnapshotGalleryPage : Page
     private async void SearchButton_Click(object sender, RoutedEventArgs e)
     {
         LoadingRing.IsActive = true;
+        EmptyStatePanel.Visibility = Visibility.Collapsed;
         SnapshotGrid.Items.Clear();
 
         _viewModel.FromDate = FromDatePicker.Date.DateTime;
@@ -59,8 +60,8 @@ public sealed partial class SnapshotGalleryPage : Page
             {
                 Text = snap.Timestamp.ToString("HH:mm:ss dd/MM"),
                 FontSize = 11,
-                Opacity = 0.7,
-                Padding = new Thickness(4, 2, 4, 2),
+                Foreground = (Microsoft.UI.Xaml.Media.Brush)Station.Services.ThemeBrushes.Get("DkTextSecondaryBrush"),
+                Padding = new Thickness(4, 4, 4, 2),
                 TextTrimming = Microsoft.UI.Xaml.TextTrimming.CharacterEllipsis
             };
             Grid.SetRow(txt, 1);
@@ -74,6 +75,9 @@ public sealed partial class SnapshotGalleryPage : Page
         }
 
         TotalText.Text = $"Tổng: {_viewModel.TotalSnapshots} ảnh";
+        EmptyStatePanel.Visibility = SnapshotGrid.Items.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        EmptyStateTitle.Text = "Không có ảnh nào trong khoảng thời gian đã chọn";
+        EmptyStateHint.Text = "Thử đổi camera hoặc mở rộng khoảng thời gian";
         LoadingRing.IsActive = false;
     }
 

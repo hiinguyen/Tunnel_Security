@@ -9,35 +9,76 @@
     Title="Chi tiết cảm biến"
     PrimaryButtonText="Lưu"
     CloseButtonText="Đóng"
+    PrimaryButtonStyle="{StaticResource DkPrimaryButtonStyle}"
+    CloseButtonStyle="{StaticResource DkSecondaryButtonStyle}"
     DefaultButton="Primary"
-    Style="{StaticResource DefaultContentDialogStyle}">
+    
+    Background="{ThemeResource DkSurfaceBrush}"
+    BorderBrush="{ThemeResource DkBorderBrush}"
+    BorderThickness="1"
+    CornerRadius="12"
+    Padding="24">
+
+    <ContentDialog.Resources>
+        <Style x:Key="DlgTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource DkSearchBoxStyle}">
+            <Setter Property="Padding" Value="12,8"/>
+        </Style>
+        <Style x:Key="DlgKeyStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource FontSizeSmall}"/>
+            <Setter Property="Foreground" Value="{ThemeResource DkTextSecondaryBrush}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style x:Key="DlgPanelStyle" TargetType="Border">
+            <Setter Property="Background" Value="{ThemeResource DkInputBgBrush}"/>
+            <Setter Property="BorderBrush" Value="{ThemeResource DkBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="16"/>
+        </Style>
+    </ContentDialog.Resources>
+
+    <ContentDialog.TitleTemplate>
+        <DataTemplate>
+            <Grid Margin="0,0,0,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Spacing="2" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding}"
+                               FontSize="{StaticResource FontSizeTitle}" FontWeight="SemiBold"
+                               Foreground="{ThemeResource DkTextPrimaryBrush}"/>
+                    <TextBlock Text="Cấu hình, giá trị hiện tại và lịch sử đo"
+                               FontSize="{StaticResource FontSizeCompact}"
+                               Foreground="{ThemeResource DkTextMutedBrush}"/>
+                </StackPanel>
+                <Button Grid.Column="1" Style="{StaticResource DkIconButtonStyle}"
+                        Click="HeaderClose_Click"
+                        ToolTipService.ToolTip="Đóng" AutomationProperties.Name="Đóng">
+                    <FontIcon Glyph="&#xE711;" FontSize="{StaticResource FontSizeSmall}"/>
+                </Button>
+            </Grid>
+        </DataTemplate>
+    </ContentDialog.TitleTemplate>
 
     <Grid MinWidth="700" MinHeight="500">
         <TabView x:Name="SensorTabView"
-                 TabWidthMode="Equal"
+                 TabWidthMode="SizeToContent"
                  IsAddTabButtonVisible="False"
                  CanDragTabs="False"
-                 CanReorderTabs="False">
-            
-            <!-- Configuration Tab -->
+                 CanReorderTabs="False"
+                 Background="Transparent">
+
             <TabView.TabItems>
-                <TabViewItem Header="Cấu hình">
-                    <TabViewItem.IconSource>
-                        <SymbolIconSource Symbol="Setting"/>
-                    </TabViewItem.IconSource>
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24">
+                <!-- Configuration tab -->
+                <TabViewItem Header="Cấu hình" IsClosable="False">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,16,12,0">
                         <StackPanel Spacing="20">
-                            <!-- Sensor Information Section -->
-                            <StackPanel Spacing="12">
-                                <TextBlock Text="Thông tin cảm biến"
-                                           FontSize="16"
-                                           FontWeight="SemiBold"
-                                           Foreground="{StaticResource TextPrimaryBrush}"/>
-                                
-                                <Border Background="{StaticResource BackgroundSecondaryBrush}"
-                                        CornerRadius="8"
-                                        Padding="16">
-                                    <Grid>
+
+                            <StackPanel Spacing="10">
+                                <TextBlock Text="THÔNG TIN CẢM BIẾN" Style="{StaticResource DkLabelStyle}"/>
+                                <Border Style="{StaticResource DlgPanelStyle}">
+                                    <Grid RowSpacing="12" ColumnSpacing="12">
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto"/>
                                             <RowDefinition Height="Auto"/>
@@ -49,33 +90,27 @@
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
 
-                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="ID Cảm biến:" 
-                                                   Foreground="{StaticResource TextSecondaryBrush}" 
-                                                   VerticalAlignment="Center" Margin="0,0,0,12"/>
-                                        <TextBox Grid.Row="0" Grid.Column="1" 
-                                                 Text="{x:Bind Sensor.SensorId, Mode=OneWay}" 
-                                                 IsReadOnly="True" Margin="0,0,0,12"/>
+                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="ID cảm biến" Style="{StaticResource DlgKeyStyle}"/>
+                                        <TextBox Grid.Row="0" Grid.Column="1"
+                                                 Text="{x:Bind Sensor.SensorId, Mode=OneWay}"
+                                                 IsReadOnly="True"
+                                                 Style="{StaticResource DlgTextBoxStyle}"/>
 
-                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Tên cảm biến:" 
-                                                   Foreground="{StaticResource TextSecondaryBrush}" 
-                                                   VerticalAlignment="Center" Margin="0,0,0,12"/>
-                                        <TextBox Grid.Row="1" Grid.Column="1" 
-                                                 Text="{x:Bind Sensor.SensorName, Mode=TwoWay}" 
-                                                 Margin="0,0,0,12"/>
+                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Tên cảm biến" Style="{StaticResource DlgKeyStyle}"/>
+                                        <TextBox Grid.Row="1" Grid.Column="1"
+                                                 Text="{x:Bind Sensor.SensorName, Mode=TwoWay}"
+                                                 Style="{StaticResource DlgTextBoxStyle}"/>
 
-                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Loại cảm biến:" 
-                                                   Foreground="{StaticResource TextSecondaryBrush}" 
-                                                   VerticalAlignment="Center" Margin="0,0,0,12"/>
-                                        <TextBox Grid.Row="2" Grid.Column="1" 
-                                                 Text="{x:Bind Sensor.SensorType, Mode=OneWay}" 
-                                                 IsReadOnly="True" Margin="0,0,0,12"/>
+                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Loại cảm biến" Style="{StaticResource DlgKeyStyle}"/>
+                                        <TextBox Grid.Row="2" Grid.Column="1"
+                                                 Text="{x:Bind Sensor.SensorType, Mode=OneWay}"
+                                                 IsReadOnly="True"
+                                                 Style="{StaticResource DlgTextBoxStyle}"/>
 
-                                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Trạng thái:" 
-                                                   Foreground="{StaticResource TextSecondaryBrush}" 
-                                                   VerticalAlignment="Center"/>
-                                        <ComboBox Grid.Row="3" Grid.Column="1" 
-                                                  SelectedIndex="0"
-                                                  HorizontalAlignment="Stretch">
+                                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Trạng thái" Style="{StaticResource DlgKeyStyle}"/>
+                                        <ComboBox Grid.Row="3" Grid.Column="1"
+                                                  Style="{StaticResource DkComboBoxStyle}"
+                                                  SelectedIndex="0">
                                             <ComboBoxItem Content="Hoạt động"/>
                                             <ComboBoxItem Content="Tạm dừng"/>
                                             <ComboBoxItem Content="Bảo trì"/>
@@ -84,17 +119,10 @@
                                 </Border>
                             </StackPanel>
 
-                            <!-- Threshold Settings Section -->
-                            <StackPanel Spacing="12">
-                                <TextBlock Text="Cấu hình ngưỡng cảnh báo"
-                                           FontSize="16"
-                                           FontWeight="SemiBold"
-                                           Foreground="{StaticResource TextPrimaryBrush}"/>
-                                
-                                <Border Background="{StaticResource BackgroundSecondaryBrush}"
-                                        CornerRadius="8"
-                                        Padding="16">
-                                    <Grid>
+                            <StackPanel Spacing="10">
+                                <TextBlock Text="NGƯỠNG CẢNH BÁO" Style="{StaticResource DkLabelStyle}"/>
+                                <Border Style="{StaticResource DlgPanelStyle}">
+                                    <Grid RowSpacing="12" ColumnSpacing="12">
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto"/>
                                             <RowDefinition Height="Auto"/>
@@ -105,47 +133,25 @@
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
 
-                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Ngưỡng thấp:" 
-                                                   Foreground="{StaticResource TextSecondaryBrush}" 
-                                                   VerticalAlignment="Center" Margin="0,0,0,12"/>
-                                        <NumberBox Grid.Row="0" Grid.Column="1" 
-                                                   Value="0" 
-                                                   SpinButtonPlacementMode="Inline"
-                                                   Margin="0,0,0,12"/>
+                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Ngưỡng thấp" Style="{StaticResource DlgKeyStyle}"/>
+                                        <NumberBox Grid.Row="0" Grid.Column="1" Value="0" SpinButtonPlacementMode="Inline"/>
 
-                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Ngưỡng cao:" 
-                                                   Foreground="{StaticResource TextSecondaryBrush}" 
-                                                   VerticalAlignment="Center" Margin="0,0,0,12"/>
-                                        <NumberBox Grid.Row="1" Grid.Column="1" 
-                                                   Value="100" 
-                                                   SpinButtonPlacementMode="Inline"
-                                                   Margin="0,0,0,12"/>
+                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Ngưỡng cao" Style="{StaticResource DlgKeyStyle}"/>
+                                        <NumberBox Grid.Row="1" Grid.Column="1" Value="100" SpinButtonPlacementMode="Inline"/>
 
-                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Chu kỳ đọc (s):" 
-                                                   Foreground="{StaticResource TextSecondaryBrush}" 
-                                                   VerticalAlignment="Center"/>
-                                        <NumberBox Grid.Row="2" Grid.Column="1" 
-                                                   Value="5" 
-                                                   Minimum="1"
-                                                   SpinButtonPlacementMode="Inline"/>
+                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Chu kỳ đọc (giây)" Style="{StaticResource DlgKeyStyle}"/>
+                                        <NumberBox Grid.Row="2" Grid.Column="1" Value="5" Minimum="1" SpinButtonPlacementMode="Inline"/>
                                     </Grid>
                                 </Border>
                             </StackPanel>
 
-                            <!-- Alert Settings Section -->
-                            <StackPanel Spacing="12">
-                                <TextBlock Text="Cấu hình cảnh báo"
-                                           FontSize="16"
-                                           FontWeight="SemiBold"
-                                           Foreground="{StaticResource TextPrimaryBrush}"/>
-                                
-                                <Border Background="{StaticResource BackgroundSecondaryBrush}"
-                                        CornerRadius="8"
-                                        Padding="16">
+                            <StackPanel Spacing="10">
+                                <TextBlock Text="KÊNH CẢNH BÁO" Style="{StaticResource DkLabelStyle}"/>
+                                <Border Style="{StaticResource DlgPanelStyle}">
                                     <StackPanel Spacing="12">
-                                        <ToggleSwitch Header="Bật cảnh báo email" IsOn="True"/>
-                                        <ToggleSwitch Header="Bật cảnh báo SMS" IsOn="False"/>
-                                        <ToggleSwitch Header="Bật cảnh báo âm thanh" IsOn="True"/>
+                                        <ToggleSwitch Header="Cảnh báo email" IsOn="True"/>
+                                        <ToggleSwitch Header="Cảnh báo SMS" IsOn="False"/>
+                                        <ToggleSwitch Header="Cảnh báo âm thanh" IsOn="True"/>
                                     </StackPanel>
                                 </Border>
                             </StackPanel>
@@ -153,38 +159,30 @@
                     </ScrollViewer>
                 </TabViewItem>
 
-                <!-- Data Tab -->
-                <TabViewItem Header="Dữ liệu">
-                    <TabViewItem.IconSource>
-                        <FontIconSource Glyph="&#xE9D9;"/>
-                    </TabViewItem.IconSource>
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24">
+                <!-- Data tab -->
+                <TabViewItem Header="Dữ liệu" IsClosable="False">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,16,12,0">
                         <StackPanel Spacing="20">
-                            <!-- Current Reading Section -->
-                            <StackPanel Spacing="12">
-                                <TextBlock Text="Giá trị hiện tại"
-                                           FontSize="16"
-                                           FontWeight="SemiBold"
-                                           Foreground="{StaticResource TextPrimaryBrush}"/>
-                                
-                                <Border Background="{StaticResource BackgroundAccentBrush}"
-                                        CornerRadius="8"
-                                        Padding="24">
-                                    <StackPanel HorizontalAlignment="Center" Spacing="8">
-                                        <TextBlock FontSize="48"
+
+                            <StackPanel Spacing="10">
+                                <TextBlock Text="GIÁ TRỊ HIỆN TẠI" Style="{StaticResource DkLabelStyle}"/>
+                                <Border Style="{StaticResource DlgPanelStyle}" Padding="24">
+                                    <StackPanel HorizontalAlignment="Center" Spacing="6">
+                                        <TextBlock FontSize="{StaticResource FontSizeXLarge}"
                                                    FontWeight="Bold"
-                                                   Foreground="{StaticResource PrimaryDarkBrush}"
-                                                   HorizontalAlignment="Center">
+                                                   Foreground="{ThemeResource DkTextPrimaryBrush}"
+                                                   HorizontalAlignment="Center"
+                                                   Typography.NumeralAlignment="Tabular">
                                             <Run Text="{x:Bind Sensor.CurrentValue, Mode=OneWay}"/>
                                             <Run Text=" "/>
-                                            <Run Text="{x:Bind Sensor.Unit, Mode=OneWay}" FontSize="24"/>
+                                            <Run Text="{x:Bind Sensor.Unit, Mode=OneWay}" FontSize="{StaticResource FontSizeBody}" Foreground="{ThemeResource DkTextMutedBrush}"/>
                                         </TextBlock>
                                         <TextBlock Text="{x:Bind Sensor.SensorName, Mode=OneWay}"
-                                                   FontSize="14"
-                                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                                   FontSize="{StaticResource FontSizeBody}"
+                                                   Foreground="{ThemeResource DkTextSecondaryBrush}"
                                                    HorizontalAlignment="Center"/>
-                                        <TextBlock FontSize="12"
-                                                   Foreground="{StaticResource TextTertiaryBrush}"
+                                        <TextBlock FontSize="{StaticResource FontSizeSmall}"
+                                                   Foreground="{ThemeResource DkTextMutedBrush}"
                                                    HorizontalAlignment="Center">
                                             <Run Text="Cập nhật:"/>
                                             <Run Text="{x:Bind Sensor.LastUpdateText, Mode=OneWay}"/>
@@ -193,136 +191,23 @@
                                 </Border>
                             </StackPanel>
 
-                            <!-- Statistics Section -->
-                            <StackPanel Spacing="12">
-                                <TextBlock Text="Thống kê 24 giờ qua"
-                                           FontSize="16"
-                                           FontWeight="SemiBold"
-                                           Foreground="{StaticResource TextPrimaryBrush}"/>
-                                
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-
-                                    <Border Grid.Column="0" 
-                                            Background="{StaticResource BackgroundSecondaryBrush}"
-                                            CornerRadius="8"
-                                            Padding="16"
-                                            Margin="0,0,8,0">
-                                        <StackPanel Spacing="8">
-                                            <TextBlock Text="Giá trị TB"
-                                                       FontSize="12"
-                                                       Foreground="{StaticResource TextSecondaryBrush}"/>
-                                            <TextBlock Text="25.5"
-                                                       FontSize="24"
-                                                       FontWeight="Bold"
-                                                       Foreground="{StaticResource TextPrimaryBrush}"/>
-                                        </StackPanel>
-                                    </Border>
-
-                                    <Border Grid.Column="1" 
-                                            Background="{StaticResource BackgroundSecondaryBrush}"
-                                            CornerRadius="8"
-                                            Padding="16"
-                                            Margin="0,0,8,0">
-                                        <StackPanel Spacing="8">
-                                            <TextBlock Text="Tối thiểu"
-                                                       FontSize="12"
-                                                       Foreground="{StaticResource TextSecondaryBrush}"/>
-                                            <TextBlock Text="18.2"
-                                                       FontSize="24"
-                                                       FontWeight="Bold"
-                                                       Foreground="{StaticResource SeverityLowBrush}"/>
-                                        </StackPanel>
-                                    </Border>
-
-                                    <Border Grid.Column="2" 
-                                            Background="{StaticResource BackgroundSecondaryBrush}"
-                                            CornerRadius="8"
-                                            Padding="16">
-                                        <StackPanel Spacing="8">
-                                            <TextBlock Text="Tối đa"
-                                                       FontSize="12"
-                                                       Foreground="{StaticResource TextSecondaryBrush}"/>
-                                            <TextBlock Text="32.8"
-                                                       FontSize="24"
-                                                       FontWeight="Bold"
-                                                       Foreground="{StaticResource SeverityCriticalBrush}"/>
-                                        </StackPanel>
-                                    </Border>
-                                </Grid>
+                            <StackPanel Spacing="10">
+                                <TextBlock Text="THỐNG KÊ 24 GIỜ QUA" Style="{StaticResource DkLabelStyle}"/>
+                                <Border Style="{StaticResource DlgPanelStyle}" Padding="24">
+                                    <TextBlock Text="Chưa có dữ liệu thống kê cho cảm biến này"
+                                               FontSize="{StaticResource FontSizeBody}"
+                                               Foreground="{ThemeResource DkTextMutedBrush}"
+                                               HorizontalAlignment="Center"/>
+                                </Border>
                             </StackPanel>
 
-                            <!-- Recent Readings Section -->
-                            <StackPanel Spacing="12">
-                                <TextBlock Text="Lịch sử đọc gần đây"
-                                           FontSize="16"
-                                           FontWeight="SemiBold"
-                                           Foreground="{StaticResource TextPrimaryBrush}"/>
-                                
-                                <Border Background="{StaticResource BackgroundSecondaryBrush}"
-                                        CornerRadius="8"
-                                        Padding="16">
-                                    <StackPanel Spacing="8">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Grid.Column="0" Text="09:30:15" 
-                                                       Foreground="{StaticResource TextTertiaryBrush}"/>
-                                            <TextBlock Grid.Column="1" Text="26.5°C" 
-                                                       FontWeight="SemiBold"
-                                                       Foreground="{StaticResource TextPrimaryBrush}"/>
-                                        </Grid>
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Grid.Column="0" Text="09:25:10" 
-                                                       Foreground="{StaticResource TextTertiaryBrush}"/>
-                                            <TextBlock Grid.Column="1" Text="26.3°C" 
-                                                       FontWeight="SemiBold"
-                                                       Foreground="{StaticResource TextPrimaryBrush}"/>
-                                        </Grid>
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Grid.Column="0" Text="09:20:05" 
-                                                       Foreground="{StaticResource TextTertiaryBrush}"/>
-                                            <TextBlock Grid.Column="1" Text="26.1°C" 
-                                                       FontWeight="SemiBold"
-                                                       Foreground="{StaticResource TextPrimaryBrush}"/>
-                                        </Grid>
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Grid.Column="0" Text="09:15:00" 
-                                                       Foreground="{StaticResource TextTertiaryBrush}"/>
-                                            <TextBlock Grid.Column="1" Text="25.8°C" 
-                                                       FontWeight="SemiBold"
-                                                       Foreground="{StaticResource TextPrimaryBrush}"/>
-                                        </Grid>
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Grid.Column="0" Text="09:10:55" 
-                                                       Foreground="{StaticResource TextTertiaryBrush}"/>
-                                            <TextBlock Grid.Column="1" Text="25.5°C" 
-                                                       FontWeight="SemiBold"
-                                                       Foreground="{StaticResource TextPrimaryBrush}"/>
-                                        </Grid>
-                                    </StackPanel>
+                            <StackPanel Spacing="10">
+                                <TextBlock Text="LỊCH SỬ ĐỌC GẦN ĐÂY" Style="{StaticResource DkLabelStyle}"/>
+                                <Border Style="{StaticResource DlgPanelStyle}" Padding="24">
+                                    <TextBlock Text="Chưa có lịch sử đọc cho cảm biến này"
+                                               FontSize="{StaticResource FontSizeBody}"
+                                               Foreground="{ThemeResource DkTextMutedBrush}"
+                                               HorizontalAlignment="Center"/>
                                 </Border>
                             </StackPanel>
                         </StackPanel>

@@ -17,6 +17,20 @@ public class TimeSeriesDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        if (Database.IsSqlite())
+        {
+            // Bản máy đơn: SQLite, khóa đơn Id tự tăng (không có hypertable nên không cần khóa ghép theo Timestamp).
+            modelBuilder.Entity<Reading>(e =>
+            {
+                e.HasKey(x => x.Id);
+                e.Property(x => x.Id).ValueGeneratedOnAdd();
+                e.HasIndex(x => new { x.SensorId, x.Timestamp });
+                e.HasIndex(x => new { x.NodeId, x.Timestamp });
+                e.HasIndex(x => new { x.LineId, x.NodeByteId, x.Timestamp });
+            });
+            return;
+        }
+
         modelBuilder.HasPostgresEnum<ReadingLevel>("reading_level");
 
         // TimescaleDB requires all unique constraints to include the partition
@@ -29,6 +43,7 @@ public class TimeSeriesDbContext : DbContext
 
             e.HasIndex(x => new { x.SensorId, x.Timestamp });
             e.HasIndex(x => new { x.NodeId, x.Timestamp });
+            e.HasIndex(x => new { x.LineId, x.NodeByteId, x.Timestamp });
         });
     }
 }

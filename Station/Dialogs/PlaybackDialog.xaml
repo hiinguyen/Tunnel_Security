@@ -8,308 +8,261 @@
     mc:Ignorable="d"
     Title="Phát lại"
     CloseButtonText="Đóng"
+    CloseButtonStyle="{StaticResource DkSecondaryButtonStyle}"
     DefaultButton="Close"
-    RequestedTheme="Dark"
-    Background="{StaticResource MonitoringPanelBackgroundBrush}"
-    BorderBrush="{StaticResource MonitoringBorderBrush}"
-    CornerRadius="8"
-    Padding="0">
+    
+    Background="{ThemeResource DkSurfaceBrush}"
+    BorderBrush="{ThemeResource DkBorderBrush}"
+    BorderThickness="1"
+    CornerRadius="12"
+    Padding="24">
 
     <ContentDialog.Resources>
-        <!-- Value Converter -->
         <local:DoubleToIntConverter x:Key="DoubleToIntConverter"/>
-
-        <!-- Player Control Button Style -->
-        <Style x:Key="PlayerControlButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="{StaticResource MonitoringBackgroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource MonitoringBorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Width" Value="40"/>
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="CornerRadius" Value="6"/>
-            <Setter Property="Padding" Value="0"/>
-        </Style>
     </ContentDialog.Resources>
 
-    <!-- Main Grid -->
-    <Grid MinWidth="800" MinHeight="550" MaxWidth="900" Padding="0">
+    <ContentDialog.TitleTemplate>
+        <DataTemplate>
+            <Grid Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Spacing="2" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding}"
+                               FontSize="{StaticResource FontSizeTitle}" FontWeight="SemiBold"
+                               Foreground="{ThemeResource DkTextPrimaryBrush}"/>
+                    <TextBlock Text="Xem lại video đã ghi theo ngày"
+                               FontSize="{StaticResource FontSizeCompact}"
+                               Foreground="{ThemeResource DkTextMutedBrush}"/>
+                </StackPanel>
+                <Button Grid.Column="1" Style="{StaticResource DkIconButtonStyle}"
+                        Click="HeaderClose_Click"
+                        ToolTipService.ToolTip="Đóng" AutomationProperties.Name="Đóng">
+                    <FontIcon Glyph="&#xE711;" FontSize="{StaticResource FontSizeSmall}"/>
+                </Button>
+            </Grid>
+        </DataTemplate>
+    </ContentDialog.TitleTemplate>
+
+    <Grid MinWidth="800" MinHeight="520" MaxWidth="900" RowSpacing="12">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- InfoBar for notifications at the top -->
         <InfoBar x:Name="NotificationBar"
                  Grid.Row="0"
                  IsOpen="False"
-                 Severity="Success"
-                 Margin="0,0,0,0"/>
+                 Severity="Success"/>
 
-        <!-- Video Player Area -->
-        <Grid Grid.Row="1" Background="#000000">
-            <!-- Mock Video Display -->
-            <Border Background="#000000">
-                <!-- Diagonal stripes pattern for mock video -->
-                <Grid>
-                    <Grid.Background>
-                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1" SpreadMethod="Repeat">
-                            <GradientStop Color="#0A0A0A" Offset="0"/>
-                            <GradientStop Color="#1A1A1A" Offset="0.25"/>
-                            <GradientStop Color="#0A0A0A" Offset="0.5"/>
-                            <GradientStop Color="#1A1A1A" Offset="0.75"/>
-                            <GradientStop Color="#0A0A0A" Offset="1"/>
-                        </LinearGradientBrush>
-                    </Grid.Background>
-
-                    <!-- Video Overlay Info -->
-                    <StackPanel VerticalAlignment="Top" HorizontalAlignment="Left" Margin="20">
+        <!-- Video area -->
+        <Border Grid.Row="1" CornerRadius="12" BorderBrush="{ThemeResource DkBorderBrush}" BorderThickness="1"
+                Background="{ThemeResource DkDeepBrush}">
+            <Grid>
+                <Border VerticalAlignment="Top" HorizontalAlignment="Left" Margin="16"
+                        Background="{ThemeResource DkBgBrush}" BorderBrush="{ThemeResource DkBorderBrush}"
+                        BorderThickness="1" CornerRadius="4" Padding="8,4">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="CAM" Style="{StaticResource DkTagTextStyle}" VerticalAlignment="Center"/>
                         <TextBlock x:Name="DeviceNameOverlay"
-                                   Text="Playback mock - D1"
-                                   FontSize="16"
-                                   FontWeight="SemiBold"
-                                   Foreground="White"
-                                   Opacity="0.9"/>
+                                   Text="Playback - D1"
+                                   FontSize="{StaticResource FontSizeSmall}" FontWeight="SemiBold"
+                                   Foreground="{ThemeResource DkTextPrimaryBrush}"/>
                     </StackPanel>
+                </Border>
 
-                    <!-- Status Info at Bottom Left -->
-                    <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="20">
-                        <TextBlock FontSize="13" Foreground="White" Opacity="0.8">
-                            <Run Text="IR:"/>
-                            <Run x:Name="IRStatus" Text="ON" FontWeight="SemiBold"/>
-                            <Run Text=" - HDR:"/>
-                            <Run x:Name="HDRStatus" Text="AUTO" FontWeight="SemiBold"/>
-                        </TextBlock>
-                    </StackPanel>
+                <Border VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="16"
+                        Background="{ThemeResource DkBgBrush}" BorderBrush="{ThemeResource DkBorderBrush}"
+                        BorderThickness="1" CornerRadius="4" Padding="8,4">
+                    <TextBlock FontSize="{StaticResource FontSizeCompact}" Foreground="{ThemeResource DkTextSecondaryBrush}">
+                        <Run Text="IR"/>
+                        <Run x:Name="IRStatus" Text="ON" FontWeight="SemiBold"/>
+                        <Run Text="  HDR"/>
+                        <Run x:Name="HDRStatus" Text="AUTO" FontWeight="SemiBold"/>
+                    </TextBlock>
+                </Border>
 
-                    <!-- Resolution Info at Bottom Right -->
-                    <TextBlock VerticalAlignment="Bottom"
-                               HorizontalAlignment="Right"
-                               Margin="20"
-                               FontSize="13"
-                               Foreground="White"
-                               Opacity="0.8">
-                        <Run Text="Resolution:"/>
+                <Border VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="16"
+                        Background="{ThemeResource DkBgBrush}" BorderBrush="{ThemeResource DkBorderBrush}"
+                        BorderThickness="1" CornerRadius="4" Padding="8,4">
+                    <TextBlock FontSize="{StaticResource FontSizeCompact}" Foreground="{ThemeResource DkTextSecondaryBrush}"
+                               Typography.NumeralAlignment="Tabular">
+                        <Run Text="Độ phân giải"/>
                         <Run x:Name="ResolutionText" Text="1280×720" FontWeight="SemiBold"/>
                     </TextBlock>
+                </Border>
+
+                <!-- Loading indicator (hidden by default) -->
+                <Grid x:Name="LoadingPanel" Visibility="Collapsed" Background="{ThemeResource DkScrimBrush}">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
+                        <ProgressRing IsActive="True" Width="32" Height="32" Foreground="{ThemeResource DkTextPrimaryBrush}"/>
+                        <TextBlock Text="Đang tải video..."
+                                   FontSize="{StaticResource FontSizeBody}"
+                                   Foreground="{ThemeResource DkTextPrimaryBrush}"
+                                   HorizontalAlignment="Center"/>
+                    </StackPanel>
                 </Grid>
-            </Border>
-
-            <!-- Loading Indicator (Hidden by default) -->
-            <Grid x:Name="LoadingPanel" Visibility="Collapsed" Background="#80000000">
-                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
-                    <ProgressRing IsActive="True" Width="40" Height="40" Foreground="White"/>
-                    <TextBlock Text="Đang tải video..."
-                               FontSize="14"
-                               Foreground="White"
-                               HorizontalAlignment="Center"/>
-                </StackPanel>
             </Grid>
-        </Grid>
+        </Border>
 
-        <!-- Controls Area -->
-        <Grid Grid.Row="2" Background="{StaticResource MonitoringBackgroundBrush}" Padding="20,16">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
+        <!-- Controls -->
+        <Border Grid.Row="2" Background="{ThemeResource DkInputBgBrush}" BorderBrush="{ThemeResource DkBorderBrush}"
+                BorderThickness="1" CornerRadius="12" Padding="16">
+            <Grid RowSpacing="14">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-            <!-- Playback Controls -->
-            <Grid Grid.Row="0" Margin="0,0,0,16">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
 
-                <!-- Transport Controls -->
-                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
-                    <!-- Play/Pause Button -->
-                    <Button x:Name="PlayPauseButton"
-                            Style="{StaticResource PlayerControlButtonStyle}"
-                            Click="PlayPauseButton_Click"
-                            ToolTipService.ToolTip="Phát/Tạm dừng">
-                        <FontIcon x:Name="PlayPauseIcon"
-                                  Glyph="&#xE768;"
-                                  FontSize="20"
-                                  Foreground="{StaticResource MonitoringTextPrimaryBrush}"/>
-                    </Button>
+                    <!-- Transport -->
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="4">
+                        <Button x:Name="PlayPauseButton"
+                                Style="{StaticResource DkIconButtonStyle}"
+                                Click="PlayPauseButton_Click"
+                                ToolTipService.ToolTip="Phát / Tạm dừng"
+                                AutomationProperties.Name="Phát / Tạm dừng">
+                            <FontIcon x:Name="PlayPauseIcon" Glyph="&#xE768;" FontSize="{StaticResource FontSizeBody}"/>
+                        </Button>
+                        <Button x:Name="StopButton"
+                                Style="{StaticResource DkIconButtonStyle}"
+                                Click="StopButton_Click"
+                                ToolTipService.ToolTip="Dừng"
+                                AutomationProperties.Name="Dừng">
+                            <FontIcon Glyph="&#xE71A;" FontSize="{StaticResource FontSizeBody}"/>
+                        </Button>
+                        <Button Style="{StaticResource DkIconButtonStyle}"
+                                Click="RewindButton_Click"
+                                ToolTipService.ToolTip="Tua lùi 10 giây"
+                                AutomationProperties.Name="Tua lùi 10 giây">
+                            <FontIcon Glyph="&#xE892;" FontSize="{StaticResource FontSizeBody}"/>
+                        </Button>
+                        <Button Style="{StaticResource DkIconButtonStyle}"
+                                Click="FastForwardButton_Click"
+                                ToolTipService.ToolTip="Tua tới 10 giây"
+                                AutomationProperties.Name="Tua tới 10 giây">
+                            <FontIcon Glyph="&#xE893;" FontSize="{StaticResource FontSizeBody}"/>
+                        </Button>
 
-                    <!-- Stop Button -->
-                    <Button x:Name="StopButton"
-                            Style="{StaticResource PlayerControlButtonStyle}"
-                            Click="StopButton_Click"
-                            ToolTipService.ToolTip="Dừng">
-                        <FontIcon Glyph="&#xE71A;"
-                                  FontSize="18"
-                                  Foreground="{StaticResource MonitoringTextPrimaryBrush}"/>
-                    </Button>
-
-                    <!-- Rewind Button -->
-                    <Button Style="{StaticResource PlayerControlButtonStyle}"
-                            Click="RewindButton_Click"
-                            ToolTipService.ToolTip="Tua lùi 10s">
-                        <FontIcon Glyph="&#xE892;"
-                                  FontSize="18"
-                                  Foreground="{StaticResource MonitoringTextPrimaryBrush}"/>
-                    </Button>
-
-                    <!-- Fast Forward Button -->
-                    <Button Style="{StaticResource PlayerControlButtonStyle}"
-                            Click="FastForwardButton_Click"
-                            ToolTipService.ToolTip="Tua tới 10s">
-                        <FontIcon Glyph="&#xE893;"
-                                  FontSize="18"
-                                  Foreground="{StaticResource MonitoringTextPrimaryBrush}"/>
-                    </Button>
-
-                    <!-- Time Display -->
-                    <Border Background="{StaticResource MonitoringPanelBackgroundBrush}"
-                            BorderBrush="{StaticResource MonitoringBorderBrush}"
-                            BorderThickness="1"
-                            CornerRadius="6"
-                            Padding="12,6"
-                            VerticalAlignment="Center"
-                            Margin="8,0,0,0">
                         <TextBlock x:Name="TimeDisplay"
                                    Text="00:00:00 / 01:30:00"
-                                   FontSize="13"
-                                   FontWeight="SemiBold"
-                                   Foreground="{StaticResource MonitoringTextPrimaryBrush}"/>
-                    </Border>
-                </StackPanel>
+                                   FontSize="{StaticResource FontSizeSmall}" FontWeight="SemiBold"
+                                   Foreground="{ThemeResource DkTextPrimaryBrush}"
+                                   Typography.NumeralAlignment="Tabular"
+                                   VerticalAlignment="Center" Margin="12,0,0,0"/>
+                    </StackPanel>
 
-                <!-- Progress Slider -->
-                <Slider Grid.Column="1"
-                        x:Name="ProgressSlider"
-                        Minimum="0"
-                        Maximum="5400"
-                        Value="0"
-                        Margin="20,0"
-                        VerticalAlignment="Center"
-                        ValueChanged="ProgressSlider_ValueChanged"/>
+                    <Slider Grid.Column="1"
+                            x:Name="ProgressSlider"
+                            Minimum="0"
+                            Maximum="5400"
+                            Value="0"
+                            Margin="20,0"
+                            VerticalAlignment="Center"
+                            ValueChanged="ProgressSlider_ValueChanged"/>
 
-                <!-- Volume and Settings -->
-                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
-                    <!-- Volume Control -->
-                    <Button Style="{StaticResource PlayerControlButtonStyle}"
-                            ToolTipService.ToolTip="Âm lượng">
-                        <Button.Flyout>
-                            <Flyout Placement="Top">
-                                <StackPanel Width="40" Height="120">
-                                    <Slider x:Name="VolumeSlider"
-                                            Orientation="Vertical"
-                                            Minimum="0"
-                                            Maximum="100"
-                                            Value="50"
-                                            TickFrequency="10"
-                                            Height="100"/>
-                                    <TextBlock Text="{x:Bind VolumeSlider.Value, Mode=OneWay, Converter={StaticResource DoubleToIntConverter}}"
-                                               FontSize="12"
-                                               HorizontalAlignment="Center"
-                                               Margin="0,4,0,0"/>
-                                </StackPanel>
-                            </Flyout>
-                        </Button.Flyout>
-                        <FontIcon Glyph="&#xE767;"
-                                  FontSize="18"
-                                  Foreground="{StaticResource MonitoringTextPrimaryBrush}"/>
-                    </Button>
+                    <!-- Volume, speed, snapshot, fullscreen -->
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4">
+                        <Button Style="{StaticResource DkIconButtonStyle}"
+                                ToolTipService.ToolTip="Âm lượng"
+                                AutomationProperties.Name="Âm lượng">
+                            <Button.Flyout>
+                                <Flyout Placement="Top">
+                                    <StackPanel Width="40" Height="120">
+                                        <Slider x:Name="VolumeSlider"
+                                                Orientation="Vertical"
+                                                Minimum="0"
+                                                Maximum="100"
+                                                Value="50"
+                                                TickFrequency="10"
+                                                Height="100"/>
+                                        <TextBlock Text="{x:Bind VolumeSlider.Value, Mode=OneWay, Converter={StaticResource DoubleToIntConverter}}"
+                                                   FontSize="{StaticResource FontSizeSmall}"
+                                                   HorizontalAlignment="Center"
+                                                   Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                </Flyout>
+                            </Button.Flyout>
+                            <FontIcon Glyph="&#xE767;" FontSize="{StaticResource FontSizeBody}"/>
+                        </Button>
 
-                    <!-- Speed Control -->
-                    <Button Style="{StaticResource PlayerControlButtonStyle}"
-                            ToolTipService.ToolTip="Tốc độ phát">
-                        <Button.Flyout>
-                            <MenuFlyout Placement="Top">
-                                <MenuFlyoutItem Text="0.5x" Click="SpeedOption_Click" Tag="0.5"/>
-                                <MenuFlyoutItem Text="1x" Click="SpeedOption_Click" Tag="1"/>
-                                <MenuFlyoutItem Text="1.5x" Click="SpeedOption_Click" Tag="1.5"/>
-                                <MenuFlyoutItem Text="2x" Click="SpeedOption_Click" Tag="2"/>
-                            </MenuFlyout>
-                        </Button.Flyout>
-                        <StackPanel Orientation="Horizontal" Spacing="4">
-                            <TextBlock x:Name="SpeedText"
-                                       Text="1x"
-                                       FontSize="13"
-                                       FontWeight="SemiBold"
-                                       Foreground="{StaticResource MonitoringTextPrimaryBrush}"
-                                       VerticalAlignment="Center"/>
-                            <FontIcon Glyph="&#xE70D;"
-                                      FontSize="10"
-                                      Foreground="{StaticResource MonitoringTextSecondaryBrush}"/>
-                        </StackPanel>
-                    </Button>
+                        <Button Style="{StaticResource DkSecondaryButtonStyle}"
+                                MinHeight="34" Padding="10,4"
+                                ToolTipService.ToolTip="Tốc độ phát"
+                                AutomationProperties.Name="Tốc độ phát">
+                            <Button.Flyout>
+                                <MenuFlyout Placement="Top">
+                                    <MenuFlyoutItem Text="0.5x" Click="SpeedOption_Click" Tag="0.5"/>
+                                    <MenuFlyoutItem Text="1x" Click="SpeedOption_Click" Tag="1"/>
+                                    <MenuFlyoutItem Text="1.5x" Click="SpeedOption_Click" Tag="1.5"/>
+                                    <MenuFlyoutItem Text="2x" Click="SpeedOption_Click" Tag="2"/>
+                                </MenuFlyout>
+                            </Button.Flyout>
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <TextBlock x:Name="SpeedText"
+                                           Text="1x"
+                                           FontSize="{StaticResource FontSizeSmall}" FontWeight="SemiBold"
+                                           Typography.NumeralAlignment="Tabular"
+                                           VerticalAlignment="Center"/>
+                                <FontIcon Glyph="&#xE70D;" FontSize="{StaticResource FontSizeXSmall}"/>
+                            </StackPanel>
+                        </Button>
 
-                    <!-- Snapshot Button -->
-                    <Button Style="{StaticResource PlayerControlButtonStyle}"
-                            Click="SnapshotButton_Click"
-                            ToolTipService.ToolTip="Chụp ảnh">
-                        <FontIcon Glyph="&#xE722;"
-                                  FontSize="18"
-                                  Foreground="{StaticResource MonitoringTextPrimaryBrush}"/>
-                    </Button>
+                        <Button Style="{StaticResource DkIconButtonStyle}"
+                                Click="SnapshotButton_Click"
+                                ToolTipService.ToolTip="Chụp ảnh"
+                                AutomationProperties.Name="Chụp ảnh">
+                            <FontIcon Glyph="&#xE722;" FontSize="{StaticResource FontSizeBody}"/>
+                        </Button>
 
-                    <!-- Fullscreen Button -->
-                    <Button Style="{StaticResource PlayerControlButtonStyle}"
-                            Click="FullscreenButton_Click"
-                            ToolTipService.ToolTip="Toàn màn hình">
-                        <FontIcon Glyph="&#xE740;"
-                                  FontSize="18"
-                                  Foreground="{StaticResource MonitoringTextPrimaryBrush}"/>
-                    </Button>
-                </StackPanel>
-            </Grid>
+                        <Button Style="{StaticResource DkIconButtonStyle}"
+                                Click="FullscreenButton_Click"
+                                ToolTipService.ToolTip="Toàn màn hình"
+                                AutomationProperties.Name="Toàn màn hình">
+                            <FontIcon Glyph="&#xE740;" FontSize="{StaticResource FontSizeBody}"/>
+                        </Button>
+                    </StackPanel>
+                </Grid>
 
-            <!-- Date/Time Picker -->
-            <Grid Grid.Row="1">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
 
-                <!-- Date Picker -->
-                <Border Grid.Column="0"
-                        Background="{StaticResource MonitoringPanelBackgroundBrush}"
-                        BorderBrush="{StaticResource MonitoringBorderBrush}"
-                        BorderThickness="1"
-                        CornerRadius="6"
-                        Padding="12,8"
-                        Height="40">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xE787;"
-                                  FontSize="16"
-                                  Foreground="{StaticResource MonitoringTextSecondaryBrush}"
-                                  VerticalAlignment="Center"/>
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="Ngày" FontSize="{StaticResource FontSizeSmall}"
+                                   Foreground="{ThemeResource DkTextMutedBrush}" VerticalAlignment="Center"/>
                         <CalendarDatePicker x:Name="PlaybackDatePicker"
                                             PlaceholderText="Chọn ngày"
                                             Date="{x:Bind CurrentDate, Mode=TwoWay}"
                                             DateChanged="PlaybackDatePicker_DateChanged"
-                                            BorderThickness="0"
-                                            Background="Transparent"
-                                            MinWidth="150"
+                                            Background="{ThemeResource DkInputBgBrush}"
+                                            BorderBrush="{ThemeResource DkBorderBrush}"
+                                            CornerRadius="8"
+                                            MinWidth="160"
                                             VerticalAlignment="Center"/>
                     </StackPanel>
-                </Border>
 
-                <!-- Download Button -->
-                <Button Grid.Column="2"
-                        Height="40"
-                        MinWidth="120"
-                        CornerRadius="6"
-                        Background="{StaticResource MonitoringAccentButtonBrush}"
-                        Foreground="{StaticResource MonitoringTextPrimaryBrush}"
-                        BorderThickness="0"
-                        Click="DownloadButton_Click">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xE896;"
-                                  FontSize="16"/>
-                        <TextBlock Text="Tải đoạn"
-                                   FontSize="14"
-                                   FontWeight="SemiBold"/>
-                    </StackPanel>
-                </Button>
+                    <Button Grid.Column="2"
+                            Style="{StaticResource DkPrimaryButtonStyle}"
+                            Click="DownloadButton_Click">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE896;" FontSize="{StaticResource FontSizeSmall}"/>
+                            <TextBlock Text="Tải đoạn video"/>
+                        </StackPanel>
+                    </Button>
+                </Grid>
             </Grid>
-        </Grid>
+        </Border>
     </Grid>
 </ContentDialog>

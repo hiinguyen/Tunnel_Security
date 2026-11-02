@@ -225,6 +225,16 @@ Immediate state change — no transition animation.
 - **Standard TextBox:** Panel background, 1px border, radius 8, 12/10px padding, min-height 40px.
 - **Dark ComboBox (DkComboBoxStyle):** Inset background, default border, radius 8, 12/8px padding.
 
+### Icons, Tags and Status Markers
+Domain concepts are never drawn as pictograms or emoji. The interface already speaks in instrument tags (`SEN-002`, `CAM-004`, `RAD-001`), so the same vocabulary is used wherever a device or sensor type needs a visual cue.
+
+- **Instrument tag:** 10px Bold, +0.08em letter-spacing, `#94A3B8` text, `#111621` fill, 1px `#2D3545` border, radius 4, padding 8/3. Codes: `CAM`, `SEN`, `RAD`, and per sensor type `TEMP`, `HUM`, `VIB`, `PRES`, `GAS`, `LVL`, `FIRE`, `MOT`. Tint may follow the sensor identity colors (never the severity colors).
+- **Status marker:** a geometric shape beside the status label so state never relies on color alone. Filled circle = online / healthy, triangle = warning or fault, hollow ring = offline, square = disabled. Drawn as a `Polygon` / `Ellipse` / `Rectangle` in XAML, or `● ▲ ○ ■` in text.
+- **Trend direction:** an 8px filled `Polygon` triangle, not a text arrow.
+- **Counts at zero:** a severity-colored count (for example warnings) falls back to muted text when it is 0.
+- **Action icons:** Segoe Fluent glyphs are allowed for generic actions only (add, edit, delete, search, chevrons, settings, open in window). Delete is neutral at rest and turns severity-critical only on hover.
+- **Identity:** the signed-in user is a two-letter monogram, never a generic person glyph.
+
 ### Alert Severity Containers
 Four variants (Healthy / Warning / High / Critical). Each applies a severity background tint with a full 1px colored border on all four sides. Radius 4px. Padding 12px. Severity is always reinforced with icon or text label — not color alone.
 
@@ -257,4 +267,6 @@ On critical alert, a translucent red overlay (#991B1B, reduced opacity) covers t
 - **Don't** introduce warm or cream-tinted backgrounds. The palette is cold-navy. Warm tones erode the tactical-display character and degrade severity red perception.
 - **Don't** build consumer-style UI: no pill buttons, no gradient CTAs, no hover-lift shadows, no playful icon or avatar treatments.
 - **Don't** replicate generic SaaS layout: sidebar + uniform metric widget grid + donut chart per section. Organize by information hierarchy, not template.
-- **Don't** add a second typeface. Weight and size contrast within Segoe UI Variable is the complete typographic system.
+- **Don't** add a second typeface. Weight and size contrast within Segoe UI Variable is the complete typographic system. Monospace (Consolas) is not part of the system, including for IDs and table headers.
+- **Don't** use emoji or decorative pictograms for sensors, cameras, hubs, settings or status. Use instrument tags and status markers (see Icons, Tags and Status Markers).
+- **Don't** ship placeholder controls: pagination buttons that do nothing, empty rounded boxes where an empty state belongs. Every list needs a real empty state.

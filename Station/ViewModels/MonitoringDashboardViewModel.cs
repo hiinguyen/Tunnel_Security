@@ -25,8 +25,6 @@ namespace Station.ViewModels
         [ObservableProperty] private int todayAlerts;
         [ObservableProperty] private int criticalAlerts;
         [ObservableProperty] private int warningAlerts;
-        [ObservableProperty] private double averageTemperature;
-        [ObservableProperty] private double maxTemperature;
         [ObservableProperty] private string systemStatus = "Hoạt động bình thường";
         [ObservableProperty] private string networkLatency = "12ms";
         [ObservableProperty] private double cpuUsage = 45.2;
@@ -34,17 +32,21 @@ namespace Station.ViewModels
 
         // ── Chart series (set once, never reassigned) ─────────────────
         public ISeries[] AlertDistributionSeries { get; private set; } = Array.Empty<ISeries>();
-        public ISeries[] TemperatureSeries { get; private set; } = Array.Empty<ISeries>();
-        public ISeries[] HumiditySeries    { get; private set; } = Array.Empty<ISeries>();
-        public ISeries[] VibrationSeries   { get; private set; } = Array.Empty<ISeries>();
-        public ISeries[] WaterLevelSeries  { get; private set; } = Array.Empty<ISeries>();
-        public ISeries[] LightSeries       { get; private set; } = Array.Empty<ISeries>();
 
-        // Hidden axes for mini charts
-        public System.Collections.Generic.IEnumerable<LiveChartsCore.Kernel.Sketches.ICartesianAxis> HiddenXAxis { get; set; }
-            = Array.Empty<LiveChartsCore.Kernel.Sketches.ICartesianAxis>();
-        public System.Collections.Generic.IEnumerable<LiveChartsCore.Kernel.Sketches.ICartesianAxis> HiddenYAxis { get; set; }
-            = Array.Empty<LiveChartsCore.Kernel.Sketches.ICartesianAxis>();
+        // ── Data monitoring: worst sensor per category (not a station-wide average) ──
+        // Created in the constructor so the UI-thread brushes inside are built on the UI thread.
+        public CategoryMonitor TempMonitor  { get; }
+        public CategoryMonitor HumMonitor   { get; }
+        public CategoryMonitor RadarMonitor { get; }
+        public CategoryMonitor PirMonitor   { get; }
+
+        // LiveCharts axes hold per-chart state, so each sparkline needs its own instances.
+        // Bound via x:Bind function bindings: every call returns a fresh hidden axis.
+        public System.Collections.Generic.IEnumerable<LiveChartsCore.Kernel.Sketches.ICartesianAxis> CreateHiddenXAxes() =>
+            new LiveChartsCore.Kernel.Sketches.ICartesianAxis[] { new Axis { IsVisible = false, MinLimit = 0, MaxLimit = 23 } };
+
+        public System.Collections.Generic.IEnumerable<LiveChartsCore.Kernel.Sketches.ICartesianAxis> CreateHiddenYAxes() =>
+            new LiveChartsCore.Kernel.Sketches.ICartesianAxis[] { new Axis { IsVisible = false } };
 
         // Alert type counts
         [ObservableProperty] private int intruAlerts;
@@ -65,28 +67,15 @@ namespace Station.ViewModels
         [ObservableProperty] private int anomalyCount;
         [ObservableProperty] private int activeAlertCount;
 
-        // Sensor category averages
-        [ObservableProperty] private double averageHumidity;
-        [ObservableProperty] private double averageVibration;
-        [ObservableProperty] private double averageGasLevel;
-        [ObservableProperty] private double averageWaterLevel;
-        [ObservableProperty] private string averageHumidityText  = "0%";
-        [ObservableProperty] private string averageVibrationText = "0 mm/s";
-        [ObservableProperty] private string averageGasLevelText  = "0 ppm";
+        // Analytics panel KPIs (derived from alert history, not shown by the status panel)
+        [ObservableProperty] private int resolvedAlerts;
+        [ObservableProperty] private string resolvedRateText = "-";
+        [ObservableProperty] private string avgHandleTimeText = "-";
 
         public ObservableCollection<NodeStatus>         Nodes               { get; } = new();
         public ObservableCollection<RealtimeAlert>      RealtimeAlerts      { get; } = new();
         public ObservableCollection<TemperatureReading> TemperatureReadings { get; } = new();
         public ObservableCollection<CameraStatus>       Cameras             { get; } = new();
-
-        // ── FIX 1: Persistent ObservableValue collections for mini charts ──
-        // LiveCharts receives Add/Remove on these → only re-renders the changed point.
-        // No new array allocation per tick, no full-redraw per tick.
-        private readonly ObservableCollection<ObservableValue> _tempValues;
-        private readonly ObservableCollection<ObservableValue> _humValues;
-        private readonly ObservableCollection<ObservableValue> _vibValues;
-        private readonly ObservableCollection<ObservableValue> _waterValues;
-        private readonly ObservableCollection<ObservableValue> _lightValues;
 
         // ── FIX 2: Persistent ObservableValues for pie chart ──────────────
         // PieSeries[] is created once; only .Value is mutated on each alert.
@@ -96,14 +85,6 @@ namespace Station.ViewModels
         private readonly ObservableValue _pieSmoke       = new(0);
         private readonly ObservableValue _piePlaceholder = new(1);
 
-        // ── FIX 3: Throttle — each chart updates at most once per 2s ──────
-        private static readonly TimeSpan _chartInterval = TimeSpan.FromSeconds(2);
-        private DateTime _lastTempChart  = DateTime.MinValue;
-        private DateTime _lastHumChart   = DateTime.MinValue;
-        private DateTime _lastVibChart   = DateTime.MinValue;
-        private DateTime _lastWaterChart = DateTime.MinValue;
-        private DateTime _lastLightChart = DateTime.MinValue;
-
         private readonly IDataService _mock = DataServiceLocator.Current;
         private readonly DispatcherQueue? _dispatcherQueue;
         private readonly Random _rng = new();
@@ -112,14 +93,12 @@ namespace Station.ViewModels
         {
             _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
 
-            // Build persistent sliding-window collections (24 points each)
-            _tempValues  = MakeValueCollection(24, 24.0);
-            _humValues   = MakeValueCollection(24, 55.0);
-            _vibValues   = MakeValueCollection(24, 5.0);
-            _waterValues = MakeValueCollection(24, 8.0);
-            _lightValues = MakeValueCollection(24, 150.0);
+            // Sensor identity tints (match MonitoringSensor*Brush, dark theme) - never severity colors.
+            TempMonitor  = new CategoryMonitor(AlertCategory.Temperature, new SKColor(0xFF, 0xB3, 0x47), "F1");
+            HumMonitor   = new CategoryMonitor(AlertCategory.Humidity,    new SKColor(0x22, 0xD3, 0xEE), "F0");
+            RadarMonitor = new CategoryMonitor(AlertCategory.Radar,       new SKColor(0x81, 0x8C, 0xF8), "F0");
+            PirMonitor   = new CategoryMonitor(AlertCategory.Infrared,    new SKColor(0x84, 0xCC, 0x16), "F0");
 
-            InitializeMiniCharts();
             InitializePieChart();
             LoadFromMockData();
             RefreshAlertCounts();
@@ -159,20 +138,11 @@ namespace Station.ViewModels
             ActiveAlertCount = _mock.ActiveAlerts.Count;
 
             var tempSensors = sensors.Where(s => s.Category == AlertCategory.Temperature).ToList();
-            AverageTemperature = tempSensors.Count > 0 ? Math.Round(tempSensors.Average(s => s.CurrentValue), 1) : 0;
-            MaxTemperature     = tempSensors.Count > 0 ? Math.Round(tempSensors.Max(s => s.CurrentValue), 1) : 0;
 
-            var humSensors = sensors.Where(s => s.Category == AlertCategory.Humidity).ToList();
-            AverageHumidity     = humSensors.Count > 0 ? Math.Round(humSensors.Average(s => s.CurrentValue), 1) : 0;
-            AverageHumidityText = $"{AverageHumidity:F0}%";
-
-            var accSensors = sensors.Where(s => s.Category == AlertCategory.Accelerometer).ToList();
-            AverageVibration     = accSensors.Count > 0 ? Math.Round(accSensors.Average(s => s.CurrentValue), 2) : 0;
-            AverageVibrationText = $"{AverageVibration:F2} m/s²";
-
-            var radSensors = sensors.Where(s => s.Category == AlertCategory.Radar).ToList();
-            AverageGasLevel     = radSensors.Count > 0 ? Math.Round(radSensors.Average(s => s.CurrentValue), 1) : 0;
-            AverageGasLevelText = $"{AverageGasLevel:F0}%";
+            TempMonitor.Refresh(sensors);
+            HumMonitor.Refresh(sensors);
+            RadarMonitor.Refresh(sensors);
+            PirMonitor.Refresh(sensors);
 
             Nodes.Clear();
             foreach (var node in allNodes)
@@ -231,7 +201,25 @@ namespace Station.ViewModels
             FireAlerts     = history.Count(a => a.Severity == AlertSeverity.High);
             SmokeAlerts    = history.Count(a => a.Severity == AlertSeverity.Critical);
             WaterAlerts    = 0;
+
+            var resolved = history
+                .Where(a => a.State == AlertState.Resolved || a.State == AlertState.Closed)
+                .ToList();
+            ResolvedAlerts   = resolved.Count;
+            ResolvedRateText = history.Count == 0 ? "-" : $"{resolved.Count * 100.0 / history.Count:0}%";
+
+            var handled = resolved
+                .Where(a => (a.ResolvedAt ?? a.ClosedAt).HasValue)
+                .Select(a => (a.ResolvedAt ?? a.ClosedAt)!.Value - a.CreatedAt)
+                .Where(t => t >= TimeSpan.Zero)
+                .ToList();
+            AvgHandleTimeText = handled.Count == 0
+                ? "-"
+                : FormatDuration(TimeSpan.FromTicks((long)handled.Average(t => t.Ticks)));
         }
+
+        private static string FormatDuration(TimeSpan t) =>
+            t.TotalHours >= 1 ? $"{(int)t.TotalHours} giờ {t.Minutes} phút" : $"{Math.Max(1, (int)t.TotalMinutes)} phút";
 
         // ── Live event handlers ───────────────────────────────────────
 
@@ -239,16 +227,11 @@ namespace Station.ViewModels
         {
             _dispatcherQueue?.TryEnqueue(() =>
             {
+                var sensors = _mock.Sensors;
                 switch (e.Sensor.Category)
                 {
                     case AlertCategory.Temperature:
-                        SlideMiniChart(_tempValues, e.NewValue, ref _lastTempChart);
-                        var tempSensors = _mock.Sensors.Where(s => s.Category == AlertCategory.Temperature).ToList();
-                        if (tempSensors.Count > 0)
-                        {
-                            AverageTemperature = Math.Round(tempSensors.Average(s => s.CurrentValue), 1);
-                            MaxTemperature     = Math.Round(tempSensors.Max(s => s.CurrentValue), 1);
-                        }
+                        TempMonitor.OnTick(sensors, e.Sensor, e.NewValue);
                         var node = Nodes.FirstOrDefault(n => n.NodeId == e.Sensor.NodeId);
                         if (node != null)
                         {
@@ -261,42 +244,15 @@ namespace Station.ViewModels
                         break;
 
                     case AlertCategory.Humidity:
-                        SlideMiniChart(_humValues, e.NewValue, ref _lastHumChart);
-                        var humSensors = _mock.Sensors.Where(s => s.Category == AlertCategory.Humidity).ToList();
-                        if (humSensors.Count > 0)
-                        {
-                            AverageHumidity     = Math.Round(humSensors.Average(s => s.CurrentValue), 1);
-                            AverageHumidityText = $"{AverageHumidity:F0}%";
-                        }
-                        break;
-
-                    case AlertCategory.Accelerometer:
-                        SlideMiniChart(_vibValues, e.NewValue, ref _lastVibChart);
-                        var accSensors = _mock.Sensors.Where(s => s.Category == AlertCategory.Accelerometer).ToList();
-                        if (accSensors.Count > 0)
-                        {
-                            AverageVibration     = Math.Round(accSensors.Average(s => s.CurrentValue), 2);
-                            AverageVibrationText = $"{AverageVibration:F2} m/s²";
-                        }
-                        break;
-
-                    case AlertCategory.Light:
-                        SlideMiniChart(_lightValues, e.NewValue, ref _lastLightChart);
+                        HumMonitor.OnTick(sensors, e.Sensor, e.NewValue);
                         break;
 
                     case AlertCategory.Radar:
-                    case AlertCategory.Infrared:
-                        SlideMiniChart(_waterValues, e.NewValue, ref _lastWaterChart);
-                        var radSensors = _mock.Sensors.Where(s => s.Category == AlertCategory.Radar).ToList();
-                        if (radSensors.Count > 0)
-                        {
-                            AverageGasLevel     = Math.Round(radSensors.Average(s => s.CurrentValue), 1);
-                            AverageGasLevelText = $"{AverageGasLevel:F0}%";
-                        }
+                        RadarMonitor.OnTick(sensors, e.Sensor, e.NewValue);
                         break;
 
-                    default:
-                        SlideMiniChart(_lightValues, e.NewValue, ref _lastLightChart);
+                    case AlertCategory.Infrared:
+                        PirMonitor.OnTick(sensors, e.Sensor, e.NewValue);
                         break;
                 }
             });
@@ -347,25 +303,6 @@ namespace Station.ViewModels
 
         // ── Chart builders ────────────────────────────────────────────
 
-        private void InitializeMiniCharts()
-        {
-            HiddenXAxis = new LiveChartsCore.Kernel.Sketches.ICartesianAxis[]
-            {
-                new Axis { IsVisible = false, MinLimit = 0, MaxLimit = 24 }
-            };
-            HiddenYAxis = new LiveChartsCore.Kernel.Sketches.ICartesianAxis[]
-            {
-                new Axis { IsVisible = false }
-            };
-
-            // Series arrays are set ONCE here — LiveCharts tracks the inner collections
-            TemperatureSeries = MakeMiniChart(_tempValues,  new SKColor(239, 68, 68));
-            HumiditySeries    = MakeMiniChart(_humValues,   new SKColor(59, 130, 246));
-            VibrationSeries   = MakeMiniChart(_vibValues,   new SKColor(245, 158, 11));
-            WaterLevelSeries  = MakeMiniChart(_waterValues, new SKColor(239, 68, 68));
-            LightSeries       = MakeMiniChart(_lightValues, new SKColor(139, 92, 246));
-        }
-
         private void InitializePieChart()
         {
             // FIX 2: Create persistent pie series ONCE — each wraps its ObservableValue.
@@ -376,7 +313,7 @@ namespace Station.ViewModels
                 MakePieSeries("Trung bình",         _pieMotion,      new SKColor(234, 179, 8)),
                 MakePieSeries("Cao",                _pieFire,        new SKColor(249, 115, 22)),
                 MakePieSeries("Nghiêm trọng",       _pieSmoke,       new SKColor(239, 68, 68)),
-                MakePieSeries("Không có cảnh báo",  _piePlaceholder, new SKColor(75, 85, 99)),
+                MakePieSeries("Không có cảnh báo",  _piePlaceholder, new SKColor(75, 85, 99), showLabel: false),
             };
         }
 
@@ -391,7 +328,7 @@ namespace Station.ViewModels
             _piePlaceholder.Value = hasAny ? 0 : 1;
         }
 
-        private static PieSeries<ObservableValue> MakePieSeries(string name, ObservableValue value, SKColor color) =>
+        private static PieSeries<ObservableValue> MakePieSeries(string name, ObservableValue value, SKColor color, bool showLabel = true) =>
             new()
             {
                 Name                 = name,
@@ -400,47 +337,13 @@ namespace Station.ViewModels
                 DataLabelsPaint      = new SolidColorPaint(new SKColor(255, 255, 255)),
                 DataLabelsSize       = 16,
                 DataLabelsPosition   = LiveChartsCore.Measure.PolarLabelsPosition.Middle,
-                DataLabelsFormatter  = point => $"{point.Coordinate.PrimaryValue}",
+                // Hide labels on empty slices (value 0) and on the placeholder ring.
+                DataLabelsFormatter  = point => showLabel && point.Coordinate.PrimaryValue > 0
+                                                    ? $"{point.Coordinate.PrimaryValue:0}"
+                                                    : string.Empty,
                 HoverPushout         = 15,
                 MaxRadialColumnWidth = double.MaxValue,
             };
-
-        private static ObservableCollection<ObservableValue> MakeValueCollection(int length, double initial)
-        {
-            var col = new ObservableCollection<ObservableValue>();
-            for (int i = 0; i < length; i++)
-                col.Add(new ObservableValue(initial));
-            return col;
-        }
-
-        private static ISeries[] MakeMiniChart(ObservableCollection<ObservableValue> values, SKColor color) =>
-            new ISeries[]
-            {
-                new LineSeries<ObservableValue>
-                {
-                    Values         = values,
-                    Fill           = new SolidColorPaint(new SKColor(color.Red, color.Green, color.Blue, 30)),
-                    Stroke         = new SolidColorPaint(color) { StrokeThickness = 2 },
-                    GeometrySize   = 0,
-                    LineSmoothness = 0.65,
-                }
-            };
-
-        // FIX 1 + 3: slide the window only when the throttle interval has elapsed.
-        // RemoveAt(0) + Add fires two targeted CollectionChanged events →
-        // LiveCharts re-renders only the affected segment, not the whole line.
-        private static void SlideMiniChart(
-            ObservableCollection<ObservableValue> values,
-            double newValue,
-            ref DateTime lastUpdate)
-        {
-            var now = DateTime.UtcNow;
-            if ((now - lastUpdate) < _chartInterval) return;
-            lastUpdate = now;
-
-            values.RemoveAt(0);
-            values.Add(new ObservableValue(newValue));
-        }
 
         // ── Helpers ───────────────────────────────────────────────────
 

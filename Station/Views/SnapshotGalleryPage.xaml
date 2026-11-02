@@ -5,9 +5,10 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d">
+    mc:Ignorable="d"
+    Background="{ThemeResource DkBgBrush}">
 
-    <Grid Padding="20">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -15,44 +16,110 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Header -->
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12" Margin="0,0,0,16">
-            <FontIcon Glyph="&#xE786;" FontSize="24"/>
-            <TextBlock Text="Thư viện ảnh camera" FontSize="22" FontWeight="SemiBold"
-                       VerticalAlignment="Center"/>
-        </StackPanel>
+        <!-- HEADER -->
+        <Border Grid.Row="0"
+                Background="{ThemeResource DkSurfaceBrush}"
+                BorderBrush="{ThemeResource DkBorderBrush}"
+                BorderThickness="0,0,0,1"
+                Padding="24,12">
+            <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                <TextBlock Text="Thư viện ảnh camera"
+                           FontSize="{StaticResource FontSizeTitle}"
+                           FontWeight="SemiBold"
+                           Foreground="{ThemeResource DkTextPrimaryBrush}"
+                           VerticalAlignment="Center"/>
+                <Border Background="{ThemeResource DkInputBgBrush}"
+                        BorderBrush="{ThemeResource DkBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="4"
+                        Padding="8,3"
+                        VerticalAlignment="Center">
+                    <TextBlock Text="CAM" Style="{StaticResource DkTagTextStyle}"/>
+                </Border>
+            </StackPanel>
+        </Border>
 
-        <!-- Filters -->
-        <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="12" Margin="0,0,0,16">
+        <!-- FILTERS -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="12"
+                    Margin="24,16,24,0">
             <ComboBox x:Name="CameraCombo" Header="Camera" Width="180"
+                      Style="{StaticResource DkComboBoxStyle}"
                       SelectionChanged="CameraCombo_SelectionChanged"/>
             <DatePicker x:Name="FromDatePicker" Header="Từ ngày"/>
             <DatePicker x:Name="ToDatePicker" Header="Đến ngày"/>
-            <Button x:Name="SearchButton" Content="Tìm kiếm"
-                    VerticalAlignment="Bottom" Click="SearchButton_Click"/>
+            <Button x:Name="SearchButton"
+                    Style="{StaticResource DkPrimaryButtonStyle}"
+                    VerticalAlignment="Bottom"
+                    Click="SearchButton_Click">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon Glyph="&#xE721;" FontSize="{StaticResource FontSizeSmall}"/>
+                    <TextBlock Text="Tìm kiếm"/>
+                </StackPanel>
+            </Button>
         </StackPanel>
 
-        <!-- Loading + Gallery -->
-        <Grid Grid.Row="2">
-            <ProgressRing x:Name="LoadingRing" IsActive="False" Width="48" Height="48"
-                          HorizontalAlignment="Center" VerticalAlignment="Center"/>
-            <ScrollViewer x:Name="GalleryScrollViewer">
-                <GridView x:Name="SnapshotGrid" SelectionMode="Single"
-                          SelectionChanged="SnapshotGrid_SelectionChanged"/>
-            </ScrollViewer>
-        </Grid>
+        <!-- GALLERY -->
+        <Border Grid.Row="2"
+                Margin="24,16,24,0"
+                Background="{ThemeResource DkSurfaceBrush}"
+                BorderBrush="{ThemeResource DkBorderBrush}"
+                BorderThickness="1"
+                CornerRadius="12">
+            <Grid>
+                <ScrollViewer x:Name="GalleryScrollViewer" Padding="8">
+                    <GridView x:Name="SnapshotGrid" SelectionMode="Single"
+                              SelectionChanged="SnapshotGrid_SelectionChanged"/>
+                </ScrollViewer>
 
-        <!-- Pagination -->
-        <Grid Grid.Row="3" Margin="0,12,0,0">
+                <!-- Empty state -->
+                <StackPanel x:Name="EmptyStatePanel"
+                            HorizontalAlignment="Center" VerticalAlignment="Center"
+                            Spacing="6">
+                    <TextBlock x:Name="EmptyStateTitle"
+                               Text="Chưa có ảnh nào được hiển thị"
+                               FontSize="{StaticResource FontSizeBody}"
+                               Foreground="{ThemeResource DkTextMutedBrush}"
+                               HorizontalAlignment="Center"/>
+                    <TextBlock x:Name="EmptyStateHint"
+                               Text="Chọn camera và khoảng thời gian, sau đó nhấn Tìm kiếm"
+                               FontSize="{StaticResource FontSizeSmall}"
+                               Foreground="{ThemeResource DkTextDimBrush}"
+                               HorizontalAlignment="Center"/>
+                </StackPanel>
+
+                <ProgressRing x:Name="LoadingRing" IsActive="False" Width="40" Height="40"
+                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
+
+        <!-- PAGINATION -->
+        <Grid Grid.Row="3" Margin="24,12,24,16">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <Button Grid.Column="0" x:Name="PrevButton" Content="← Trước" Click="PrevButton_Click"/>
+            <Button Grid.Column="0" x:Name="PrevButton"
+                    Style="{StaticResource DkSecondaryButtonStyle}"
+                    Click="PrevButton_Click">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon Glyph="&#xE76B;" FontSize="{StaticResource FontSizeCompact}"/>
+                    <TextBlock Text="Trước"/>
+                </StackPanel>
+            </Button>
             <TextBlock Grid.Column="1" x:Name="TotalText"
-                       HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.7"/>
-            <Button Grid.Column="2" x:Name="NextButton" Content="Tiếp →" Click="NextButton_Click"/>
+                       FontSize="{StaticResource FontSizeSmall}"
+                       Foreground="{ThemeResource DkTextMutedBrush}"
+                       Typography.NumeralAlignment="Tabular"
+                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <Button Grid.Column="2" x:Name="NextButton"
+                    Style="{StaticResource DkSecondaryButtonStyle}"
+                    Click="NextButton_Click">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock Text="Tiếp"/>
+                    <FontIcon Glyph="&#xE76C;" FontSize="{StaticResource FontSizeCompact}"/>
+                </StackPanel>
+            </Button>
         </Grid>
     </Grid>
 </Page>

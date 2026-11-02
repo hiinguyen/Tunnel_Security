@@ -17,12 +17,15 @@ public sealed partial class EditDeviceDialog : ContentDialog
     public EditDeviceDialog(DeviceItemViewModel device)
     {
         this.InitializeComponent();
+        RequestedTheme = Station.Services.ThemeService.Instance.CurrentTheme;
         _device = device;
         LoadDeviceData();
 
         // Handle save button click
         this.PrimaryButtonClick += OnPrimaryButtonClick;
     }
+
+    private void HeaderClose_Click(object sender, RoutedEventArgs e) => Hide();
 
     private void LoadDeviceData()
     {
@@ -72,11 +75,10 @@ public sealed partial class EditDeviceDialog : ContentDialog
             Content = message,
             CloseButtonText = "Đóng",
             XamlRoot = this.XamlRoot,
-            RequestedTheme = ElementTheme.Dark,
-            // Apply 4K monitoring theme colors
-            Background = new SolidColorBrush(Color.FromArgb(255, 17, 24, 39)), // #111827
-            Foreground = new SolidColorBrush(Color.FromArgb(255, 230, 238, 243)), // #E6EEF3
-            BorderBrush = new SolidColorBrush(Color.FromArgb(255, 31, 36, 41)) // #1F2429
+            RequestedTheme = Station.Services.ThemeService.Instance.CurrentTheme,
+            Background = (Brush)Station.Services.ThemeBrushes.Get("DkSurfaceBrush"),
+            Foreground = (Brush)Station.Services.ThemeBrushes.Get("DkTextPrimaryBrush"),
+            BorderBrush = (Brush)Station.Services.ThemeBrushes.Get("DkBorderBrush")
         };
 
         await errorDialog.ShowAsync();

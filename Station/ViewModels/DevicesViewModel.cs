@@ -113,8 +113,8 @@ namespace Station.ViewModels
         public bool CanGoPrevPage => _currentPage > 1;
         public bool CanGoNextPage => _currentPage < TotalPages;
         public string PageFooterText => FilteredNodes.Count == 0
-            ? "Không có thiết bị nào"
-            : $"Hiển thị {(_currentPage - 1) * PageSize + 1}–{Math.Min(_currentPage * PageSize, FilteredNodes.Count)} trong {FilteredNodes.Count} thiết bị";
+            ? "Không có node nào"
+            : $"Hiển thị {(_currentPage - 1) * PageSize + 1}-{Math.Min(_currentPage * PageSize, FilteredNodes.Count)} trong {FilteredNodes.Count} node";
 
         [RelayCommand]
         private void PrevPage()
@@ -141,6 +141,7 @@ namespace Station.ViewModels
             OnPropertyChanged(nameof(CanGoPrevPage));
             OnPropertyChanged(nameof(CanGoNextPage));
             OnPropertyChanged(nameof(PageFooterText));
+            OnPropertyChanged(nameof(NoNodesVisibility));
         }
 
         private void RefreshPagedNodes()
@@ -163,11 +164,14 @@ namespace Station.ViewModels
                 SetProperty(ref _pendingJoinCount, value);
                 OnPropertyChanged(nameof(HasPendingJoins));
                 OnPropertyChanged(nameof(PendingJoinSectionVisibility));
+                OnPropertyChanged(nameof(NoPendingJoinVisibility));
                 OnPropertyChanged(nameof(PendingJoinFooterText));
             }
         }
         public bool HasPendingJoins => PendingJoinCount > 0;
         public Visibility PendingJoinSectionVisibility => PendingJoinCount > 0 ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility NoPendingJoinVisibility => PendingJoinCount > 0 ? Visibility.Collapsed : Visibility.Visible;
+        public Visibility NoNodesVisibility => FilteredNodes.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
         public string PendingJoinFooterText => $"Hiển thị {Math.Min(PendingJoinCount, 12)} trên {PendingJoinCount} yêu cầu đang chờ";
 
         private DateTimeOffset _pendingJoinLastUpdatedAt;
@@ -733,6 +737,8 @@ namespace Station.ViewModels
 
     public partial class DeviceItemViewModel : ObservableObject
     {
+        private static SolidColorBrush Tb(string key) => (SolidColorBrush)Station.Services.ThemeBrushes.Get(key);
+
         [ObservableProperty]
         private string _name = string.Empty;
 
@@ -796,11 +802,11 @@ namespace Station.ViewModels
         {
             get => Status switch
             {
-                DeviceStatus.Online   => new SolidColorBrush(Color.FromArgb(255, 63, 207, 142)),  // #3FCF8E
-                DeviceStatus.Offline  => new SolidColorBrush(Color.FromArgb(255, 123, 126, 133)), // #7B7E85
-                DeviceStatus.Fault    => new SolidColorBrush(Color.FromArgb(255, 255, 82, 82)),   // #FF5252
-                DeviceStatus.Disabled => new SolidColorBrush(Color.FromArgb(255, 100, 116, 139)), // #64748B
-                _ => new SolidColorBrush(Color.FromArgb(255, 123, 126, 133))
+                DeviceStatus.Online   => Tb("DkGreenBrush"),
+                DeviceStatus.Offline  => Tb("DkGrayBrush"),
+                DeviceStatus.Fault    => Tb("DkRedBrush"),
+                DeviceStatus.Disabled => Tb("DkGrayBrush"),
+                _ => Tb("DkGrayBrush")
             };
         }
 
@@ -808,11 +814,11 @@ namespace Station.ViewModels
         {
             get => Status switch
             {
-                DeviceStatus.Online   => new SolidColorBrush(Color.FromArgb(255, 26, 58, 46)),  // #1A3A2E
-                DeviceStatus.Offline  => new SolidColorBrush(Color.FromArgb(255, 26, 31, 42)),  // #1A1F2A
-                DeviceStatus.Fault    => new SolidColorBrush(Color.FromArgb(255, 61, 26, 26)),  // #3D1A1A
-                DeviceStatus.Disabled => new SolidColorBrush(Color.FromArgb(255, 26, 31, 42)),  // #1A1F2A
-                _ => new SolidColorBrush(Color.FromArgb(255, 26, 31, 42))
+                DeviceStatus.Online   => Tb("DkGreenBgBrush"),
+                DeviceStatus.Offline  => Tb("DkGrayBgBrush"),
+                DeviceStatus.Fault    => Tb("DkRedBgBrush"),
+                DeviceStatus.Disabled => Tb("DkGrayBgBrush"),
+                _ => Tb("DkGrayBgBrush")
             };
         }
 
@@ -988,15 +994,16 @@ namespace Station.ViewModels
             };
         }
 
+        // Status palette follows DESIGN.md severity grammar (healthy / critical / offline).
         public SolidColorBrush StatusColor
         {
             get => Status switch
             {
-                DeviceStatus.Online => new SolidColorBrush(Color.FromArgb(255, 34, 197, 94)),
-                DeviceStatus.Offline => new SolidColorBrush(Color.FromArgb(255, 148, 163, 184)),
-                DeviceStatus.Fault => new SolidColorBrush(Color.FromArgb(255, 239, 68, 68)),
+                DeviceStatus.Online => new SolidColorBrush(Color.FromArgb(255, 63, 207, 142)),
+                DeviceStatus.Offline => new SolidColorBrush(Color.FromArgb(255, 123, 126, 133)),
+                DeviceStatus.Fault => new SolidColorBrush(Color.FromArgb(255, 255, 82, 82)),
                 DeviceStatus.Disabled => new SolidColorBrush(Color.FromArgb(255, 100, 116, 139)),
-                _ => new SolidColorBrush(Color.FromArgb(255, 148, 163, 184))
+                _ => new SolidColorBrush(Color.FromArgb(255, 123, 126, 133))
             };
         }
 
@@ -1004,24 +1011,53 @@ namespace Station.ViewModels
         {
             get => Status switch
             {
-                DeviceStatus.Online => new SolidColorBrush(Color.FromArgb(40, 34, 197, 94)),
-                DeviceStatus.Offline => new SolidColorBrush(Color.FromArgb(40, 148, 163, 184)),
-                DeviceStatus.Fault => new SolidColorBrush(Color.FromArgb(40, 239, 68, 68)),
+                DeviceStatus.Online => new SolidColorBrush(Color.FromArgb(40, 63, 207, 142)),
+                DeviceStatus.Offline => new SolidColorBrush(Color.FromArgb(40, 123, 126, 133)),
+                DeviceStatus.Fault => new SolidColorBrush(Color.FromArgb(40, 255, 82, 82)),
                 DeviceStatus.Disabled => new SolidColorBrush(Color.FromArgb(40, 100, 116, 139)),
-                _ => new SolidColorBrush(Color.FromArgb(40, 148, 163, 184))
+                _ => new SolidColorBrush(Color.FromArgb(40, 123, 126, 133))
             };
         }
 
+        /// <summary>
+        /// Geometric marker so status is readable without color:
+        /// filled circle = online, ring = offline, triangle = fault, square = disabled.
+        /// </summary>
+        public string StatusMarker => Status switch
+        {
+            DeviceStatus.Online => "●",
+            DeviceStatus.Offline => "○",
+            DeviceStatus.Fault => "▲",
+            DeviceStatus.Disabled => "■",
+            _ => "○"
+        };
+
         public string SensorCountText => $"{Sensors.Count} cảm biến";
+
+        // Server data uses "Camera", nodes registered through AddNodeDialog use "Infrared Camera".
+        private static bool IsCamera(SensorItemViewModel s)
+            => s.SensorType?.Contains("Camera", StringComparison.OrdinalIgnoreCase) == true;
+
+        private bool HasCamera => Sensors.Any(IsCamera);
+        private int NonCameraSensorCount => Sensors.Count(s => !IsCamera(s));
+
+        // Instrument-tag chips for the list (CAM / SEN x n). Tags match the ID vocabulary
+        // operators already see elsewhere (CAM-004, SEN-002), so no pictograms are needed.
+        public Visibility CameraChipVisibility => HasCamera ? Visibility.Visible : Visibility.Collapsed;
+
+        public Visibility SensorChipVisibility => NonCameraSensorCount > 0 ? Visibility.Visible : Visibility.Collapsed;
+
+        public Visibility UnconfiguredChipVisibility => Sensors.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+
+        public string SensorChipText => $"SEN × {NonCameraSensorCount}";
 
         public string DeviceType
         {
             get
             {
                 if (Sensors.Count == 0) return "Chưa cấu hình";
-                bool hasCamera  = Sensors.Any(s => s.SensorType == "Camera");
-                int  sensorCnt  = Sensors.Count(s => s.SensorType != "Camera");
-                return (hasCamera, sensorCnt) switch
+                int sensorCnt = NonCameraSensorCount;
+                return (HasCamera, sensorCnt) switch
                 {
                     (true, > 0) => $"Camera + {sensorCnt} cảm biến",
                     (true, 0)   => "Camera",

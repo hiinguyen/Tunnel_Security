@@ -427,6 +427,26 @@ namespace Station.Views
             ToggleSwitch ActiveSwitch,
             bool IsCreateMode);
 
+        /// <summary>Two-letter monogram for the user avatar (never a generic person glyph).</summary>
+        public static string Initials(string fullName, string userName)
+        {
+            var source = string.IsNullOrWhiteSpace(fullName) ? userName : fullName;
+            var parts = (source ?? string.Empty).Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length == 0) return "?";
+            if (parts.Length == 1)
+                return parts[0].Length >= 2 ? parts[0][..2].ToUpperInvariant() : parts[0].ToUpperInvariant();
+            return (parts[0][..1] + parts[^1][..1]).ToUpperInvariant();
+        }
+
+        /// <summary>Filled circle = active, hollow ring = locked.</summary>
+        public static string StatusMarker(bool isActive) => isActive ? "●" : "○";
+
+        public static Brush StatusBrushFor(bool isActive)
+            => (Brush)Station.Services.ThemeBrushes.Get(isActive ? "DkGreenBrush" : "DkGrayBrush");
+
+        public static Visibility EmptyVisibility(int count)
+            => count == 0 ? Visibility.Visible : Visibility.Collapsed;
+
         private void UsersTabButton_Click(object sender, RoutedEventArgs e)
         {
             UpdateTabVisualState(showUsers: true);
@@ -442,14 +462,15 @@ namespace Station.Views
             UsersSection.Visibility = showUsers ? Visibility.Visible : Visibility.Collapsed;
             RolesSection.Visibility = showUsers ? Visibility.Collapsed : Visibility.Visible;
 
-            var primary = BrushResource("AccentBrush");
-            var bgPrimary = BrushResource("BackgroundPrimaryBrush");
-            var textSecondary = BrushResource("TextSecondaryBrush");
+            var primary = BrushResource("DkBlueBgBrush");
+            var activeText = BrushResource("DkBlueLightBrush");
+            var bgPrimary = new SolidColorBrush(Colors.Transparent);
+            var textSecondary = BrushResource("DkTextSecondaryBrush");
 
             if (showUsers)
             {
                 UsersTabButton.Background = primary;
-                UsersTabButton.Foreground = new SolidColorBrush(Colors.White);
+                UsersTabButton.Foreground = activeText;
 
                 RolesTabButton.Background = bgPrimary;
                 RolesTabButton.Foreground = textSecondary;
@@ -457,7 +478,7 @@ namespace Station.Views
             else
             {
                 RolesTabButton.Background = primary;
-                RolesTabButton.Foreground = new SolidColorBrush(Colors.White);
+                RolesTabButton.Foreground = activeText;
 
                 UsersTabButton.Background = bgPrimary;
                 UsersTabButton.Foreground = textSecondary;
@@ -1697,22 +1718,22 @@ namespace Station.Views
 
         private Brush BrushResource(string key)
         {
-            return (Brush)Application.Current.Resources[key];
+            return (Brush)Station.Services.ThemeBrushes.Get(key);
         }
 
         private SolidColorBrush ThemeBrush(string key)
         {
-            return (SolidColorBrush)Application.Current.Resources[key];
+            return (SolidColorBrush)Station.Services.ThemeBrushes.Get(key);
         }
 
         private Style AppStyle(string key)
         {
-            return (Style)Application.Current.Resources[key];
+            return (Style)Station.Services.ThemeBrushes.Get(key);
         }
 
         private Style? TryStyle(string key)
         {
-            return Application.Current.Resources.TryGetValue(key, out var value)
+            return Station.Services.ThemeBrushes.TryGet(key, out var value)
                 ? value as Style
                 : null;
         }

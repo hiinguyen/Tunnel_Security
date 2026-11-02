@@ -158,6 +158,16 @@
             }
 
         /* 🟠 HIGH: Nút màu cam tự chớp nháy (không có sóng lan tỏa) */
+        /* Vòng đánh dấu node đang xem chi tiết (chế độ chỉ xem trong dialog) */
+        .focus-ring {
+            width: 28px;
+            height: 28px;
+            border: 2px solid #60A5FA;
+            border-radius: 50%;
+            box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.25);
+            pointer-events: none;
+        }
+
         .blink-high {
             width: 16px;
             height: 16px;
@@ -235,7 +245,13 @@
                 if (msg.type === "init") {
                     backendBaseUrl = msg.backend;
                     stationId = msg.station;
+                    window.mapReadOnly = !!msg.readonly;
                     initMap();
+                }
+
+                if (msg.type === "focus-node") {
+                    window.focusTarget = { nodeId: msg.nodeId, nodeName: msg.nodeName, lineName: msg.lineName };
+                    applyFocusNode(!sensorsGeoJson);
                 }
 
                 if (msg.type === "refresh-data" && mapInitialized) {
@@ -304,6 +320,24 @@
             });
         }
 
+        // Zoom vào node được yêu cầu và vẽ vòng đánh dấu. Gọi lại sau mỗi lần nạp lại dữ liệu/đổi theme.
+        function applyFocusNode(deferred) {
+            const target = window.focusTarget;
+            if (deferred || !window.map || !sensorsGeoJson || !target) return;
+            const feats = sensorsGeoJson.features;
+            // Khớp theo id; nếu id backend khác id bản đồ thì khớp theo tên + tuyến, rồi chỉ theo tên.
+            const node = feats.find(f => f.properties.id === target.nodeId)
+                || feats.find(f => f.properties.name === target.nodeName && f.properties.line === target.lineName)
+                || feats.find(f => f.properties.name === target.nodeName);
+            if (!node) return;
+            const coords = node.geometry.coordinates;
+            window.map.jumpTo({ center: coords, zoom: 16.5 });
+            if (window.focusMarker) window.focusMarker.remove();
+            const el = document.createElement('div');
+            el.className = 'focus-ring';
+            window.focusMarker = new maplibregl.Marker({ element: el }).setLngLat(coords).addTo(window.map);
+        }
+
         function initMap() {
             if (mapInitialized) return;
             mapInitialized = true;
@@ -346,6 +380,7 @@
                     setupSensorInteractions();
                     setupDraggableLogic();
                 }
+                applyFocusNode(false);
             } catch (e) {
                 console.error("Lỗi khi load dữ liệu cảm biến:", e);
                 // Dữ liệu fallback
@@ -609,7 +644,7 @@
 
                 // Thêm icon và nội dung
                 const msgEl = document.createElement('div');
-                msgEl.innerHTML = `<div style="font-size: 24px; margin-bottom: 10px;">📍</div>${message}`;
+                msgEl.innerHTML = message;
                 msgEl.style.marginBottom = '20px';
                 msgEl.style.fontSize = '14px';
 
@@ -676,6 +711,7 @@
             const canvas = map.getCanvas();
 
             map.on('mousedown', 'sensors-circle', (e) => {
+                if (window.mapReadOnly) return;
                 const features = map.queryRenderedFeatures(e.point, { layers: ['sensors-circle'] });
                 if (features.length > 0) {
                     e.preventDefault();
@@ -746,6 +782,7 @@
         function setupSensorInteractions() {
             const popupLayers = ['sensors-circle', 'station-circle'];
             map.on('click', popupLayers, async (e) => {
+                if (window.mapReadOnly) return;
                 const p = e.features[0].properties;
 
                 // Lấy tọa độ thực tế từ RAM (bộ nhớ) để tránh bị cache đồ họa
@@ -780,31 +817,37 @@
         }
 
         function buildPopupHTML(container, p, coords) {
-            const statusColors = { 'Online': '#10B981', 'Warning': '#F59E0B', 'Critical': '#EF4444', 'Offline': '#6B7280' };
+            // Severity palette from DESIGN.md. Each status also gets a geometric marker so it
+            // never relies on color alone: circle = online, triangle = warning/critical, ring = offline.
+            const statusColors = { 'Online': '#3FCF8E', 'Warning': '#FFD166', 'Critical': '#FF5252', 'Offline': '#7B7E85' };
+            const statusMarkers = { 'Online': '●', 'Warning': '▲', 'Critical': '▲', 'Offline': '○' };
             const statusColor = statusColors[p.status] || '#94A3B8';
-            const hubIcon = p.isHub ? '🏢 ' : '';
-            const hubStyle = p.isHub ? 'color: #60a5fa; font-weight: bold;' : 'color: #94a3b8;';
+            const statusMarker = statusMarkers[p.status] || '○';
+            const hubTag = p.isHub
+                ? ' <span style="display: inline-block; vertical-align: middle; margin-left: 6px; padding: 1px 6px; border: 1px solid #1D4ED8; border-radius: 4px; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; color: #60A5FA;">HUB</span>'
+                : '';
+            const hubStyle = p.isHub ? 'color: #60a5fa; font-weight: 600;' : 'color: #94a3b8;';
 
             let html = `
                     <div style="border-bottom: 1px solid #334155; padding-bottom: 8px; margin-bottom: 8px;">
-                        <div style="font-size: 15px; font-weight: bold; color: #f1f5f9;">${hubIcon}${p.name}</div>
+                        <div style="font-size: 15px; font-weight: 600; color: #f1f5f9;">${p.name}${hubTag}</div>
                         <div style="font-size: 12px; ${hubStyle}">${p.code} • ${p.line || 'N/A'}</div>
                     </div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 12px; margin-bottom: 10px;">
-                        <div><span style="color: #94a3b8;">Trạng thái:</span> <strong style="color: ${statusColor};">● ${p.status}</strong></div>
+                        <div><span style="color: #94a3b8;">Trạng thái:</span> <strong style="color: ${statusColor};"><span style="font-size: 9px; margin-right: 4px;">${statusMarker}</span>${p.status}</strong></div>
                         <div><span style="color: #94a3b8;">Pin:</span> <strong style="color: #f1f5f9;">${p.batteryLevel}%</strong></div>
                         <div><span style="color: #94a3b8;">RSSI:</span> <strong style="color: #f1f5f9;">${p.rssi} dBm</strong></div>
                         <div><span style="color: #94a3b8;">Sensors:</span> <strong style="color: #f1f5f9;">${p.sensorCount}</strong></div>
                     </div>
                     <div id="sensors-section-${p.id}" style="border-top: 1px solid #334155; padding-top: 8px; margin-top: 8px;">
-                        <div style="font-size: 13px; font-weight: 600; color: #cbd5e1; margin-bottom: 6px;">
-                            📊 Cảm biến <span id="sensors-loading-${p.id}" style="font-weight: normal; color: #64748b;">(đang tải...)</span>
+                        <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #64748b; margin-bottom: 6px;">
+                            Cảm biến <span id="sensors-loading-${p.id}" style="font-weight: normal; letter-spacing: 0; text-transform: none;">(đang tải...)</span>
                         </div>
                         <div id="sensors-list-${p.id}" style="max-height: 180px; overflow-y: auto;"></div>
                     </div>
                     <div style="margin-top: 12px; display: flex; gap: 8px;">
-                        ${p.cameraId ? `<button onclick="window.onViewCamera('${p.cameraId}','${p.id}')" style="flex: 1; padding: 6px 10px; background-color: #10B981; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">📹 Camera</button>` : ''}
-                        <button onclick="window.onManageDevice('${p.id}')" style="flex: 1; padding: 6px 10px; background-color: #3B82F6; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">⚙️ Quản lý</button>
+                        ${p.cameraId ? `<button onclick="window.onViewCamera('${p.cameraId}','${p.id}')" style="flex: 1; padding: 7px 10px; background-color: #111621; color: #E6EEF3; border: 1px solid #2D3545; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600;">Xem camera</button>` : ''}
+                        <button onclick="window.onManageDevice('${p.id}')" style="flex: 1; padding: 7px 10px; background-color: #144BB8; color: #fff; border: 1px solid #144BB8; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600;">Quản lý</button>
                     </div>
 
                     <div style="margin-top: 12px; padding-top: 8px; border-top: 1px dashed #334155;">
@@ -841,14 +884,27 @@
         function renderSensorItem(s) {
             const isWarning = s.currentValue >= s.warningThreshold;
             const isCritical = s.currentValue >= s.criticalThreshold;
-            const sensorColor = isCritical ? '#ef4444' : (isWarning ? '#f59e0b' : '#10B981');
-            const sensorIcon = getSensorIcon(s.type);
-            return `<div style="display: flex; justify-content: space-between; align-items: center; padding: 5px 8px; margin-bottom: 4px; background-color: rgba(51, 65, 85, 0.5); border-radius: 4px; font-size: 12px;"><div style="display: flex; align-items: center; gap: 6px;"><span style="font-size: 14px;">${sensorIcon}</span><span style="color: inherit;">${s.name}</span></div><div style="display: flex; align-items: center; gap: 4px;"><span style="font-weight: 600; color: ${sensorColor};">${s.currentValue?.toFixed(1) || 'N/A'}</span><span style="color: #94a3b8;">${s.unit}</span></div></div>`;
+            const sensorColor = isCritical ? '#FF5252' : (isWarning ? '#FFD166' : '#3FCF8E');
+            const tag = getSensorTag(s.type);
+            // Instrument tag (text) instead of a pictogram; tint encodes sensor identity, not severity.
+            const tagHtml = `<span style="display: inline-block; min-width: 34px; text-align: center; padding: 1px 5px; border: 1px solid #2D3545; border-radius: 4px; font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: ${tag.color};">${tag.code}</span>`;
+            return `<div style="display: flex; justify-content: space-between; align-items: center; padding: 5px 8px; margin-bottom: 4px; background-color: #111621; border: 1px solid #1F2937; border-radius: 6px; font-size: 12px;"><div style="display: flex; align-items: center; gap: 8px;">${tagHtml}<span style="color: inherit;">${s.name}</span></div><div style="display: flex; align-items: center; gap: 4px;"><span style="font-weight: 600; font-variant-numeric: tabular-nums; color: ${sensorColor};">${s.currentValue?.toFixed(1) || 'N/A'}</span><span style="color: #94a3b8;">${s.unit}</span></div></div>`;
         }
 
-        function getSensorIcon(type) {
-            const icons = { 'Radar': '📡', 'Vibration': '〰️', 'Temperature': '🌡️', 'Humidity': '💧', 'SmokeFire': '🔥', 'Gas': '💨', 'Pressure': '🎯', 'WaterLevel': '🌊', 'Motion': '🏃' };
-            return icons[type] || '📊';
+        // Sensor identity colors match MonitoringSensor*Brush in Station/Styles/Colors.xaml.
+        function getSensorTag(type) {
+            const tags = {
+                'Temperature': { code: 'TEMP', color: '#FFB347' },
+                'Humidity':    { code: 'HUM',  color: '#22D3EE' },
+                'Vibration':   { code: 'VIB',  color: '#84CC16' },
+                'Pressure':    { code: 'PRES', color: '#818CF8' },
+                'Gas':         { code: 'GAS',  color: '#2DD4BF' },
+                'Radar':       { code: 'RAD',  color: '#94A3B8' },
+                'SmokeFire':   { code: 'FIRE', color: '#94A3B8' },
+                'WaterLevel':  { code: 'LVL',  color: '#94A3B8' },
+                'Motion':      { code: 'MOT',  color: '#94A3B8' }
+            };
+            return tags[type] || { code: 'SEN', color: '#94A3B8' };
         }
 
         window.onViewCamera = function (cameraId, nodeId) { sendMessage({ type: "viewcamera", cameraId: cameraId, nodeId: nodeId }); };

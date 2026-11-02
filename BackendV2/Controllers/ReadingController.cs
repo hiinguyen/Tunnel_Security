@@ -1,10 +1,10 @@
+using System.ComponentModel.DataAnnotations;
 using BackendV2.Data;
+using BackendV2.Gateway.Realtime;
 using BackendV2.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.SignalR;
-using BackendV2.Hubs;
 
 namespace BackendV2.Controllers
 {
@@ -13,20 +13,60 @@ namespace BackendV2.Controllers
     [Authorize]
     public class ReadingController : ControllerBase
     {
-        private readonly TimeSeriesDbContext _db;
-        private readonly IHubContext<SensorHub> _hub;
+        private const int MaxLimit = 5000;
 
-        public ReadingController(TimeSeriesDbContext db, IHubContext<SensorHub> hub)
+        private readonly TimeSeriesDbContext _db;
+        private readonly RealtimeNotifier _notifier;
+
+        public ReadingController(TimeSeriesDbContext db, RealtimeNotifier notifier)
         {
             _db = db;
-            _hub = hub;
+            _notifier = notifier;
         }
 
+        /// <summary>
+        /// Readings mới nhất trước, có bộ lọc và giới hạn số dòng: bảng chuỗi thời gian tăng hàng nghìn dòng mỗi giây
+        /// nên không bao giờ trả về toàn bộ.
+        /// </summary>
         [HttpGet]
-        public async Task<ActionResult<List<Reading>>> GetAll()
+        public async Task<ActionResult<List<Reading>>> GetAll(
+            [FromQuery] string? sensorId,
+            [FromQuery] string? nodeId,
+            [FromQuery] short? lineId,
+            [FromQuery] DateTime? from,
+            [FromQuery] DateTime? to,
+            [FromQuery, Range(1, MaxLimit)] int limit = 500,
+            CancellationToken ct = default)
         {
-            var readings = await _db.Readings.ToListAsync();
-            return Ok(readings);
+            var query = _db.Readings.AsNoTracking();
+            if (!string.IsNullOrEmpty(sensorId))
+            {
+                query = query.Where(r => r.SensorId == sensorId);
+            }
+
+            if (!string.IsNullOrEmpty(nodeId))
+            {
+                query = query.Where(r => r.NodeId == nodeId);
+            }
+
+            if (lineId is { } line)
+            {
+                query = query.Where(r => r.LineId == line);
+            }
+
+            if (from is { } start)
+            {
+                var utc = start.ToUniversalTime();
+                query = query.Where(r => r.Timestamp >= utc);
+            }
+
+            if (to is { } end)
+            {
+                var utc = end.ToUniversalTime();
+                query = query.Where(r => r.Timestamp < utc);
+            }
+
+            return await query.OrderByDescending(r => r.Timestamp).Take(limit).ToListAsync(ct);
         }
 
         [HttpGet("{id}")]
@@ -48,8 +88,7 @@ namespace BackendV2.Controllers
             _db.Readings.Add(reading);
             await _db.SaveChangesAsync();
 
-            // Notify clients about the new reading
-            await _hub.Clients.All.SendAsync("NewReading", reading);
+            await _notifier.ReadingAsync(reading);
 
             return CreatedAtAction(nameof(GetById), new { id = reading.Id }, reading);
         }

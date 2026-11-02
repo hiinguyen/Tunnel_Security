@@ -754,31 +754,31 @@
 
     <!-- Header bar sticky -->
     <Style x:Key="DkHeaderBarStyle" TargetType="Border">
-        <Setter Property="Background"      Value="{StaticResource DkSurfaceBrush}"/>
-        <Setter Property="BorderBrush"     Value="{StaticResource DkBorderBrush}"/>
+        <Setter Property="Background"      Value="{ThemeResource DkSurfaceBrush}"/>
+        <Setter Property="BorderBrush"     Value="{ThemeResource DkBorderBrush}"/>
         <Setter Property="BorderThickness" Value="0,0,0,1"/>
         <Setter Property="Padding"         Value="24,14,24,14"/>
     </Style>
 
     <!-- Generic surface card -->
     <Style x:Key="DkCardStyle" TargetType="Border">
-        <Setter Property="Background"      Value="{StaticResource DkSurfaceBrush}"/>
-        <Setter Property="BorderBrush"     Value="{StaticResource DkBorderBrush}"/>
+        <Setter Property="Background"      Value="{ThemeResource DkSurfaceBrush}"/>
+        <Setter Property="BorderBrush"     Value="{ThemeResource DkBorderBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius"    Value="12"/>
     </Style>
 
     <!-- Inset / deeper surface (sensor grid bg, inputs) -->
     <Style x:Key="DkInsetStyle" TargetType="Border">
-        <Setter Property="Background"      Value="{StaticResource DkBgBrush}"/>
-        <Setter Property="BorderBrush"     Value="{StaticResource DkBorderBrush}"/>
+        <Setter Property="Background"      Value="{ThemeResource DkBgBrush}"/>
+        <Setter Property="BorderBrush"     Value="{ThemeResource DkBorderBrush}"/>
         <Setter Property="BorderThickness" Value="0"/>
     </Style>
 
     <!-- Mini sensor card -->
     <Style x:Key="DkSensorCardStyle" TargetType="Border">
-        <Setter Property="Background"      Value="{StaticResource DkSurfaceBrush}"/>
-        <Setter Property="BorderBrush"     Value="{StaticResource DkBorderBrush}"/>
+        <Setter Property="Background"      Value="{ThemeResource DkSurfaceBrush}"/>
+        <Setter Property="BorderBrush"     Value="{ThemeResource DkBorderBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius"    Value="8"/>
         <Setter Property="Padding"         Value="10"/>
@@ -787,7 +787,7 @@
     <!-- Filter pill — inactive -->
     <Style x:Key="FilterPillStyle" TargetType="Border">
         <Setter Property="Background"      Value="Transparent"/>
-        <Setter Property="BorderBrush"     Value="{StaticResource DkBorderBrush}"/>
+        <Setter Property="BorderBrush"     Value="{ThemeResource DkBorderBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius"    Value="8"/>
         <Setter Property="Padding"         Value="14,7"/>
@@ -795,8 +795,8 @@
 
     <!-- Filter pill — active -->
     <Style x:Key="FilterPillActiveStyle" TargetType="Border">
-        <Setter Property="Background"      Value="{StaticResource DkBlueBgBrush}"/>
-        <Setter Property="BorderBrush"     Value="{StaticResource DkBlueBorderBrush}"/>
+        <Setter Property="Background"      Value="{ThemeResource DkBlueBgBrush}"/>
+        <Setter Property="BorderBrush"     Value="{ThemeResource DkBlueBorderBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius"    Value="8"/>
         <Setter Property="Padding"         Value="14,7"/>
@@ -804,11 +804,12 @@
 
     <!-- Dark primary button (#144BB8) -->
     <Style x:Key="DkPrimaryButtonStyle" TargetType="Button">
-        <Setter Property="Background"      Value="{StaticResource DkBlueDarkBrush}"/>
+        <Setter Property="Background"      Value="{ThemeResource DkBlueDarkBrush}"/>
         <Setter Property="Foreground"      Value="White"/>
         <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="CornerRadius"    Value="0"/>
+        <Setter Property="CornerRadius"    Value="8"/>
         <Setter Property="Padding"         Value="16,9"/>
+        <Setter Property="MinHeight"       Value="36"/>
         <Setter Property="FontSize"        Value="13"/>
         <Setter Property="FontWeight"      Value="SemiBold"/>
         <Setter Property="Template">
@@ -825,12 +826,12 @@
                                 <VisualState x:Name="Normal"/>
                                 <VisualState x:Name="PointerOver">
                                     <VisualState.Setters>
-                                        <Setter Target="Root.Background" Value="{StaticResource DkBlueBorderBrush}"/>
+                                        <Setter Target="Root.Background" Value="{ThemeResource DkBlueBorderBrush}"/>
                                     </VisualState.Setters>
                                 </VisualState>
                                 <VisualState x:Name="Pressed">
                                     <VisualState.Setters>
-                                        <Setter Target="Root.Background" Value="{StaticResource DkBluePressedBrush}"/>
+                                        <Setter Target="Root.Background" Value="{ThemeResource DkBluePressedBrush}"/>
                                     </VisualState.Setters>
                                 </VisualState>
                                 <VisualState x:Name="Disabled">
@@ -849,12 +850,13 @@
 
     <!-- Dark secondary button (outline) -->
     <Style x:Key="DkSecondaryButtonStyle" TargetType="Button">
-        <Setter Property="Background"      Value="{StaticResource DkInputBgBrush}"/>
-        <Setter Property="Foreground"      Value="{StaticResource DkTextSecondaryBrush}"/>
-        <Setter Property="BorderBrush"     Value="{StaticResource DkBorderBrush}"/>
+        <Setter Property="Background"      Value="{ThemeResource DkInputBgBrush}"/>
+        <Setter Property="Foreground"      Value="{ThemeResource DkTextSecondaryBrush}"/>
+        <Setter Property="BorderBrush"     Value="{ThemeResource DkBorderBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="CornerRadius"    Value="0"/>
+        <Setter Property="CornerRadius"    Value="8"/>
         <Setter Property="Padding"         Value="16,9"/>
+        <Setter Property="MinHeight"       Value="36"/>
         <Setter Property="FontSize"        Value="13"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -870,13 +872,13 @@
                                 <VisualState x:Name="Normal"/>
                                 <VisualState x:Name="PointerOver">
                                     <VisualState.Setters>
-                                        <Setter Target="Root.Background"  Value="{StaticResource DkHoverSurfaceBrush}"/>
-                                        <Setter Target="Root.BorderBrush" Value="{StaticResource DkBorderHoverBrush}"/>
+                                        <Setter Target="Root.Background"  Value="{ThemeResource DkHoverSurfaceBrush}"/>
+                                        <Setter Target="Root.BorderBrush" Value="{ThemeResource DkBorderHoverBrush}"/>
                                     </VisualState.Setters>
                                 </VisualState>
                                 <VisualState x:Name="Pressed">
                                     <VisualState.Setters>
-                                        <Setter Target="Root.Background" Value="{StaticResource DkBgBrush}"/>
+                                        <Setter Target="Root.Background" Value="{ThemeResource DkBgBrush}"/>
                                     </VisualState.Setters>
                                 </VisualState>
                                 <VisualState x:Name="Disabled">
@@ -896,8 +898,10 @@
     <!-- Dark icon button (transparent, square, hover highlight) -->
     <Style x:Key="DkIconButtonStyle" TargetType="Button">
         <Setter Property="Background"      Value="Transparent"/>
+        <Setter Property="Foreground"      Value="{ThemeResource DkTextSecondaryBrush}"/>
         <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="CornerRadius"    Value="0"/>
+        <Setter Property="CornerRadius"    Value="6"/>
+        <Setter Property="UseSystemFocusVisuals" Value="True"/>
         <Setter Property="Width"           Value="34"/>
         <Setter Property="Height"          Value="34"/>
         <Setter Property="Padding"         Value="0"/>
@@ -914,26 +918,140 @@
                                 <VisualState x:Name="Normal"/>
                                 <VisualState x:Name="PointerOver">
                                     <VisualState.Setters>
-                                        <Setter Target="Root.Background" Value="{StaticResource DkHoverSurfaceBrush}"/>
+                                        <Setter Target="Root.Background" Value="{ThemeResource DkHoverSurfaceBrush}"/>
+                                        <Setter Target="Presenter.Foreground" Value="{ThemeResource DkTextPrimaryBrush}"/>
                                     </VisualState.Setters>
                                 </VisualState>
                                 <VisualState x:Name="Pressed">
                                     <VisualState.Setters>
-                                        <Setter Target="Root.Background" Value="{StaticResource DkPressedSurfaceBrush}"/>
+                                        <Setter Target="Root.Background" Value="{ThemeResource DkPressedSurfaceBrush}"/>
+                                        <Setter Target="Presenter.Foreground" Value="{ThemeResource DkTextPrimaryBrush}"/>
                                     </VisualState.Setters>
                                 </VisualState>
                                 <VisualState x:Name="Disabled">
                                     <VisualState.Setters>
-                                        <Setter Target="Root.Opacity" Value="0.5"/>
+                                        <Setter Target="Root.Opacity" Value="0.4"/>
                                     </VisualState.Setters>
                                 </VisualState>
                             </VisualStateGroup>
                         </VisualStateManager.VisualStateGroups>
-                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <ContentPresenter x:Name="Presenter"
+                                          Foreground="{TemplateBinding Foreground}"
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"/>
                     </Border>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+    </Style>
+
+    <!-- Destructive icon button: neutral at rest, severity-critical tint only on hover.
+         Resting state stays neutral so the severity red keeps meaning "operational alarm". -->
+    <Style x:Key="DkDangerIconButtonStyle" TargetType="Button" BasedOn="{StaticResource DkIconButtonStyle}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Root"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="{TemplateBinding CornerRadius}"
+                            Width="{TemplateBinding Width}"
+                            Height="{TemplateBinding Height}">
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal"/>
+                                <VisualState x:Name="PointerOver">
+                                    <VisualState.Setters>
+                                        <Setter Target="Root.Background" Value="{ThemeResource DkRedBgBrush}"/>
+                                        <Setter Target="Presenter.Foreground" Value="{ThemeResource DkRedBrush}"/>
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Pressed">
+                                    <VisualState.Setters>
+                                        <Setter Target="Root.Background" Value="{ThemeResource DkRedBgBrush}"/>
+                                        <Setter Target="Presenter.Foreground" Value="{ThemeResource DkRedBrush}"/>
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Disabled">
+                                    <VisualState.Setters>
+                                        <Setter Target="Root.Opacity" Value="0.4"/>
+                                    </VisualState.Setters>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <ContentPresenter x:Name="Presenter"
+                                          Foreground="{TemplateBinding Foreground}"
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Segmented control button (tabs, status filter). Active look is applied from code-behind
+         (Background/Foreground/BorderBrush); hover is a neutral overlay so it never fights it. -->
+    <Style x:Key="DkSegmentButtonStyle" TargetType="Button">
+        <Setter Property="Background"      Value="Transparent"/>
+        <Setter Property="Foreground"      Value="{ThemeResource DkTextSecondaryBrush}"/>
+        <Setter Property="BorderBrush"     Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius"    Value="6"/>
+        <Setter Property="Padding"         Value="14,6"/>
+        <Setter Property="UseSystemFocusVisuals" Value="True"/>
+        <Setter Property="FontSize"        Value="13"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid>
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal"/>
+                                <VisualState x:Name="PointerOver">
+                                    <VisualState.Setters>
+                                        <Setter Target="HoverOverlay.Opacity" Value="1"/>
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Pressed">
+                                    <VisualState.Setters>
+                                        <Setter Target="HoverOverlay.Opacity" Value="1"/>
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Disabled">
+                                    <VisualState.Setters>
+                                        <Setter Target="Root.Opacity" Value="0.4"/>
+                                    </VisualState.Setters>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <Border x:Name="Root"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="{TemplateBinding CornerRadius}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter Foreground="{TemplateBinding Foreground}"
+                                              FontWeight="{TemplateBinding FontWeight}"
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="HoverOverlay"
+                                Background="{ThemeResource DkRowHoverOverlayBrush}"
+                                CornerRadius="{TemplateBinding CornerRadius}"
+                                Opacity="0"
+                                IsHitTestVisible="False"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Instrument tag text (CAM / RAD / SEN): the same tag vocabulary operators already see in
+         device IDs, used instead of pictograms. -->
+    <Style x:Key="DkTagTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize"         Value="{StaticResource FontSizeXSmall}"/>
+        <Setter Property="FontWeight"       Value="Bold"/>
+        <Setter Property="CharacterSpacing" Value="80"/>
+        <Setter Property="Foreground"       Value="{ThemeResource DkTextSecondaryBrush}"/>
     </Style>
 
     <!-- Dark ghost button (text/link, no border, subtle hover) -->
@@ -954,7 +1072,7 @@
                                 <VisualState x:Name="Normal"/>
                                 <VisualState x:Name="PointerOver">
                                     <VisualState.Setters>
-                                        <Setter Target="Root.Background" Value="{StaticResource DkBlueBgBrush}"/>
+                                        <Setter Target="Root.Background" Value="{ThemeResource DkBlueBgBrush}"/>
                                     </VisualState.Setters>
                                 </VisualState>
                                 <VisualState x:Name="Pressed">
@@ -978,11 +1096,11 @@
 
     <!-- Dark ComboBox -->
     <Style x:Key="DkComboBoxStyle" TargetType="ComboBox">
-        <Setter Property="Background"          Value="{StaticResource DkInputBgBrush}"/>
-        <Setter Property="BorderBrush"         Value="{StaticResource DkBorderBrush}"/>
-        <Setter Property="Foreground"          Value="{StaticResource DkTextPrimaryBrush}"/>
+        <Setter Property="Background"          Value="{ThemeResource DkInputBgBrush}"/>
+        <Setter Property="BorderBrush"         Value="{ThemeResource DkBorderBrush}"/>
+        <Setter Property="Foreground"          Value="{ThemeResource DkTextPrimaryBrush}"/>
         <Setter Property="FontSize"            Value="13"/>
-        <Setter Property="CornerRadius"        Value="0"/>
+        <Setter Property="CornerRadius"        Value="8"/>
         <Setter Property="Padding"             Value="12,8"/>
         <Setter Property="MinHeight"           Value="36"/>
         <Setter Property="HorizontalAlignment" Value="Stretch"/>
@@ -990,22 +1108,21 @@
 
     <!-- Dark search TextBox -->
     <Style x:Key="DkSearchBoxStyle" TargetType="TextBox">
-        <Setter Property="Background"            Value="{StaticResource DkInputBgBrush}"/>
-        <Setter Property="BorderBrush"           Value="{StaticResource DkBorderBrush}"/>
-        <Setter Property="Foreground"            Value="{StaticResource DkTextPrimaryBrush}"/>
+        <Setter Property="Background"            Value="{ThemeResource DkInputBgBrush}"/>
+        <Setter Property="BorderBrush"           Value="{ThemeResource DkBorderBrush}"/>
+        <Setter Property="Foreground"            Value="{ThemeResource DkTextPrimaryBrush}"/>
         <Setter Property="FontSize"              Value="13"/>
-        <Setter Property="CornerRadius"          Value="0"/>
+        <Setter Property="CornerRadius"          Value="8"/>
         <Setter Property="Padding"               Value="36,8,8,8"/>
         <Setter Property="MinHeight"             Value="36"/>
-        <Setter Property="PlaceholderForeground" Value="{StaticResource DkTextMutedBrush}"/>
+        <Setter Property="PlaceholderForeground" Value="{ThemeResource DkTextMutedBrush}"/>
     </Style>
 
     <!-- Dark label (uppercase muted caption) -->
     <Style x:Key="DkLabelStyle" TargetType="TextBlock">
-        <Setter Property="FontFamily"       Value="Consolas"/>
         <Setter Property="FontSize"         Value="{StaticResource FontSizeXSmall}"/>
         <Setter Property="FontWeight"       Value="Bold"/>
-        <Setter Property="Foreground"       Value="{StaticResource DkTextMutedBrush}"/>
+        <Setter Property="Foreground"       Value="{ThemeResource DkTextMutedBrush}"/>
         <Setter Property="CharacterSpacing" Value="60"/>
     </Style>
 

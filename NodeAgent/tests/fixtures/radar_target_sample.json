@@ -1,0 +1,6 @@
+[
+ {"id": 3, "x": 1.0, "y": 5.0, "z": 0.2, "vx": 0.0, "vy": -0.5, "speed": -0.5, "range_mm": 5100.0,
+  "false_alarm": 2.0, "confirmed": true, "ghost_suspected": false},
+ {"id": 4, "x": -2.0, "y": 8.0, "z": 0.2, "vx": 0.1, "vy": 0.0, "speed": 0.1, "range_mm": 8250.0,
+  "false_alarm": 30.0, "confirmed": false, "ghost_suspected": false}
+]

@@ -6,164 +6,154 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Background="#07111F">
+    Background="{ThemeResource DkBgBrush}">
 
     <Grid>
-        <Grid.Background>
-            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                <GradientStop Color="#06101D" Offset="0"/>
-                <GradientStop Color="#0A1830" Offset="0.55"/>
-                <GradientStop Color="#081423" Offset="1"/>
-            </LinearGradientBrush>
-        </Grid.Background>
-
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1.25*"/>
             <ColumnDefinition Width="1*"/>
         </Grid.ColumnDefinitions>
 
+        <!-- BRAND PANEL: deeper tonal step, no gradient -->
         <Border Grid.Column="0"
-                Background="#081426"
-                Padding="56,48,56,48">
+                Background="{ThemeResource DkInputBgBrush}"
+                BorderBrush="{ThemeResource DkBorderBrush}"
+                BorderThickness="0,0,1,0"
+                Padding="56,48">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <StackPanel MaxWidth="560"
-                            HorizontalAlignment="Center"
+                <StackPanel MaxWidth="520"
+                            HorizontalAlignment="Left"
                             VerticalAlignment="Center"
-                            Spacing="22">
+                            Spacing="20">
                     <TextBlock Text="TRUNG TÂM ĐIỀU HÀNH"
-                               HorizontalAlignment="Center"
-                               Foreground="#7FA6D6"
-                               FontSize="14"
-                               FontWeight="SemiBold"
-                               CharacterSpacing="140"
-                               TextAlignment="Center"/>
-
-                    <TextBlock Text="Hệ thống&#x0a;Giám sát cống ngầm"
-                               HorizontalAlignment="Center"
-                               Foreground="White"
-                               FontSize="40"
+                               Foreground="{ThemeResource DkTextMutedBrush}"
+                               FontSize="{StaticResource FontSizeSmall}"
                                FontWeight="Bold"
-                               LineHeight="48"
-                               TextAlignment="Center"/>
+                               CharacterSpacing="140"/>
 
-                    <TextBlock Text="Nền tảng giám sát vận hành, cảnh báo sự cố và điều phối trạm theo thời gian thực."
-                               MaxWidth="520"
-                               HorizontalAlignment="Center"
-                               Foreground="#9FB3C8"
-                               FontSize="16"
-                               TextAlignment="Center"
+                    <TextBlock Text="Hệ thống&#x0a;giám sát cống ngầm"
+                               Foreground="{ThemeResource DkTextPrimaryBrush}"
+                               FontSize="40"
+                               FontWeight="SemiBold"
+                               LineHeight="48"/>
+
+                    <TextBlock Text="Giám sát vận hành, cảnh báo sự cố và điều phối trạm theo thời gian thực."
+                               Foreground="{ThemeResource DkTextSecondaryBrush}"
+                               FontSize="{StaticResource FontSizeMedium}"
                                TextWrapping="Wrap"/>
+
+                    <!-- Instrument tags: the same vocabulary used across the console -->
+                    <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,8,0,0">
+                        <Border Background="{ThemeResource DkInputBgBrush}"
+                                BorderBrush="{ThemeResource DkBorderBrush}"
+                                BorderThickness="1" CornerRadius="4" Padding="8,3">
+                            <TextBlock Text="SEN" Style="{StaticResource DkTagTextStyle}"/>
+                        </Border>
+                        <Border Background="{ThemeResource DkInputBgBrush}"
+                                BorderBrush="{ThemeResource DkBorderBrush}"
+                                BorderThickness="1" CornerRadius="4" Padding="8,3">
+                            <TextBlock Text="CAM" Style="{StaticResource DkTagTextStyle}"/>
+                        </Border>
+                        <Border Background="{ThemeResource DkInputBgBrush}"
+                                BorderBrush="{ThemeResource DkBorderBrush}"
+                                BorderThickness="1" CornerRadius="4" Padding="8,3">
+                            <TextBlock Text="RAD" Style="{StaticResource DkTagTextStyle}"/>
+                        </Border>
+                    </StackPanel>
                 </StackPanel>
 
                 <TextBlock Grid.Row="1"
-                           HorizontalAlignment="Center"
-                           Foreground="#6E87A3"
-                           FontSize="12"
-                           Text="Tunnel Security Station • Phiên bản vận hành nội bộ"
-                           TextAlignment="Center"/>
+                           Foreground="{ThemeResource DkTextDimBrush}"
+                           FontSize="{StaticResource FontSizeCompact}"
+                           Text="Tunnel Security Station - phiên bản vận hành nội bộ"/>
             </Grid>
         </Border>
 
+        <!-- FORM -->
         <Grid Grid.Column="1" Padding="48">
-            <Border MaxWidth="460"
-                    MinWidth="380"
+            <Border MaxWidth="440"
+                    MinWidth="360"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
-                    Background="#0B1728"
-                    BorderBrush="#1A314D"
+                    Background="{ThemeResource DkSurfaceBrush}"
+                    BorderBrush="{ThemeResource DkBorderBrush}"
                     BorderThickness="1"
-                    CornerRadius="24"
-                    Padding="36">
-                <Grid>
-                    <StackPanel VerticalAlignment="Center" Spacing="24">
-                        <StackPanel Spacing="8">
-                            <TextBlock Text="Đăng nhập hệ thống"
-                                       HorizontalAlignment="Center"
-                                       Foreground="White"
-                                       FontSize="30"
-                                       FontWeight="Bold"/>
-
-                            <TextBlock Text="Sử dụng tài khoản được cấp để truy cập trung tâm điều hành."
-                                       HorizontalAlignment="Center"
-                                       Foreground="#90A8C4"
-                                       FontSize="14"
-                                       TextWrapping="Wrap"/>
-                        </StackPanel>
-
-                        <controls:InfoBar x:Name="ErrorInfoBar"
-                                          IsOpen="False"
-                                          IsClosable="True"
-                                          Severity="Error"
-                                          Title="Đăng nhập không thành công"
-                                          Margin="0,0,0,4"/>
-
-                        <StackPanel Spacing="18">
-                            <StackPanel Spacing="8">
-                                <TextBlock Text="Tài khoản"
-                                           Foreground="#D7E3F1"
-                                           FontSize="14"
-                                           FontWeight="SemiBold"/>
-
-                                <TextBox x:Name="UsernameBox"
-                                         PlaceholderText="Nhập tài khoản"
-                                         Height="52"
-                                         Background="#132238"
-                                         Foreground="White"
-                                         PlaceholderForeground="#7E93AD"
-                                         BorderBrush="#27476A"
-                                         BorderThickness="1.2"
-                                         CornerRadius="12"
-                                         VerticalContentAlignment="Center"
-                                         Padding="16,13,16,6"/>
-                            </StackPanel>
-
-                            <StackPanel Spacing="8">
-                                <TextBlock Text="Mật khẩu"
-                                           Foreground="#D7E3F1"
-                                           FontSize="14"
-                                           FontWeight="SemiBold"/>
-
-                                <PasswordBox x:Name="PasswordBox"
-                                             PlaceholderText="Nhập mật khẩu"
-                                             Height="52"
-                                             Background="#132238"
-                                             Foreground="White"
-                                             BorderBrush="#27476A"
-                                             BorderThickness="1.2"
-                                             CornerRadius="12"
-                                             VerticalContentAlignment="Center"
-                                             Padding="16,13,16,6"/>
-                            </StackPanel>
-                        </StackPanel>
-
-                        <Grid HorizontalAlignment="Center" Margin="0,8,0,0">
-                            <Button x:Name="LoginButton"
-                                    Click="LoginButton_Click"
-                                    Content="Đăng nhập"
-                                    Width="150"
-                                    Height="46"
-                                    FontSize="15"
-                                    FontWeight="SemiBold"
-                                    Background="#2563EB"
-                                    Foreground="White"
-                                    BorderThickness="0"
-                                    CornerRadius="12"/>
-
-                            <ProgressRing x:Name="LoadingRing"
-                                          Width="30"
-                                          Height="30"
-                                          IsActive="False"
-                                          Visibility="Collapsed"
-                                          HorizontalAlignment="Center"
-                                          VerticalAlignment="Center"/>
-                        </Grid>
+                    CornerRadius="12"
+                    Padding="32">
+                <StackPanel Spacing="24">
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Đăng nhập hệ thống"
+                                   Foreground="{ThemeResource DkTextPrimaryBrush}"
+                                   FontSize="{StaticResource FontSizeLarge}"
+                                   FontWeight="SemiBold"/>
+                        <TextBlock Text="Sử dụng tài khoản được cấp để truy cập trung tâm điều hành."
+                                   Foreground="{ThemeResource DkTextSecondaryBrush}"
+                                   FontSize="{StaticResource FontSizeSmall}"
+                                   TextWrapping="Wrap"/>
                     </StackPanel>
-                </Grid>
+
+                    <controls:InfoBar x:Name="ErrorInfoBar"
+                                      IsOpen="False"
+                                      IsClosable="True"
+                                      Severity="Error"
+                                      Title="Đăng nhập không thành công"
+                                      CornerRadius="8"/>
+
+                    <StackPanel Spacing="16">
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="TÀI KHOẢN" Style="{StaticResource DkLabelStyle}"/>
+                            <TextBox x:Name="UsernameBox"
+                                     PlaceholderText="Nhập tài khoản"
+                                     MinHeight="40"
+                                     Background="{ThemeResource DkInputBgBrush}"
+                                     Foreground="{ThemeResource DkTextPrimaryBrush}"
+                                     PlaceholderForeground="{ThemeResource DkTextMutedBrush}"
+                                     BorderBrush="{ThemeResource DkBorderBrush}"
+                                     BorderThickness="1"
+                                     CornerRadius="8"
+                                     FontSize="{StaticResource FontSizeNormal}"
+                                     VerticalContentAlignment="Center"
+                                     Padding="12,8"/>
+                        </StackPanel>
+
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="MẬT KHẨU" Style="{StaticResource DkLabelStyle}"/>
+                            <PasswordBox x:Name="PasswordBox"
+                                         PlaceholderText="Nhập mật khẩu"
+                                         MinHeight="40"
+                                         Background="{ThemeResource DkInputBgBrush}"
+                                         Foreground="{ThemeResource DkTextPrimaryBrush}"
+                                         BorderBrush="{ThemeResource DkBorderBrush}"
+                                         BorderThickness="1"
+                                         CornerRadius="8"
+                                         FontSize="{StaticResource FontSizeNormal}"
+                                         VerticalContentAlignment="Center"
+                                         Padding="12,8"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <Grid>
+                        <Button x:Name="LoginButton"
+                                Click="LoginButton_Click"
+                                Content="Đăng nhập"
+                                Style="{StaticResource DkPrimaryButtonStyle}"
+                                HorizontalAlignment="Stretch"
+                                MinHeight="42"/>
+
+                        <ProgressRing x:Name="LoadingRing"
+                                      Width="26"
+                                      Height="26"
+                                      IsActive="False"
+                                      Visibility="Collapsed"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"/>
+                    </Grid>
+                </StackPanel>
             </Border>
         </Grid>
     </Grid>

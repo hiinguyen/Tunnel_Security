@@ -5,337 +5,270 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:Station.Controls"
     mc:Ignorable="d"
-    RequestedTheme="Dark"
-    Background="#0F1526"
-    BorderBrush="#2D3238"
+
+    Background="{ThemeResource DkSurfaceBrush}"
+    BorderBrush="{ThemeResource DkBorderBrush}"
     BorderThickness="1"
     CornerRadius="12"
     Padding="0">
 
     <ContentDialog.Resources>
-        <Style x:Key="AlertDialogButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="#171E33"/>
-            <Setter Property="BorderBrush" Value="#2D3238"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Foreground" Value="#E6EEF3"/>
-            <Setter Property="CornerRadius" Value="8"/>
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="Padding" Value="20,0"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-        </Style>
-        <Style x:Key="AlertPrimaryButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="#DC2626"/>
-            <Setter Property="BorderBrush" Value="#EF4444"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="CornerRadius" Value="8"/>
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="Padding" Value="20,0"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-        </Style>
-        <Style x:Key="AlertSuccessButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="#065F46"/>
-            <Setter Property="BorderBrush" Value="#10B981"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="CornerRadius" Value="8"/>
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="Padding" Value="20,0"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
+        <Style x:Key="DlgSectionLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource DkLabelStyle}">
+            <Setter Property="Margin" Value="0,0,0,8"/>
         </Style>
     </ContentDialog.Resources>
 
-    <!-- Root: 1200×700 dialog -->
-    <Grid Width="1100" Height="650" Background="#0F1526">
+    <Grid Width="1100" Height="650" Background="{ThemeResource DkSurfaceBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- ═══ HEADER BAR ═══ -->
-        <Grid Grid.Row="0" Background="#0A0F1E" Padding="20,14,20,14">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
+        <!-- HEADER: severity badge, title, subtitle, close -->
+        <Border Grid.Row="0"
+                Background="{ThemeResource DkSurfaceBrush}"
+                BorderBrush="{ThemeResource DkBorderBrush}"
+                BorderThickness="0,0,0,1"
+                Padding="24,14">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-            <!-- Severity badge + title -->
-            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
-                <!-- Pulsing red dot indicator -->
-                <Border Width="12" Height="12" CornerRadius="6" Background="#EF4444" VerticalAlignment="Center">
-                    <Border.Shadow>
-                        <ThemeShadow/>
-                    </Border.Shadow>
-                </Border>
-
-                <!-- Severity chip -->
-                <Border x:Name="SeverityBadge" Background="#7F1D1D"
-                        BorderBrush="#EF4444" BorderThickness="1"
-                        CornerRadius="6" Padding="10,4" VerticalAlignment="Center">
-                    <TextBlock x:Name="SeverityText" Text="KHẨN CẤP"
-                               FontSize="12" FontWeight="Bold"
-                               Foreground="#FCA5A5" CharacterSpacing="80"/>
-                </Border>
-
-                <!-- Title -->
-                <TextBlock x:Name="AlertTitleText"
-                           Text="Cảnh báo Camera"
-                           FontSize="18" FontWeight="Bold"
-                           Foreground="#F1F5F9" VerticalAlignment="Center"/>
-            </StackPanel>
-
-            <!-- Camera ID + timestamp -->
-            <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="2">
-                <TextBlock x:Name="CameraIdText" Text="CAM-03"
-                           FontSize="13" FontWeight="SemiBold"
-                           Foreground="#94A3B8" HorizontalAlignment="Center"/>
-                <TextBlock x:Name="AlertTimeText" Text="—"
-                           FontSize="12" Foreground="#64748B"
-                           HorizontalAlignment="Center"/>
-            </StackPanel>
-
-            <!-- LIVE badge -->
-            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
-                <Border Background="#1F0E0E" BorderBrush="#7F1D1D" BorderThickness="1"
-                        CornerRadius="6" Padding="10,4">
-                    <StackPanel Orientation="Horizontal" Spacing="6">
-                        <Ellipse Width="7" Height="7" Fill="#EF4444" VerticalAlignment="Center"/>
-                        <TextBlock Text="LIVE" FontSize="12" FontWeight="Bold"
-                                   Foreground="#EF4444" CharacterSpacing="80"/>
+                <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                    <Border x:Name="SeverityBadge"
+                            Background="{ThemeResource DkRedBgBrush}"
+                            BorderBrush="{ThemeResource DkRedBrush}"
+                            BorderThickness="1"
+                            CornerRadius="4"
+                            Padding="9,4"
+                            VerticalAlignment="Center">
+                        <TextBlock x:Name="SeverityText"
+                                   Text="&#x25B2; KHẨN CẤP"
+                                   Style="{StaticResource DkTagTextStyle}"
+                                   Foreground="{ThemeResource DkRedBrush}"/>
+                    </Border>
+                    <StackPanel Spacing="2" VerticalAlignment="Center">
+                        <TextBlock x:Name="AlertTitleText"
+                                   Text="Cảnh báo Camera"
+                                   FontSize="{StaticResource FontSizeTitle}"
+                                   FontWeight="SemiBold"
+                                   Foreground="{ThemeResource DkTextPrimaryBrush}"/>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock x:Name="CameraIdText" Text="CAM-03"
+                                       FontSize="{StaticResource FontSizeSmall}"
+                                       Foreground="{ThemeResource DkTextSecondaryBrush}"
+                                       Typography.NumeralAlignment="Tabular"/>
+                            <TextBlock x:Name="AlertTimeText" Text="-"
+                                       FontSize="{StaticResource FontSizeSmall}"
+                                       Foreground="{ThemeResource DkTextMutedBrush}"
+                                       Typography.NumeralAlignment="Tabular"/>
+                        </StackPanel>
                     </StackPanel>
-                </Border>
-            </StackPanel>
-        </Grid>
+                </StackPanel>
 
-        <!-- ═══ BODY: Video (left) + Alert Detail (right) ═══ -->
+                <Button Grid.Column="1"
+                        Style="{StaticResource DkIconButtonStyle}"
+                        Click="CloseButton_Click"
+                        ToolTipService.ToolTip="Đóng"
+                        AutomationProperties.Name="Đóng">
+                    <FontIcon Glyph="&#xE711;" FontSize="{StaticResource FontSizeSmall}"/>
+                </Button>
+            </Grid>
+        </Border>
+
+        <!-- BODY: video (left) + alert detail (right) -->
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="340"/>
             </Grid.ColumnDefinitions>
 
-            <!-- VIDEO AREA -->
-            <Grid Grid.Column="0" Background="#000000">
-                <!-- Mock video background with diagonal stripes -->
-                <Canvas>
-                    <Rectangle Width="3000" Height="3000" Canvas.Left="-500" Canvas.Top="-500" Opacity="0.15">
-                        <Rectangle.Fill>
-                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1" SpreadMethod="Repeat">
-                                <GradientStop Color="#080808" Offset="0"/>
-                                <GradientStop Color="#080808" Offset="0.46"/>
-                                <GradientStop Color="#1C1C1C" Offset="0.5"/>
-                                <GradientStop Color="#1C1C1C" Offset="0.96"/>
-                            </LinearGradientBrush>
-                        </Rectangle.Fill>
-                        <Rectangle.RenderTransform>
-                            <RotateTransform Angle="45"/>
-                        </Rectangle.RenderTransform>
-                    </Rectangle>
-                </Canvas>
+            <!-- Video area -->
+            <Grid Grid.Column="0" Background="{ThemeResource DkDeepBrush}">
+                <!-- Luồng camera thật của node đang cảnh báo -->
+                <controls:CameraVideoControl x:Name="AlertCameraVideo" Visibility="Collapsed"/>
 
-                <!-- Camera name overlay (top left) -->
                 <Border VerticalAlignment="Top" HorizontalAlignment="Left" Margin="16"
-                        Background="#CC000000" CornerRadius="6" Padding="10,6">
+                        Background="{ThemeResource DkBgBrush}"
+                        BorderBrush="{ThemeResource DkBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="4" Padding="8,4">
                     <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xE714;" FontSize="13" Foreground="#94A3B8"/>
+                        <TextBlock Text="CAM" Style="{StaticResource DkTagTextStyle}" VerticalAlignment="Center"/>
                         <TextBlock x:Name="VideoCameraName" Text="Camera #03"
-                                   FontSize="13" FontWeight="SemiBold" Foreground="White"/>
+                                   FontSize="{StaticResource FontSizeSmall}" FontWeight="SemiBold"
+                                   Foreground="{ThemeResource DkTextPrimaryBrush}"/>
                     </StackPanel>
                 </Border>
 
-                <!-- Alert zone highlight overlay -->
+                <!-- Detection zone: full 1px outline, label is a tag -->
                 <Border x:Name="AlertZoneOverlay"
                         VerticalAlignment="Center" HorizontalAlignment="Center"
                         Width="260" Height="180"
-                        BorderBrush="#EF4444" BorderThickness="2"
+                        BorderBrush="{ThemeResource DkRedBrush}" BorderThickness="2"
                         CornerRadius="4" Background="Transparent">
-                    <!-- Corner markers for detection zone -->
-                    <Grid>
-                        <!-- Top-left corner -->
-                        <Border Width="20" Height="20" HorizontalAlignment="Left" VerticalAlignment="Top"
-                                BorderBrush="#EF4444" BorderThickness="3,3,0,0"/>
-                        <!-- Top-right corner -->
-                        <Border Width="20" Height="20" HorizontalAlignment="Right" VerticalAlignment="Top"
-                                BorderBrush="#EF4444" BorderThickness="0,3,3,0"/>
-                        <!-- Bottom-left corner -->
-                        <Border Width="20" Height="20" HorizontalAlignment="Left" VerticalAlignment="Bottom"
-                                BorderBrush="#EF4444" BorderThickness="3,0,0,3"/>
-                        <!-- Bottom-right corner -->
-                        <Border Width="20" Height="20" HorizontalAlignment="Right" VerticalAlignment="Bottom"
-                                BorderBrush="#EF4444" BorderThickness="0,0,3,3"/>
-
-                        <!-- Detection label -->
-                        <Border HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,-18,0,0"
-                                Background="#CC7F1D1D" CornerRadius="4" Padding="8,3">
-                            <TextBlock Text="Vùng phát hiện" FontSize="11"
-                                       FontWeight="SemiBold" Foreground="#FCA5A5"/>
-                        </Border>
-                    </Grid>
+                    <Border HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,-14,0,0"
+                            Background="{ThemeResource DkRedBgBrush}"
+                            BorderBrush="{ThemeResource DkRedBrush}"
+                            BorderThickness="1"
+                            CornerRadius="4" Padding="8,3">
+                        <TextBlock Text="VÙNG PHÁT HIỆN" Style="{StaticResource DkTagTextStyle}"
+                                   Foreground="{ThemeResource DkRedBrush}"/>
+                    </Border>
                 </Border>
 
-                <!-- Bottom status bar -->
+                <!-- Bottom bar -->
                 <Border VerticalAlignment="Bottom" HorizontalAlignment="Stretch"
-                        Background="#CC000000" Padding="16,8">
+                        Background="{ThemeResource DkBgBrush}"
+                        BorderBrush="{ThemeResource DkBorderBrush}"
+                        BorderThickness="0,1,0,0"
+                        Padding="16,8">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
-                            <TextBlock Text="1280×720" FontSize="11" Foreground="#64748B"/>
-                            <TextBlock Text="30 FPS" FontSize="11" Foreground="#64748B"/>
-                            <TextBlock Text="2.5 Mbps" FontSize="11" Foreground="#64748B"/>
-                        </StackPanel>
-                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
-                            <!-- Snapshot button -->
-                            <Button x:Name="SnapshotButton" Click="SnapshotButton_Click"
-                                    ToolTipService.ToolTip="Chụp ảnh bằng chứng"
-                                    Background="#171E33" BorderBrush="#2D3238" BorderThickness="1"
-                                    CornerRadius="6" Height="32" Width="32" Padding="0">
-                                <FontIcon Glyph="&#xE722;" FontSize="14" Foreground="#94A3B8"/>
-                            </Button>
-                        </StackPanel>
+                        <TextBlock Grid.Column="0"
+                                   Text="Ảnh bằng chứng lấy từ luồng camera của cảnh báo"
+                                   FontSize="{StaticResource FontSizeCompact}"
+                                   Foreground="{ThemeResource DkTextMutedBrush}"
+                                   VerticalAlignment="Center"/>
+                        <Button Grid.Column="1"
+                                x:Name="SnapshotButton" Click="SnapshotButton_Click"
+                                Style="{StaticResource DkIconButtonStyle}"
+                                ToolTipService.ToolTip="Chụp ảnh bằng chứng"
+                                AutomationProperties.Name="Chụp ảnh bằng chứng">
+                            <FontIcon Glyph="&#xE722;" FontSize="{StaticResource FontSizeSmall}"/>
+                        </Button>
                     </Grid>
                 </Border>
             </Grid>
 
-            <!-- ALERT DETAIL PANEL -->
-            <Grid Grid.Column="1" Background="#0A0F1E">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
+            <!-- Alert detail panel (tonal inset) -->
+            <Grid Grid.Column="1"
+                  Background="{ThemeResource DkInputBgBrush}"
+                  BorderBrush="{ThemeResource DkBorderBrush}"
+                  BorderThickness="1,0,0,0">
+                <ScrollViewer Padding="20,16" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Spacing="18">
 
-                <!-- Panel header -->
-                <Border Grid.Row="0" BorderBrush="#1F2429" BorderThickness="0,0,0,1" Padding="20,14">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xEA39;" FontSize="16" Foreground="#EF4444" VerticalAlignment="Center"/>
-                        <TextBlock Text="Chi tiết cảnh báo" FontSize="15" FontWeight="SemiBold"
-                                   Foreground="#E6EEF3" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </Border>
-
-                <!-- Scrollable detail content -->
-                <ScrollViewer Grid.Row="1" Padding="20,16,20,16" VerticalScrollBarVisibility="Auto">
-                    <StackPanel Spacing="16">
-
-                        <!-- Severity block -->
+                        <!-- Severity block: full border + tint, label + marker, never color alone -->
                         <Border x:Name="SeverityDetailBlock"
-                                Background="#1F0E0E" BorderBrush="#7F1D1D"
-                                BorderThickness="1" CornerRadius="10" Padding="16">
-                            <StackPanel Spacing="6">
-                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <FontIcon Glyph="&#xE814;" FontSize="16" Foreground="#EF4444"/>
-                                    <TextBlock Text="Mức độ nghiêm trọng" FontSize="12"
-                                               Foreground="#94A3B8" VerticalAlignment="Center"/>
-                                </StackPanel>
-                                <TextBlock x:Name="SeverityDetailText" Text="KHẨN CẤP"
-                                           FontSize="22" FontWeight="Bold" Foreground="#EF4444"/>
-                                <TextBlock x:Name="AlertCategoryText" Text="Xâm nhập · Phát hiện bởi AI"
-                                           FontSize="12" Foreground="#6B7280"/>
+                                Background="{ThemeResource DkRedBgBrush}"
+                                BorderBrush="{ThemeResource DkRedBrush}"
+                                BorderThickness="1" CornerRadius="4" Padding="12">
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="MỨC ĐỘ NGHIÊM TRỌNG" Style="{StaticResource DkLabelStyle}"/>
+                                <TextBlock x:Name="SeverityDetailText" Text="&#x25B2; KHẨN CẤP"
+                                           FontSize="{StaticResource FontSizeLarge}" FontWeight="Bold"
+                                           Foreground="{ThemeResource DkRedBrush}"/>
+                                <TextBlock x:Name="AlertCategoryText" Text="Xâm nhập"
+                                           FontSize="{StaticResource FontSizeSmall}"
+                                           Foreground="{ThemeResource DkTextSecondaryBrush}"/>
                             </StackPanel>
                         </Border>
 
-                        <!-- Alert title + description -->
-                        <StackPanel Spacing="8">
-                            <TextBlock Text="Nội dung cảnh báo" FontSize="12"
-                                       Foreground="#64748B" FontWeight="SemiBold"
-                                       CharacterSpacing="40"/>
-                            <Border Background="#171E33" BorderBrush="#2D3238"
+                        <StackPanel>
+                            <TextBlock Text="NỘI DUNG CẢNH BÁO" Style="{StaticResource DlgSectionLabelStyle}"/>
+                            <Border Background="{ThemeResource DkSurfaceBrush}"
+                                    BorderBrush="{ThemeResource DkBorderBrush}"
                                     BorderThickness="1" CornerRadius="8" Padding="14">
                                 <StackPanel Spacing="6">
                                     <TextBlock x:Name="AlertTitleDetail"
                                                Text="Phát hiện xâm nhập trái phép"
-                                               FontSize="14" FontWeight="SemiBold"
-                                               Foreground="#F1F5F9" TextWrapping="Wrap"/>
+                                               FontSize="{StaticResource FontSizeNormal}" FontWeight="SemiBold"
+                                               Foreground="{ThemeResource DkTextPrimaryBrush}" TextWrapping="Wrap"/>
                                     <TextBlock x:Name="AlertDescriptionText"
                                                Text="Đang tải..."
-                                               FontSize="13" Foreground="#94A3B8"
-                                               TextWrapping="Wrap" LineHeight="20"/>
+                                               FontSize="{StaticResource FontSizeSmall}"
+                                               Foreground="{ThemeResource DkTextSecondaryBrush}"
+                                               TextWrapping="Wrap"/>
                                 </StackPanel>
                             </Border>
                         </StackPanel>
 
-                        <!-- Location info -->
-                        <StackPanel Spacing="8">
-                            <TextBlock Text="Vị trí phát hiện" FontSize="12"
-                                       Foreground="#64748B" FontWeight="SemiBold"
-                                       CharacterSpacing="40"/>
-                            <Border Background="#171E33" BorderBrush="#2D3238"
+                        <StackPanel>
+                            <TextBlock Text="VỊ TRÍ PHÁT HIỆN" Style="{StaticResource DlgSectionLabelStyle}"/>
+                            <Border Background="{ThemeResource DkSurfaceBrush}"
+                                    BorderBrush="{ThemeResource DkBorderBrush}"
                                     BorderThickness="1" CornerRadius="8" Padding="14">
                                 <StackPanel Spacing="4">
-                                    <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <FontIcon Glyph="&#xE81D;" FontSize="14" Foreground="#3B82F6"/>
-                                        <TextBlock x:Name="AlertLocationText"
-                                                   Text="—"
-                                                   FontSize="13" Foreground="#E6EEF3"
-                                                   TextWrapping="Wrap" VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                    <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <FontIcon Glyph="&#xE714;" FontSize="14" Foreground="#6B7280"/>
-                                        <TextBlock x:Name="CameraDetailText"
-                                                   Text="—"
-                                                   FontSize="12" Foreground="#6B7280"
-                                                   VerticalAlignment="Center"/>
-                                    </StackPanel>
+                                    <TextBlock x:Name="AlertLocationText"
+                                               Text="-"
+                                               FontSize="{StaticResource FontSizeSmall}"
+                                               Foreground="{ThemeResource DkTextPrimaryBrush}"
+                                               TextWrapping="Wrap"/>
+                                    <TextBlock x:Name="CameraDetailText"
+                                               Text="-"
+                                               FontSize="{StaticResource FontSizeCompact}"
+                                               Foreground="{ThemeResource DkTextMutedBrush}"/>
                                 </StackPanel>
                             </Border>
                         </StackPanel>
 
-                        <!-- Time info -->
-                        <StackPanel Spacing="8">
-                            <TextBlock Text="Thời gian" FontSize="12"
-                                       Foreground="#64748B" FontWeight="SemiBold"
-                                       CharacterSpacing="40"/>
-                            <Border Background="#171E33" BorderBrush="#2D3238"
+                        <StackPanel>
+                            <TextBlock Text="THỜI GIAN" Style="{StaticResource DlgSectionLabelStyle}"/>
+                            <Border Background="{ThemeResource DkSurfaceBrush}"
+                                    BorderBrush="{ThemeResource DkBorderBrush}"
                                     BorderThickness="1" CornerRadius="8" Padding="14">
                                 <StackPanel Spacing="4">
-                                    <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <FontIcon Glyph="&#xE121;" FontSize="13" Foreground="#F59E0B"/>
-                                        <TextBlock Text="Phát hiện lúc:" FontSize="12"
-                                                   Foreground="#94A3B8" VerticalAlignment="Center"/>
-                                    </StackPanel>
+                                    <TextBlock Text="Phát hiện lúc"
+                                               FontSize="{StaticResource FontSizeCompact}"
+                                               Foreground="{ThemeResource DkTextMutedBrush}"/>
                                     <TextBlock x:Name="AlertTimeDetailText"
-                                               Text="—"
-                                               FontSize="14" FontWeight="SemiBold"
-                                               Foreground="#E6EEF3" Margin="22,0,0,0"/>
+                                               Text="-"
+                                               FontSize="{StaticResource FontSizeNormal}" FontWeight="SemiBold"
+                                               Foreground="{ThemeResource DkTextPrimaryBrush}"
+                                               Typography.NumeralAlignment="Tabular"/>
                                     <TextBlock x:Name="AlertDurationText"
-                                               Text="—"
-                                               FontSize="12" Foreground="#EF4444"
-                                               Margin="22,0,0,0"/>
+                                               Text="-"
+                                               FontSize="{StaticResource FontSizeSmall}"
+                                               Foreground="{ThemeResource DkRedBrush}"/>
                                 </StackPanel>
                             </Border>
                         </StackPanel>
 
-                        <!-- Response instructions -->
-                        <StackPanel Spacing="8">
-                            <TextBlock Text="Hướng dẫn xử lý" FontSize="12"
-                                       Foreground="#64748B" FontWeight="SemiBold"
-                                       CharacterSpacing="40"/>
-                            <Border Background="#172032" BorderBrush="#1E3A8A"
+                        <StackPanel>
+                            <TextBlock Text="HƯỚNG DẪN XỬ LÝ" Style="{StaticResource DlgSectionLabelStyle}"/>
+                            <Border Background="{ThemeResource DkSurfaceBrush}"
+                                    BorderBrush="{ThemeResource DkBorderBrush}"
                                     BorderThickness="1" CornerRadius="8" Padding="14">
-                                <StackPanel Spacing="6">
-                                    <StackPanel Orientation="Horizontal" Spacing="6">
-                                        <TextBlock Text="1." FontSize="12" Foreground="#60A5FA" FontWeight="Bold"/>
-                                        <TextBlock Text="Xác nhận cảnh báo và kiểm tra luồng video"
-                                                   FontSize="12" Foreground="#94A3B8" TextWrapping="Wrap"/>
-                                    </StackPanel>
-                                    <StackPanel Orientation="Horizontal" Spacing="6">
-                                        <TextBlock Text="2." FontSize="12" Foreground="#60A5FA" FontWeight="Bold"/>
-                                        <TextBlock Text="Liên hệ bảo vệ tại khu vực ngay lập tức"
-                                                   FontSize="12" Foreground="#94A3B8" TextWrapping="Wrap"/>
-                                    </StackPanel>
-                                    <StackPanel Orientation="Horizontal" Spacing="6">
-                                        <TextBlock Text="3." FontSize="12" Foreground="#60A5FA" FontWeight="Bold"/>
-                                        <TextBlock Text="Lưu đoạn video và ghi chú tình huống"
-                                                   FontSize="12" Foreground="#94A3B8" TextWrapping="Wrap"/>
-                                    </StackPanel>
+                                <StackPanel Spacing="8">
+                                    <Grid ColumnSpacing="8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="16"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="1" Style="{StaticResource DkTagTextStyle}" Foreground="{ThemeResource DkBlueLightBrush}"/>
+                                        <TextBlock Grid.Column="1" Text="Xác nhận cảnh báo và kiểm tra luồng video"
+                                                   FontSize="{StaticResource FontSizeSmall}"
+                                                   Foreground="{ThemeResource DkTextSecondaryBrush}" TextWrapping="Wrap"/>
+                                    </Grid>
+                                    <Grid ColumnSpacing="8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="16"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="2" Style="{StaticResource DkTagTextStyle}" Foreground="{ThemeResource DkBlueLightBrush}"/>
+                                        <TextBlock Grid.Column="1" Text="Liên hệ bảo vệ tại khu vực ngay lập tức"
+                                                   FontSize="{StaticResource FontSizeSmall}"
+                                                   Foreground="{ThemeResource DkTextSecondaryBrush}" TextWrapping="Wrap"/>
+                                    </Grid>
+                                    <Grid ColumnSpacing="8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="16"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="3" Style="{StaticResource DkTagTextStyle}" Foreground="{ThemeResource DkBlueLightBrush}"/>
+                                        <TextBlock Grid.Column="1" Text="Lưu đoạn video và ghi chú tình huống"
+                                                   FontSize="{StaticResource FontSizeSmall}"
+                                                   Foreground="{ThemeResource DkTextSecondaryBrush}" TextWrapping="Wrap"/>
+                                    </Grid>
                                 </StackPanel>
                             </Border>
                         </StackPanel>
@@ -345,35 +278,30 @@
             </Grid>
         </Grid>
 
-        <!-- ═══ FOOTER: Action buttons ═══ -->
-        <Border Grid.Row="2" Background="#0A0F1E"
-                BorderBrush="#1F2429" BorderThickness="0,1,0,0" Padding="20,12">
+        <!-- FOOTER: secondary actions, then primary -->
+        <Border Grid.Row="2"
+                Background="{ThemeResource DkInputBgBrush}"
+                BorderBrush="{ThemeResource DkBorderBrush}"
+                BorderThickness="0,1,0,0" Padding="24,12">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Left: dismiss -->
-                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
-                    <Button x:Name="DismissButton" Content="Bỏ qua cảnh báo"
-                            Click="DismissButton_Click"
-                            Style="{StaticResource AlertDialogButtonStyle}"/>
-                </StackPanel>
+                <Button Grid.Column="0" x:Name="DismissButton" Content="Bỏ qua cảnh báo"
+                        Click="DismissButton_Click"
+                        HorizontalAlignment="Left"
+                        Style="{StaticResource DkSecondaryButtonStyle}"/>
 
-                <!-- Right: acknowledge + close -->
-                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10">
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
                     <Button x:Name="CloseButton" Content="Đóng"
                             Click="CloseButton_Click"
-                            Style="{StaticResource AlertDialogButtonStyle}"/>
+                            Style="{StaticResource DkSecondaryButtonStyle}"/>
                     <Button x:Name="AcknowledgeButton"
                             Click="AcknowledgeButton_Click"
-                            Style="{StaticResource AlertSuccessButtonStyle}">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon Glyph="&#xE73E;" FontSize="14"/>
-                            <TextBlock Text="Đã xác nhận xử lý"/>
-                        </StackPanel>
-                    </Button>
+                            Style="{StaticResource DkPrimaryButtonStyle}"
+                            Content="Xác nhận đã xử lý"/>
                 </StackPanel>
             </Grid>
         </Border>

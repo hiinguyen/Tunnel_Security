@@ -20,26 +20,36 @@ namespace Station.Dialogs
         {
             _alert = alert;
             this.InitializeComponent();
+            RequestedTheme = Station.Services.ThemeService.Instance.CurrentTheme;
             PopulateAlertInfo();
         }
 
         private void PopulateAlertInfo()
         {
-            var mock = MockDataService.Instance;
-            var camera = _alert.CameraId != null
-                ? mock.Cameras.FirstOrDefault(c => c.CameraId == _alert.CameraId)
-                : null;
+            // Camera của chính node đang cảnh báo: ưu tiên CameraId, nếu thiếu thì tìm theo NodeId.
+            var cameras = DataServiceLocator.Current.Cameras;
+            var camera = cameras.FirstOrDefault(c => _alert.CameraId != null && c.CameraId == _alert.CameraId)
+                ?? cameras.FirstOrDefault(c => !string.IsNullOrEmpty(_alert.NodeId)
+                    && string.Equals(c.NodeId, _alert.NodeId, StringComparison.OrdinalIgnoreCase));
+
+            if (camera != null)
+            {
+                AlertCameraVideo.StreamUrl = camera.StreamUrl;
+                AlertCameraVideo.IsOnline = camera.IsOnline;
+                AlertCameraVideo.Visibility = Visibility.Visible;
+                AlertZoneOverlay.Visibility = Visibility.Collapsed;
+            }
 
             // Header
             AlertTitleText.Text = _alert.Title;
-            CameraIdText.Text = _alert.CameraId ?? _alert.NodeId ?? "—";
+            CameraIdText.Text = _alert.CameraId ?? _alert.NodeId ?? "-";
             AlertTimeText.Text = _alert.CreatedAt.ToString("HH:mm:ss  dd/MM/yyyy");
             VideoCameraName.Text = camera != null
-                ? $"{camera.CameraId} — {camera.Location}"
+                ? $"{camera.CameraId} - {camera.Location}"
                 : (_alert.CameraId ?? "Camera không xác định");
             CameraDetailText.Text = camera != null
                 ? $"{camera.CameraId} · {camera.Location}"
-                : (_alert.CameraId ?? "—");
+                : (_alert.CameraId ?? "-");
 
             // Severity styling
             ApplySeverityStyle(_alert.Severity);
@@ -48,7 +58,7 @@ namespace Station.Dialogs
             AlertTitleDetail.Text = _alert.Title;
             AlertDescriptionText.Text = string.IsNullOrEmpty(_alert.Description) ? "Không có mô tả." : _alert.Description;
             AlertLocationText.Text = string.IsNullOrEmpty(_alert.NodeName)
-                ? (_alert.NodeId ?? "—")
+                ? (_alert.NodeId ?? "-")
                 : $"{_alert.NodeName} ({_alert.NodeId})";
             AlertTimeDetailText.Text = _alert.CreatedAt.ToString("HH:mm:ss - dd/MM/yyyy");
 
@@ -59,61 +69,32 @@ namespace Station.Dialogs
                 ? "Vừa xảy ra"
                 : $"Đang diễn ra · {minutes} phút trước";
 
-            AlertCategoryText.Text = "Phát hiện bởi AI · Cảnh báo tự động";
+            AlertCategoryText.Text = "Phát hiện bởi hệ thống · Cảnh báo tự động";
         }
 
+        private static Brush Res(string key) => (Brush)Station.Services.ThemeBrushes.Get(key);
+
+        // Severity uses the DESIGN palette; the label always carries a marker so it never relies on color alone.
         private void ApplySeverityStyle(AlertSeverity severity)
         {
-            switch (severity)
+            var (label, marker, fg, bg) = severity switch
             {
-                case AlertSeverity.Critical:
-                    SeverityText.Text = "KHẨN CẤP";
-                    SeverityDetailText.Text = "KHẨN CẤP";
-                    SeverityBadge.Background = new SolidColorBrush(Color.FromArgb(255, 127, 29, 29));
-                    SeverityBadge.BorderBrush = new SolidColorBrush(Color.FromArgb(255, 239, 68, 68));
-                    SeverityText.Foreground = new SolidColorBrush(Color.FromArgb(255, 252, 165, 165));
-                    SeverityDetailText.Foreground = new SolidColorBrush(Color.FromArgb(255, 239, 68, 68));
-                    SeverityDetailBlock.Background = new SolidColorBrush(Color.FromArgb(255, 31, 14, 14));
-                    SeverityDetailBlock.BorderBrush = new SolidColorBrush(Color.FromArgb(255, 127, 29, 29));
-                    AlertDurationText.Foreground = new SolidColorBrush(Color.FromArgb(255, 239, 68, 68));
-                    break;
+                AlertSeverity.Critical => ("KHẨN CẤP", "▲", "DkRedBrush", "DkRedBgBrush"),
+                AlertSeverity.High => ("NGUY HIỂM", "▲", "DkOrangeBrush", "DkOrangeBgBrush"),
+                AlertSeverity.Medium => ("TRUNG BÌNH", "▲", "DkYellowBrush", "DkYellowBgBrush"),
+                _ => ("THẤP", "●", "DkGreenBrush", "DkGreenBgBrush")
+            };
 
-                case AlertSeverity.High:
-                    SeverityText.Text = "NGUY HIỂM";
-                    SeverityDetailText.Text = "NGUY HIỂM";
-                    SeverityBadge.Background = new SolidColorBrush(Color.FromArgb(255, 120, 53, 15));
-                    SeverityBadge.BorderBrush = new SolidColorBrush(Color.FromArgb(255, 249, 115, 22));
-                    SeverityText.Foreground = new SolidColorBrush(Color.FromArgb(255, 253, 186, 116));
-                    SeverityDetailText.Foreground = new SolidColorBrush(Color.FromArgb(255, 249, 115, 22));
-                    SeverityDetailBlock.Background = new SolidColorBrush(Color.FromArgb(255, 28, 20, 10));
-                    SeverityDetailBlock.BorderBrush = new SolidColorBrush(Color.FromArgb(255, 120, 53, 15));
-                    AlertDurationText.Foreground = new SolidColorBrush(Color.FromArgb(255, 249, 115, 22));
-                    break;
-
-                case AlertSeverity.Medium:
-                    SeverityText.Text = "TRUNG BÌNH";
-                    SeverityDetailText.Text = "TRUNG BÌNH";
-                    SeverityBadge.Background = new SolidColorBrush(Color.FromArgb(255, 92, 76, 0));
-                    SeverityBadge.BorderBrush = new SolidColorBrush(Color.FromArgb(255, 234, 179, 8));
-                    SeverityText.Foreground = new SolidColorBrush(Color.FromArgb(255, 253, 230, 138));
-                    SeverityDetailText.Foreground = new SolidColorBrush(Color.FromArgb(255, 234, 179, 8));
-                    SeverityDetailBlock.Background = new SolidColorBrush(Color.FromArgb(255, 28, 24, 5));
-                    SeverityDetailBlock.BorderBrush = new SolidColorBrush(Color.FromArgb(255, 92, 76, 0));
-                    AlertDurationText.Foreground = new SolidColorBrush(Color.FromArgb(255, 234, 179, 8));
-                    break;
-
-                default:
-                    SeverityText.Text = "THẤP";
-                    SeverityDetailText.Text = "THẤP";
-                    SeverityBadge.Background = new SolidColorBrush(Color.FromArgb(255, 6, 78, 59));
-                    SeverityBadge.BorderBrush = new SolidColorBrush(Color.FromArgb(255, 16, 185, 129));
-                    SeverityText.Foreground = new SolidColorBrush(Color.FromArgb(255, 110, 231, 183));
-                    SeverityDetailText.Foreground = new SolidColorBrush(Color.FromArgb(255, 16, 185, 129));
-                    SeverityDetailBlock.Background = new SolidColorBrush(Color.FromArgb(255, 5, 30, 22));
-                    SeverityDetailBlock.BorderBrush = new SolidColorBrush(Color.FromArgb(255, 6, 78, 59));
-                    AlertDurationText.Foreground = new SolidColorBrush(Color.FromArgb(255, 16, 185, 129));
-                    break;
-            }
+            SeverityText.Text = $"{marker} {label}";
+            SeverityDetailText.Text = $"{marker} {label}";
+            SeverityBadge.Background = Res(bg);
+            SeverityBadge.BorderBrush = Res(fg);
+            SeverityText.Foreground = Res(fg);
+            SeverityDetailText.Foreground = Res(fg);
+            SeverityDetailBlock.Background = Res(bg);
+            SeverityDetailBlock.BorderBrush = Res(fg);
+            AlertDurationText.Foreground = Res(fg);
+            AlertZoneOverlay.BorderBrush = Res(fg);
         }
 
         private void AcknowledgeButton_Click(object sender, RoutedEventArgs e)

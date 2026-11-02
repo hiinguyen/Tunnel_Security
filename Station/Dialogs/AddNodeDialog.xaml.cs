@@ -13,6 +13,7 @@ namespace Station.Dialogs
       public AddNodeDialog(DevicesViewModel viewModel)
         {
 this.InitializeComponent();
+RequestedTheme = Station.Services.ThemeService.Instance.CurrentTheme;
      _viewModel = viewModel;
         }
 

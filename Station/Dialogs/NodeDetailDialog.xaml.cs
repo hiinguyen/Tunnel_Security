@@ -3,8 +3,13 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.Web.WebView2.Core;
+using Station.Config;
 using Station.ViewModels;
 using System;
+using System.IO;
+using System.Text.Json;
+using System.Threading.Tasks;
 using Windows.UI;
 
 namespace Station.Dialogs
@@ -17,8 +22,56 @@ namespace Station.Dialogs
         public NodeDetailDialog(NodeItemViewModel node)
         {
             this.InitializeComponent();
+            RequestedTheme = Station.Services.ThemeService.Instance.CurrentTheme;
             _node = node;
             PopulateData();
+            Loaded += async (_, _) => await InitializeMapAsync();
+        }
+
+        /// <summary>
+        /// Nạp cùng map.html với dashboard giám sát, ở chế độ chỉ xem, zoom vào node đang mở.
+        /// </summary>
+        private async Task InitializeMapAsync()
+        {
+            try
+            {
+                await NodeMapWebView.EnsureCoreWebView2Async();
+                var core = NodeMapWebView.CoreWebView2;
+
+                var assetsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets");
+                core.SetVirtualHostNameToFolderMapping("app.local", assetsPath, CoreWebView2HostResourceAccessKind.Allow);
+                core.Settings.AreDefaultContextMenusEnabled = false;
+
+                core.NavigationCompleted += async (_, args) =>
+                {
+                    if (!args.IsSuccess)
+                    {
+                        MapFallbackPanel.Visibility = Visibility.Visible;
+                        return;
+                    }
+
+                    // Chờ JS đăng ký listener (giống dashboard)
+                    await Task.Delay(300);
+                    var theme = Station.Services.ThemeService.Instance.CurrentTheme == ElementTheme.Light ? "Light" : "Dark";
+                    core.PostWebMessageAsJson(JsonSerializer.Serialize(new
+                    {
+                        type = "init",
+                        backend = EnvironmentConfig.BackendBaseUrl,
+                        station = EnvironmentConfig.StationId,
+                        token = EnvironmentConfig.MapboxAccessToken,
+                        @readonly = true
+                    }));
+                    await core.ExecuteScriptAsync($"setTheme('{theme}')");
+                    core.PostWebMessageAsJson(JsonSerializer.Serialize(new { type = "focus-node", nodeId = _node.NodeId, nodeName = _node.NodeName, lineName = _node.LineName }));
+                };
+
+                core.Navigate("https://app.local/Map/map.html");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[NodeDetailDialog] Map init error: {ex.Message}");
+                MapFallbackPanel.Visibility = Visibility.Visible;
+            }
         }
 
         private void PopulateData()
@@ -30,13 +83,12 @@ namespace Station.Dialogs
             DialogStatusBadge.Background = _node.StatusBackgroundColor;
             DialogStatusBadge.BorderBrush = _node.StatusColor;
             DialogStatusBadge.BorderThickness = new Thickness(1);
-            DialogStatusText.Text = _node.StatusText.ToUpper();
+            DialogStatusText.Text = $"{_node.StatusMarker} {_node.StatusText.ToUpper()}";
             DialogStatusText.Foreground = _node.StatusColor;
 
             // Detail list
-            DetailStatusText.Text = _node.StatusText;
+            DetailStatusText.Text = $"{_node.StatusMarker} {_node.StatusText}";
             DetailStatusText.Foreground = _node.StatusColor;
-            DetailStatusDot.Fill = _node.StatusColor;
             DetailLineText.Text = _node.LineName;
             DetailSensorCountText.Text = _node.SensorCountText;
 
@@ -50,10 +102,10 @@ namespace Station.Dialogs
             var cam = FindCamera();
             CamTimestampText.Text = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             CamIdText.Text = cam ?? $"CAM_{_node.NodeName.Replace("-", "_").Replace(" ", "_")}";
-            CamIdDetail.Text = cam ?? "—";
+            CamIdDetail.Text = cam ?? "-";
             CamStatusDetail.Text = cam != null ? "Trực tuyến" : "Không kết nối";
             if (cam == null)
-                CamStatusDetail.Foreground = new SolidColorBrush(Color.FromArgb(255, 148, 163, 184));
+                CamStatusDetail.Foreground = (Brush)Station.Services.ThemeBrushes.Get("DkGrayBrush");
         }
 
         private string? FindCamera()
@@ -64,7 +116,7 @@ namespace Station.Dialogs
             return null;
         }
 
-        // ─── Tab switching ───────────────────────────────────────────────
+        // --- Tab switching
         private void Tab_Tapped(object sender, TappedRoutedEventArgs e)
         {
             if (sender is not Border border) return;
@@ -98,14 +150,14 @@ namespace Station.Dialogs
 
         private void SetTabStyle(Border border, TextBlock text, bool active)
         {
-            var blueBrush = (SolidColorBrush)Application.Current.Resources["DkBlueBrush"];
-            var mutedBrush = (SolidColorBrush)Application.Current.Resources["DkTextMutedBrush"];
+            var blueBrush = (SolidColorBrush)Station.Services.ThemeBrushes.Get("DkBlueLightBrush");
+            var mutedBrush = (SolidColorBrush)Station.Services.ThemeBrushes.Get("DkTextMutedBrush");
 
             border.BorderBrush = active ? blueBrush : new SolidColorBrush(Colors.Transparent);
             text.Foreground = active ? blueBrush : mutedBrush;
         }
 
-        // ─── Button handlers ─────────────────────────────────────────────
+        // --- Button handlers ─────────────────────────────────────────────
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
             Hide();
@@ -121,7 +173,7 @@ namespace Station.Dialogs
                 CloseButtonText = "Hủy",
                 DefaultButton = ContentDialogButton.Close,
                 XamlRoot = this.XamlRoot,
-                RequestedTheme = ElementTheme.Dark
+                RequestedTheme = Station.Services.ThemeService.Instance.CurrentTheme
             };
             var result = await confirm.ShowAsync();
             if (result == ContentDialogResult.Primary)

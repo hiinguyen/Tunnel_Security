@@ -42,6 +42,7 @@ public sealed partial class DeviceDataDialog : ContentDialog
         _device = device;
    
         this.InitializeComponent();
+        RequestedTheme = Station.Services.ThemeService.Instance.CurrentTheme;
         
  InitializeCharts();
         LoadDeviceInfo();
@@ -66,6 +67,7 @@ public sealed partial class DeviceDataDialog : ContentDialog
         };
 
         this.InitializeComponent();
+        RequestedTheme = Station.Services.ThemeService.Instance.CurrentTheme;
         
         InitializeCharts();
         LoadDeviceInfo();
@@ -97,6 +99,8 @@ public sealed partial class DeviceDataDialog : ContentDialog
         };
     }
 
+    private void HeaderClose_Click(object sender, RoutedEventArgs e) => Hide();
+
     private void InitializeCharts()
     {
         // ===== TEMPERATURE CHART =====
@@ -109,13 +113,13 @@ public sealed partial class DeviceDataDialog : ContentDialog
        Name = "Nhiệt độ",
  Values = temperatureData,
        Fill = new LinearGradientPaint(
-       new SKColor(239, 68, 68, 60),  // #EF4444 with opacity
- new SKColor(239, 68, 68, 10),
+       new SKColor(255, 77, 77, 60),  // sensor accent with opacity
+ new SKColor(255, 77, 77, 10),
           new SKPoint(0, 0),
         new SKPoint(0, 1)),
-        Stroke = new SolidColorPaint(new SKColor(239, 68, 68)) { StrokeThickness = 2 },
+        Stroke = new SolidColorPaint(new SKColor(255, 77, 77)) { StrokeThickness = 2 },
       GeometrySize = 8,
-      GeometryStroke = new SolidColorPaint(new SKColor(239, 68, 68)) { StrokeThickness = 2 },
+      GeometryStroke = new SolidColorPaint(new SKColor(255, 77, 77)) { StrokeThickness = 2 },
                 GeometryFill = new SolidColorPaint(new SKColor(255, 255, 255)),
           LineSmoothness = 0.5
          }
@@ -127,7 +131,7 @@ public sealed partial class DeviceDataDialog : ContentDialog
        {
        Labels = new string[] { "00h", "04h", "08h", "12h", "16h", "20h", "24h" },
 LabelsPaint = new SolidColorPaint(new SKColor(148, 163, 184)),
-     SeparatorsPaint = new SolidColorPaint(new SKColor(226, 232, 240)) { StrokeThickness = 1 },
+     SeparatorsPaint = new SolidColorPaint(new SKColor(45, 50, 56)) { StrokeThickness = 1 },
       TextSize = 11
        }
         };
@@ -137,7 +141,7 @@ LabelsPaint = new SolidColorPaint(new SKColor(148, 163, 184)),
     new Axis
             {
     LabelsPaint = new SolidColorPaint(new SKColor(148, 163, 184)),
-    SeparatorsPaint = new SolidColorPaint(new SKColor(226, 232, 240)) { StrokeThickness = 1 },
+    SeparatorsPaint = new SolidColorPaint(new SKColor(45, 50, 56)) { StrokeThickness = 1 },
              TextSize = 11,
                 MinLimit = 20,
        MaxLimit = 40
@@ -154,13 +158,13 @@ LabelsPaint = new SolidColorPaint(new SKColor(148, 163, 184)),
   Name = "Độ ẩm",
   Values = humidityData,
          Fill = new LinearGradientPaint(
- new SKColor(59, 130, 246, 60),  // #3B82F6 with opacity
-            new SKColor(59, 130, 246, 10),
+ new SKColor(80, 160, 255, 60),  // sensor accent with opacity
+            new SKColor(80, 160, 255, 10),
         new SKPoint(0, 0),
       new SKPoint(0, 1)),
- Stroke = new SolidColorPaint(new SKColor(59, 130, 246)) { StrokeThickness = 2 },
+ Stroke = new SolidColorPaint(new SKColor(80, 160, 255)) { StrokeThickness = 2 },
   GeometrySize = 8,
-      GeometryStroke = new SolidColorPaint(new SKColor(59, 130, 246)) { StrokeThickness = 2 },
+      GeometryStroke = new SolidColorPaint(new SKColor(80, 160, 255)) { StrokeThickness = 2 },
  GeometryFill = new SolidColorPaint(new SKColor(255, 255, 255)),
      LineSmoothness = 0.5
        }
@@ -172,7 +176,7 @@ LabelsPaint = new SolidColorPaint(new SKColor(148, 163, 184)),
         {
         Labels = new string[] { "00h", "04h", "08h", "12h", "16h", "20h", "24h" },
           LabelsPaint = new SolidColorPaint(new SKColor(148, 163, 184)),
-  SeparatorsPaint = new SolidColorPaint(new SKColor(226, 232, 240)) { StrokeThickness = 1 },
+  SeparatorsPaint = new SolidColorPaint(new SKColor(45, 50, 56)) { StrokeThickness = 1 },
          TextSize = 11
             }
  };
@@ -182,7 +186,7 @@ LabelsPaint = new SolidColorPaint(new SKColor(148, 163, 184)),
      new Axis
     {
          LabelsPaint = new SolidColorPaint(new SKColor(148, 163, 184)),
-     SeparatorsPaint = new SolidColorPaint(new SKColor(226, 232, 240)) { StrokeThickness = 1 },
+     SeparatorsPaint = new SolidColorPaint(new SKColor(45, 50, 56)) { StrokeThickness = 1 },
          TextSize = 11,
 MinLimit = 60,
  MaxLimit = 100
@@ -199,13 +203,13 @@ VibrationSeries = new ISeries[]
            Name = "Rung động",
          Values = vibrationData,
     Fill = new LinearGradientPaint(
-    new SKColor(245, 158, 11, 60),  // #F59E0B with opacity
-        new SKColor(245, 158, 11, 10),
+    new SKColor(255, 184, 0, 60),  // sensor accent with opacity
+        new SKColor(255, 184, 0, 10),
         new SKPoint(0, 0),
        new SKPoint(0, 1)),
-       Stroke = new SolidColorPaint(new SKColor(245, 158, 11)) { StrokeThickness = 2 },
+       Stroke = new SolidColorPaint(new SKColor(255, 184, 0)) { StrokeThickness = 2 },
      GeometrySize = 8,
-             GeometryStroke = new SolidColorPaint(new SKColor(245, 158, 11)) { StrokeThickness = 2 },
+             GeometryStroke = new SolidColorPaint(new SKColor(255, 184, 0)) { StrokeThickness = 2 },
      GeometryFill = new SolidColorPaint(new SKColor(255, 255, 255)),
      LineSmoothness = 0.5
         }
@@ -217,7 +221,7 @@ VibrationSeries = new ISeries[]
     {
     Labels = new string[] { "00h", "04h", "08h", "12h", "16h", "20h", "24h" },
    LabelsPaint = new SolidColorPaint(new SKColor(148, 163, 184)),
-  SeparatorsPaint = new SolidColorPaint(new SKColor(226, 232, 240)) { StrokeThickness = 1 },
+  SeparatorsPaint = new SolidColorPaint(new SKColor(45, 50, 56)) { StrokeThickness = 1 },
      TextSize = 11
 }
         };
@@ -227,7 +231,7 @@ VibrationSeries = new ISeries[]
 new Axis
       {
       LabelsPaint = new SolidColorPaint(new SKColor(148, 163, 184)),
-   SeparatorsPaint = new SolidColorPaint(new SKColor(226, 232, 240)) { StrokeThickness = 1 },
+   SeparatorsPaint = new SolidColorPaint(new SKColor(45, 50, 56)) { StrokeThickness = 1 },
       TextSize = 11,
        MinLimit = 0,
      MaxLimit = 5
@@ -243,7 +247,7 @@ new Axis
             {
      Name = "Chuyển động",
             Values = motionData,
-     Fill = new SolidColorPaint(new SKColor(34, 197, 94)),  // #22C55E
+     Fill = new SolidColorPaint(new SKColor(0, 255, 136)),  
     MaxBarWidth = 40
             }
         };
@@ -254,7 +258,7 @@ new Axis
             {
      Labels = new string[] { "00h", "04h", "08h", "12h", "16h", "20h", "24h" },
   LabelsPaint = new SolidColorPaint(new SKColor(148, 163, 184)),
-  SeparatorsPaint = new SolidColorPaint(new SKColor(226, 232, 240)) { StrokeThickness = 1 },
+  SeparatorsPaint = new SolidColorPaint(new SKColor(45, 50, 56)) { StrokeThickness = 1 },
               TextSize = 11
             }
  };
@@ -264,7 +268,7 @@ new Axis
    new Axis
      {
                 LabelsPaint = new SolidColorPaint(new SKColor(148, 163, 184)),
-       SeparatorsPaint = new SolidColorPaint(new SKColor(226, 232, 240)) { StrokeThickness = 1 },
+       SeparatorsPaint = new SolidColorPaint(new SKColor(45, 50, 56)) { StrokeThickness = 1 },
        TextSize = 11,
        MinLimit = 0
   }

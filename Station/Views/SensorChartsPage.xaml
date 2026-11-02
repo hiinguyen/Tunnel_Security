@@ -5,7 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Background="{StaticResource DkBgBrush}">
+    Background="{ThemeResource DkBgBrush}">
 
     <Grid>
         <Grid.RowDefinitions>
@@ -13,90 +13,81 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- ══════════════════ HEADER ══════════════════ -->
-        <Border Grid.Row="0" Background="{StaticResource DkBgBrush}"
-                BorderBrush="{StaticResource DkBorderBrush}"
-                BorderThickness="0,0,0,1" Padding="20,10">
+        <!-- HEADER -->
+        <Border Grid.Row="0"
+                Background="{ThemeResource DkSurfaceBrush}"
+                BorderBrush="{ThemeResource DkBorderBrush}"
+                BorderThickness="0,0,0,1"
+                Padding="24,12">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Left: app label + connection / counters pill -->
-                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
-
-                    <TextBlock Text="GIÁM SÁT CẢM BIẾN" FontSize="{StaticResource FontSizeNormal}" FontFamily="Consolas"
-                               FontWeight="Bold" Foreground="{StaticResource DkTextPrimaryBrush}"
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="20" VerticalAlignment="Center">
+                    <TextBlock Text="Giám sát cảm biến"
+                               FontSize="{StaticResource FontSizeTitle}"
+                               FontWeight="SemiBold"
+                               Foreground="{ThemeResource DkTextPrimaryBrush}"
                                VerticalAlignment="Center"/>
 
-                    <Rectangle Width="1" Height="18" Fill="{StaticResource DkBorderBrush}"/>
-
-                    <Border Background="{StaticResource DkSurfaceBrush}" Padding="10,5">
-                        <StackPanel Orientation="Horizontal" Spacing="14">
-                            <StackPanel Orientation="Horizontal" Spacing="7">
-                                <Ellipse x:Name="ConnectionDot" Width="6" Height="6"
-                                         Fill="{StaticResource DkConnectionOfflineBrush}" VerticalAlignment="Center"/>
-                                <TextBlock x:Name="ConnectionText" Text="CONNECTING..."
-                                           FontSize="{StaticResource FontSizeCompact}" FontFamily="Consolas" FontWeight="SemiBold"
-                                           Foreground="{StaticResource DkConnectionOfflineBrush}" VerticalAlignment="Center"/>
+                    <!-- Connection state: marker + text, never color alone -->
+                    <Border Background="{ThemeResource DkInputBgBrush}"
+                            BorderBrush="{ThemeResource DkBorderBrush}"
+                            BorderThickness="1" CornerRadius="8" Padding="12,6">
+                        <StackPanel Orientation="Horizontal" Spacing="16">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Ellipse x:Name="ConnectionDot" Width="9" Height="9"
+                                         Fill="{ThemeResource DkConnectionOfflineBrush}" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="ConnectionText" Text="ĐANG KẾT NỐI"
+                                           Style="{StaticResource DkTagTextStyle}"
+                                           Foreground="{ThemeResource DkConnectionOfflineBrush}"
+                                           VerticalAlignment="Center"/>
                             </StackPanel>
 
-                            <Rectangle Width="1" Height="14" Fill="{StaticResource DkBorderBrush}"/>
+                            <Rectangle Width="1" Height="16" Fill="{ThemeResource DkBorderBrush}"/>
 
-                            <StackPanel Orientation="Horizontal" Spacing="6">
-                                <TextBlock Text="SENSORS" FontSize="{StaticResource FontSizeTiny}" FontFamily="Consolas"
-                                           Foreground="{StaticResource DkTextDimBrush}" VerticalAlignment="Center"/>
-                                <TextBlock x:Name="SensorCountText" Text="0" FontSize="{StaticResource FontSizeSubtitle}"
-                                           FontFamily="Consolas" FontWeight="Bold"
-                                           Foreground="{StaticResource DkTextPrimaryBrush}" VerticalAlignment="Center"/>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <TextBlock Text="CẢM BIẾN" Style="{StaticResource DkLabelStyle}" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="SensorCountText" Text="0"
+                                           FontSize="{StaticResource FontSizeNormal}" FontWeight="Bold"
+                                           Typography.NumeralAlignment="Tabular"
+                                           Foreground="{ThemeResource DkTextPrimaryBrush}" VerticalAlignment="Center"/>
                             </StackPanel>
 
-                            <StackPanel Orientation="Horizontal" Spacing="6">
-                                <TextBlock Text="UPDATES" FontSize="{StaticResource FontSizeTiny}" FontFamily="Consolas"
-                                           Foreground="{StaticResource DkTextDimBrush}" VerticalAlignment="Center"/>
-                                <TextBlock x:Name="TotalUpdatesText" Text="0" FontSize="{StaticResource FontSizeSubtitle}"
-                                           FontFamily="Consolas" FontWeight="Bold"
-                                           Foreground="{StaticResource DkTextPrimaryBrush}" VerticalAlignment="Center"/>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <TextBlock Text="CẬP NHẬT" Style="{StaticResource DkLabelStyle}" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="TotalUpdatesText" Text="0"
+                                           FontSize="{StaticResource FontSizeNormal}" FontWeight="Bold"
+                                           Typography.NumeralAlignment="Tabular"
+                                           Foreground="{ThemeResource DkTextPrimaryBrush}" VerticalAlignment="Center"/>
                             </StackPanel>
                         </StackPanel>
                     </Border>
                 </StackPanel>
 
-                <!-- Right: actions -->
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                    <Button Click="ClearHistory_Click" Padding="12,6"
-                            Background="{StaticResource DkSurfaceBrush}"
-                            BorderBrush="{StaticResource DkBorderBrush}" BorderThickness="1">
-                        <StackPanel Orientation="Horizontal" Spacing="6">
-                            <FontIcon Glyph="&#xE74D;" FontSize="{StaticResource FontSizeCompact}" Foreground="{StaticResource DkTextMutedBrush}"/>
-                            <TextBlock Text="CLEAR" FontFamily="Consolas" FontSize="{StaticResource FontSizeXSmall}"
-                                       Foreground="{StaticResource DkTextMutedBrush}"/>
+                    <Button Click="ClearHistory_Click" Style="{StaticResource DkSecondaryButtonStyle}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE74D;" FontSize="{StaticResource FontSizeSmall}"/>
+                            <TextBlock Text="Xóa lịch sử"/>
                         </StackPanel>
-                    </Button>
-
-                    <Button Style="{StaticResource DkIconButtonStyle}"
-                            ToolTipService.ToolTip="Thông báo">
-                        <FontIcon Glyph="&#xE7E7;" FontSize="{StaticResource FontSizeSubtitle}" Foreground="{StaticResource DkTextMutedBrush}"/>
-                    </Button>
-                    <Button Style="{StaticResource DkIconButtonStyle}"
-                            ToolTipService.ToolTip="Cấu hình">
-                        <FontIcon Glyph="&#xE713;" FontSize="{StaticResource FontSizeSubtitle}" Foreground="{StaticResource DkTextMutedBrush}"/>
                     </Button>
                 </StackPanel>
             </Grid>
         </Border>
 
-        <!-- ══════════════════ BODY ══════════════════ -->
+        <!-- BODY -->
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="240"/>
+                <ColumnDefinition Width="248"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- ─────────── SIDEBAR ─────────── -->
-            <Border Grid.Column="0" Background="{StaticResource DkBgBrush}"
-                    BorderBrush="{StaticResource DkBorderBrush}" BorderThickness="0,0,1,0">
+            <!-- SIDEBAR -->
+            <Border Grid.Column="0" Background="{ThemeResource DkSurfaceBrush}"
+                    BorderBrush="{ThemeResource DkBorderBrush}" BorderThickness="0,0,1,0">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -104,76 +95,71 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
-                    <!-- Section: Bố cục -->
                     <StackPanel Grid.Row="0" Margin="0,20,0,4">
-                        <TextBlock Text="BỐ CỤC" FontSize="{StaticResource FontSizeCaption}" FontFamily="Consolas"
-                                   FontWeight="SemiBold" Foreground="{StaticResource DkTextDimBrush}"
-                                   CharacterSpacing="80" Margin="18,0,18,10"/>
+                        <TextBlock Text="BỐ CỤC" Style="{StaticResource DkLabelStyle}" Margin="24,0,24,10"/>
 
                         <Border x:Name="LayoutOpt1" Tag="1" IsTapEnabled="True"
-                                Tapped="LayoutOption_Tapped" Padding="18,9"
-                                Background="Transparent" BorderThickness="0,0,3,0"
-                                BorderBrush="Transparent">
+                                Tapped="LayoutOption_Tapped" Padding="10,8" Margin="12,0,12,2"
+                                Background="Transparent" BorderThickness="1"
+                                BorderBrush="Transparent" CornerRadius="8">
                             <StackPanel Orientation="Horizontal" Spacing="10">
-                                <Grid Width="16" Height="12" VerticalAlignment="Center">
-                                    <Rectangle Fill="{StaticResource DkTextSecondaryBrush}"/>
+                                <Grid Width="18" Height="12" VerticalAlignment="Center">
+                                    <Rectangle Fill="{ThemeResource DkTextSecondaryBrush}" RadiusX="1" RadiusY="1"/>
                                 </Grid>
-                                <TextBlock x:Name="LblLayout1" Text="1 CỘT" FontSize="{StaticResource FontSizeCompact}"
-                                           FontFamily="Consolas" VerticalAlignment="Center"
-                                           Foreground="{StaticResource DkTextMutedBrush}"/>
+                                <TextBlock x:Name="LblLayout1" Text="1 cột" FontSize="{StaticResource FontSizeSmall}"
+                                           VerticalAlignment="Center"
+                                           Foreground="{ThemeResource DkTextMutedBrush}"/>
                             </StackPanel>
                         </Border>
 
                         <Border x:Name="LayoutOpt2" Tag="2" IsTapEnabled="True"
-                                Tapped="LayoutOption_Tapped" Padding="18,9"
-                                Background="{StaticResource DkBlueBgBrush}" BorderThickness="0,0,3,0"
-                                BorderBrush="{StaticResource DkBlueLightBrush}">
+                                Tapped="LayoutOption_Tapped" Padding="10,8" Margin="12,0,12,2"
+                                Background="{ThemeResource DkBlueBgBrush}" BorderThickness="1"
+                                BorderBrush="{ThemeResource DkBlueLightBrush}" CornerRadius="8">
                             <StackPanel Orientation="Horizontal" Spacing="10">
-                                <Grid Width="16" Height="12" VerticalAlignment="Center" ColumnSpacing="2">
+                                <Grid Width="18" Height="12" VerticalAlignment="Center" ColumnSpacing="2">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <Rectangle Grid.Column="0" Fill="{StaticResource DkBlueLightBrush}"/>
-                                    <Rectangle Grid.Column="1" Fill="{StaticResource DkBlueLightBrush}"/>
+                                    <Rectangle Grid.Column="0" Fill="{ThemeResource DkBlueLightBrush}" RadiusX="1" RadiusY="1"/>
+                                    <Rectangle Grid.Column="1" Fill="{ThemeResource DkBlueLightBrush}" RadiusX="1" RadiusY="1"/>
                                 </Grid>
-                                <TextBlock x:Name="LblLayout2" Text="2 CỘT" FontSize="{StaticResource FontSizeCompact}"
-                                           FontFamily="Consolas" VerticalAlignment="Center"
-                                           Foreground="{StaticResource DkBlueLightBrush}"/>
+                                <TextBlock x:Name="LblLayout2" Text="2 cột" FontSize="{StaticResource FontSizeSmall}"
+                                           VerticalAlignment="Center"
+                                           Foreground="{ThemeResource DkBlueLightBrush}"/>
                             </StackPanel>
                         </Border>
 
                         <Border x:Name="LayoutOpt3" Tag="3" IsTapEnabled="True"
-                                Tapped="LayoutOption_Tapped" Padding="18,9"
-                                Background="Transparent" BorderThickness="0,0,3,0"
-                                BorderBrush="Transparent">
+                                Tapped="LayoutOption_Tapped" Padding="10,8" Margin="12,0,12,2"
+                                Background="Transparent" BorderThickness="1"
+                                BorderBrush="Transparent" CornerRadius="8">
                             <StackPanel Orientation="Horizontal" Spacing="10">
-                                <Grid Width="16" Height="12" VerticalAlignment="Center" ColumnSpacing="2">
+                                <Grid Width="18" Height="12" VerticalAlignment="Center" ColumnSpacing="2">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <Rectangle Grid.Column="0" Fill="{StaticResource DkTextSecondaryBrush}"/>
-                                    <Rectangle Grid.Column="1" Fill="{StaticResource DkTextSecondaryBrush}"/>
-                                    <Rectangle Grid.Column="2" Fill="{StaticResource DkTextSecondaryBrush}"/>
+                                    <Rectangle Grid.Column="0" Fill="{ThemeResource DkTextSecondaryBrush}" RadiusX="1" RadiusY="1"/>
+                                    <Rectangle Grid.Column="1" Fill="{ThemeResource DkTextSecondaryBrush}" RadiusX="1" RadiusY="1"/>
+                                    <Rectangle Grid.Column="2" Fill="{ThemeResource DkTextSecondaryBrush}" RadiusX="1" RadiusY="1"/>
                                 </Grid>
-                                <TextBlock x:Name="LblLayout3" Text="3 CỘT" FontSize="{StaticResource FontSizeCompact}"
-                                           FontFamily="Consolas" VerticalAlignment="Center"
-                                           Foreground="{StaticResource DkTextMutedBrush}"/>
+                                <TextBlock x:Name="LblLayout3" Text="3 cột" FontSize="{StaticResource FontSizeSmall}"
+                                           VerticalAlignment="Center"
+                                           Foreground="{ThemeResource DkTextMutedBrush}"/>
                             </StackPanel>
                         </Border>
                     </StackPanel>
 
-                    <!-- Section: Danh sách cảm biến (nguồn kéo-thả) -->
                     <StackPanel Grid.Row="1">
-                        <Rectangle Height="1" Fill="{StaticResource DkBorderSubtleBrush}" Margin="0,10,0,14"/>
-                        <TextBlock Text="DANH SÁCH CẢM BIẾN" FontSize="{StaticResource FontSizeCaption}" FontFamily="Consolas"
-                                   FontWeight="SemiBold" Foreground="{StaticResource DkTextDimBrush}"
-                                   CharacterSpacing="80" Margin="18,0,18,2"/>
-                        <TextBlock Text="Kéo cảm biến vào ô trống để hiển thị" FontSize="{StaticResource FontSizeXSmall}"
-                                   Foreground="{StaticResource DkTextDimBrush}" Opacity="0.7"
-                                   TextWrapping="Wrap" Margin="18,0,18,10"/>
+                        <Rectangle Height="1" Fill="{ThemeResource DkBorderSubtleBrush}" Margin="0,12,0,16"/>
+                        <TextBlock Text="DANH SÁCH CẢM BIẾN" Style="{StaticResource DkLabelStyle}" Margin="24,0,24,4"/>
+                        <TextBlock Text="Kéo cảm biến vào ô trống để hiển thị"
+                                   FontSize="{StaticResource FontSizeCompact}"
+                                   Foreground="{ThemeResource DkTextMutedBrush}"
+                                   TextWrapping="Wrap" Margin="24,0,24,10"/>
                     </StackPanel>
 
                     <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
@@ -182,150 +168,145 @@
                 </Grid>
             </Border>
 
-            <!-- ─────────── CHARTS AREA ─────────── -->
-            <!-- Named so ExpandCard()/CollapseExpandedCardAnimated() can measure a card's
-                 on-screen position/size relative to this fixed, always-visible root before
-                 re-parenting it, and compute a FLIP-style grow/shrink transform from it. -->
-            <Grid x:Name="ChartsAreaRoot" Grid.Column="1" Background="{StaticResource DkBgBrush}">
+            <!-- CHARTS AREA (named: the FLIP fullscreen transform measures against it) -->
+            <Grid x:Name="ChartsAreaRoot" Grid.Column="1" Background="{ThemeResource DkBgBrush}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <!-- Charts header -->
-                <Border Grid.Row="0" Padding="16,10"
-                        BorderBrush="{StaticResource DkBorderBrush}" BorderThickness="0,0,0,1">
+                <!-- Charts toolbar -->
+                <Border Grid.Row="0" Padding="24,12"
+                        BorderBrush="{ThemeResource DkBorderBrush}" BorderThickness="0,0,0,1">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
-                            <TextBlock x:Name="ChartsTitleText" Text="BẢNG ĐIỀU KHIỂN CẢM BIẾN" FontSize="{StaticResource FontSizeSubtitle}"
-                                       FontFamily="Consolas" FontWeight="Bold"
-                                       Foreground="{StaticResource DkTextPrimaryBrush}"/>
-                            <Border Background="{StaticResource DkSurfaceBrush}" Padding="8,3">
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                            <TextBlock x:Name="ChartsTitleText" Text="Bảng điều khiển cảm biến"
+                                       FontSize="{StaticResource FontSizeNormal}" FontWeight="SemiBold"
+                                       Foreground="{ThemeResource DkTextPrimaryBrush}"/>
+                            <Border Background="{ThemeResource DkInputBgBrush}"
+                                    BorderBrush="{ThemeResource DkBorderBrush}"
+                                    BorderThickness="1" CornerRadius="4" Padding="8,3">
                                 <TextBlock x:Name="ChartCountBadge" Text="0 / 0 hiển thị"
-                                           FontSize="{StaticResource FontSizeXSmall}" FontFamily="Consolas"
-                                           Foreground="{StaticResource DkBlueLightBrush}"/>
+                                           Style="{StaticResource DkTagTextStyle}"
+                                           Typography.NumeralAlignment="Tabular"/>
                             </Border>
                         </StackPanel>
 
                         <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
-
-                            <Border Background="{StaticResource DkInputBgBrush}"
-                                    BorderBrush="{StaticResource DkBorderBrush}" BorderThickness="1"
-                                    Padding="2">
-                                <StackPanel Orientation="Horizontal" Spacing="0" VerticalAlignment="Center">
-                                    <TextBlock Text="LỊCH SỬ" FontSize="{StaticResource FontSizeCaption}" FontFamily="Consolas"
-                                               Foreground="{StaticResource DkTextDimBrush}"
-                                               VerticalAlignment="Center" Margin="8,0"/>
-                                    <Border x:Name="HistOpt30" Tag="30" IsTapEnabled="True"
-                                            Tapped="HistoryOption_Tapped" Padding="10,6"
-                                            Background="Transparent" BorderThickness="0" BorderBrush="Transparent">
-                                        <TextBlock x:Name="HistLbl30" Text="30" FontSize="{StaticResource FontSizeCompact}"
-                                                   FontFamily="Consolas" Foreground="{StaticResource DkTextMutedBrush}"/>
-                                    </Border>
-                                    <Border x:Name="HistOpt60" Tag="60" IsTapEnabled="True"
-                                            Tapped="HistoryOption_Tapped" Padding="10,6"
-                                            Background="{StaticResource DkBlueBgBrush}" BorderThickness="0" BorderBrush="Transparent">
-                                        <TextBlock x:Name="HistLbl60" Text="60" FontSize="{StaticResource FontSizeCompact}" FontWeight="Bold"
-                                                   FontFamily="Consolas" Foreground="{StaticResource DkBlueLightBrush}"/>
-                                    </Border>
-                                    <Border x:Name="HistOpt100" Tag="100" IsTapEnabled="True"
-                                            Tapped="HistoryOption_Tapped" Padding="10,6"
-                                            Background="Transparent" BorderThickness="0" BorderBrush="Transparent">
-                                        <TextBlock x:Name="HistLbl100" Text="100" FontSize="{StaticResource FontSizeCompact}"
-                                                   FontFamily="Consolas" Foreground="{StaticResource DkTextMutedBrush}"/>
-                                    </Border>
-                                </StackPanel>
-                            </Border>
+                            <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                                <TextBlock Text="Lịch sử (điểm)" FontSize="{StaticResource FontSizeSmall}"
+                                           Foreground="{ThemeResource DkTextMutedBrush}" VerticalAlignment="Center"/>
+                                <Border Background="{ThemeResource DkInputBgBrush}"
+                                        BorderBrush="{ThemeResource DkBorderBrush}" BorderThickness="1"
+                                        CornerRadius="8" Padding="2">
+                                    <StackPanel Orientation="Horizontal" Spacing="2" VerticalAlignment="Center">
+                                        <Border x:Name="HistOpt30" Tag="30" IsTapEnabled="True"
+                                                Tapped="HistoryOption_Tapped" Padding="12,5" CornerRadius="6"
+                                                Background="Transparent" BorderThickness="0" BorderBrush="Transparent">
+                                            <TextBlock x:Name="HistLbl30" Text="30" FontSize="{StaticResource FontSizeSmall}"
+                                                       Typography.NumeralAlignment="Tabular"
+                                                       Foreground="{ThemeResource DkTextMutedBrush}"/>
+                                        </Border>
+                                        <Border x:Name="HistOpt60" Tag="60" IsTapEnabled="True"
+                                                Tapped="HistoryOption_Tapped" Padding="12,5" CornerRadius="6"
+                                                Background="{ThemeResource DkBlueBgBrush}" BorderThickness="0" BorderBrush="Transparent">
+                                            <TextBlock x:Name="HistLbl60" Text="60" FontSize="{StaticResource FontSizeSmall}" FontWeight="Bold"
+                                                       Typography.NumeralAlignment="Tabular"
+                                                       Foreground="{ThemeResource DkBlueLightBrush}"/>
+                                        </Border>
+                                        <Border x:Name="HistOpt100" Tag="100" IsTapEnabled="True"
+                                                Tapped="HistoryOption_Tapped" Padding="12,5" CornerRadius="6"
+                                                Background="Transparent" BorderThickness="0" BorderBrush="Transparent">
+                                            <TextBlock x:Name="HistLbl100" Text="100" FontSize="{StaticResource FontSizeSmall}"
+                                                       Typography.NumeralAlignment="Tabular"
+                                                       Foreground="{ThemeResource DkTextMutedBrush}"/>
+                                        </Border>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
 
                             <Button x:Name="AutoFillButton" Click="AutoFill_Click"
-                                    Style="{StaticResource DkSecondaryButtonStyle}" Padding="14,7"
+                                    Style="{StaticResource DkSecondaryButtonStyle}"
                                     ToolTipService.ToolTip="Tự động lấp đầy ô trống">
                                 <StackPanel Orientation="Horizontal" Spacing="8">
                                     <FontIcon Glyph="&#xE710;" FontSize="{StaticResource FontSizeSmall}"/>
-                                    <TextBlock Text="LẤP ĐẦY" FontSize="{StaticResource FontSizeXSmall}" FontFamily="Consolas"/>
+                                    <TextBlock Text="Lấp đầy"/>
                                 </StackPanel>
                             </Button>
                         </StackPanel>
                     </Grid>
                 </Border>
 
-                <!-- Charts grid: fixed Row/Column cells sized by ratio (Grid Star sizing) — a
-                     card grows by spanning whole cells, never by raw pixels, so a resize can't
-                     push the layout past the viewport the way free-form pixel sizing could. -->
-                <Border Grid.Row="1" Padding="14">
+                <!-- Charts grid: fixed Row/Column cells, cards span whole cells -->
+                <Border Grid.Row="1" Padding="24,16">
                     <Grid x:Name="ChartsHost" ColumnSpacing="16" RowSpacing="16"/>
                 </Border>
 
-                <!-- Empty state -->
+                <!-- Empty state: text and an instrument tag, no pictogram -->
                 <StackPanel x:Name="EmptyState" Grid.Row="1"
                             VerticalAlignment="Center" HorizontalAlignment="Center"
-                            Spacing="16" Visibility="Visible">
-                    <Border Width="56" Height="56" Background="{StaticResource DkSurfaceBrush}"
+                            Spacing="12" Visibility="Visible">
+                    <Border Background="{ThemeResource DkInputBgBrush}"
+                            BorderBrush="{ThemeResource DkBorderBrush}"
+                            BorderThickness="1" CornerRadius="4" Padding="8,3"
                             HorizontalAlignment="Center">
-                        <FontIcon Glyph="&#xE9D9;" FontSize="{StaticResource FontSizeXLarge}" Foreground="{StaticResource DkTextDimBrush}"
-                                  VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        <TextBlock Text="CHỜ DỮ LIỆU" Style="{StaticResource DkTagTextStyle}"/>
                     </Border>
-                    <StackPanel Spacing="4" HorizontalAlignment="Center">
-                        <TextBlock x:Name="EmptyStateLabel" Text="ĐANG KẾT NỐI..."
-                                   FontFamily="Consolas" FontSize="{StaticResource FontSizeSmall}" FontWeight="SemiBold"
-                                   Foreground="{StaticResource DkTextMutedBrush}" TextAlignment="Center"/>
-                        <TextBlock Text="Waiting for sensor data stream" FontSize="{StaticResource FontSizeXSmall}"
-                                   Foreground="{StaticResource DkTextDimBrush}" TextAlignment="Center"/>
-                    </StackPanel>
+                    <TextBlock x:Name="EmptyStateLabel" Text="Đang kết nối..."
+                               FontSize="{StaticResource FontSizeBody}" FontWeight="SemiBold"
+                               Foreground="{ThemeResource DkTextSecondaryBrush}" TextAlignment="Center"/>
+                    <TextBlock Text="Đang chờ luồng dữ liệu cảm biến"
+                               FontSize="{StaticResource FontSizeSmall}"
+                               Foreground="{ThemeResource DkTextMutedBrush}" TextAlignment="Center"/>
                 </StackPanel>
 
                 <!-- Footer -->
-                <Border Grid.Row="2" Padding="16,10"
-                        BorderBrush="{StaticResource DkBorderBrush}" BorderThickness="0,1,0,0">
+                <Border Grid.Row="2" Padding="24,10" Background="{ThemeResource DkSurfaceBrush}"
+                        BorderBrush="{ThemeResource DkBorderBrush}" BorderThickness="0,1,0,0">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="20" VerticalAlignment="Center">
-                            <StackPanel Orientation="Horizontal" Spacing="6">
-                                <TextBlock Text="Cảm biến đã gán:" FontSize="{StaticResource FontSizeXSmall}" FontFamily="Consolas"
-                                           Foreground="{StaticResource DkTextDimBrush}"/>
-                                <TextBlock x:Name="TotalNodesText" Text="0" FontSize="{StaticResource FontSizeXSmall}" FontFamily="Consolas"
-                                           FontWeight="Bold" Foreground="{StaticResource DkTextPrimaryBrush}"/>
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="24" VerticalAlignment="Center">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Rectangle Width="9" Height="9" RadiusX="2" RadiusY="2"
+                                           Fill="{ThemeResource DkTextSecondaryBrush}" VerticalAlignment="Center"/>
+                                <TextBlock Text="Cảm biến đã gán" FontSize="{StaticResource FontSizeSmall}"
+                                           Foreground="{ThemeResource DkTextMutedBrush}"/>
+                                <TextBlock x:Name="TotalNodesText" Text="0" FontSize="{StaticResource FontSizeSmall}"
+                                           FontWeight="Bold" Typography.NumeralAlignment="Tabular"
+                                           Foreground="{ThemeResource DkTextPrimaryBrush}"/>
                             </StackPanel>
-                            <StackPanel Orientation="Horizontal" Spacing="6">
-                                <TextBlock Text="Cảnh báo:" FontSize="{StaticResource FontSizeXSmall}" FontFamily="Consolas"
-                                           Foreground="{StaticResource DkTextDimBrush}"/>
-                                <TextBlock x:Name="ActiveAlertsText" Text="0" FontSize="{StaticResource FontSizeXSmall}" FontFamily="Consolas"
-                                           FontWeight="Bold" Foreground="{StaticResource DkYellowBrush}"/>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Polygon Points="4.5,0 9,8 0,8" Fill="{ThemeResource DkYellowBrush}" VerticalAlignment="Center"/>
+                                <TextBlock Text="Cảnh báo" FontSize="{StaticResource FontSizeSmall}"
+                                           Foreground="{ThemeResource DkTextMutedBrush}"/>
+                                <TextBlock x:Name="ActiveAlertsText" Text="0" FontSize="{StaticResource FontSizeSmall}"
+                                           FontWeight="Bold" Typography.NumeralAlignment="Tabular"
+                                           Foreground="{ThemeResource DkYellowBrush}"/>
                             </StackPanel>
                         </StackPanel>
 
-                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                            <FontIcon Glyph="&#xE7C2;" FontSize="{StaticResource FontSizeCompact}" Foreground="{StaticResource DkTextDimBrush}"/>
-                            <TextBlock Text="Kéo cảm biến từ danh sách để hiển thị" FontSize="{StaticResource FontSizeXSmall}"
-                                       Foreground="{StaticResource DkTextDimBrush}"/>
-                        </StackPanel>
+                        <TextBlock Grid.Column="1" Text="Kéo cảm biến từ danh sách để hiển thị"
+                                   FontSize="{StaticResource FontSizeSmall}"
+                                   Foreground="{ThemeResource DkTextMutedBrush}" VerticalAlignment="Center"/>
                     </Grid>
                 </Border>
 
-                <!-- ─────────── Fullscreen chart overlay (mirrors LiveVideoPage's camera-focus mode) ───────────
-                     Spans the whole charts area (header/body/footer rows) and, when a card is expanded, hosts
-                     that exact same card Border re-parented from ChartsHost — no chart/series rebuild, so the
-                     live-updating series keeps ticking untouched while it's shown fullscreen. Background is a
-                     translucent scrim (not opaque) so the grid underneath is dimmed rather than hard-cut, and
-                     Opacity starts at 0 / the card host starts slightly scaled down so ExpandCard()/
-                     CollapseExpandedCard() can animate both to/from their resting state (fade + pop). -->
+                <!-- Fullscreen chart overlay: hosts the same card Border re-parented from ChartsHost.
+                     CompositeTransform anchors at the element's top-left, which the FLIP math in
+                     PlayFullscreenTransition() assumes. Do not add RenderTransformOrigin. -->
                 <Grid x:Name="FullscreenOverlay" Grid.Row="0" Grid.RowSpan="3"
-                      Background="{StaticResource DkScrimBrush}" Padding="28"
+                      Background="{ThemeResource DkScrimBrush}" Padding="28"
                       Visibility="Collapsed" Opacity="0">
-                    <!-- CompositeTransform's Center defaults to (0,0) — the element's own top-left
-                         corner — which is exactly the anchor the FLIP math in PlayFullscreenTransition()
-                         assumes (scale-then-translate from a corner, not RenderTransformOrigin's
-                         normalized center point). Do not add RenderTransformOrigin here. -->
                     <Grid x:Name="FullscreenCardHost">
                         <Grid.RenderTransform>
                             <CompositeTransform x:Name="FullscreenCardTransform"/>
@@ -334,8 +315,9 @@
                     <Button Click="FullscreenClose_Click"
                             Style="{StaticResource DkIconButtonStyle}"
                             HorizontalAlignment="Right" VerticalAlignment="Top"
+                            AutomationProperties.Name="Thu nhỏ"
                             ToolTipService.ToolTip="Thu nhỏ">
-                        <FontIcon Glyph="&#xE73F;" FontSize="{StaticResource FontSizeSubtitle}" Foreground="{StaticResource DkTextMutedBrush}"/>
+                        <FontIcon Glyph="&#xE73F;" FontSize="{StaticResource FontSizeSubtitle}"/>
                     </Button>
                 </Grid>
             </Grid>

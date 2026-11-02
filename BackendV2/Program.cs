@@ -4,7 +4,10 @@ using BackendV2.Hubs;
 using BackendV2.Services;
 using BackendV2.Middlewares;
 using BackendV2.Auth;
+using BackendV2.Gateway;
 using BackendV2.Models;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
@@ -19,9 +22,15 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddSignalR();
 
+// Database:Provider = SqlServer (mặc định, môi trường dev) | Sqlite (bản cài máy đơn, không cần cài CSDL).
+var useSqlite = string.Equals(builder.Configuration["Database:Provider"], "Sqlite", StringComparison.OrdinalIgnoreCase);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("ConnectionStrings:DefaultConnection is not configured.");
-builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
+builder.Services.AddDbContext<AppDbContext>(options =>
+{
+    if (useSqlite) options.UseSqlite(connectionString);
+    else options.UseSqlServer(connectionString);
+});
 
 // ── Auth (JWT bearer + roles/permissions) ─────────────────────────────────────
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
@@ -60,7 +69,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             }
         };
     });
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options => options.AddGatewayPolicies());
 
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -71,10 +80,26 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 if (builder.Configuration.GetValue<bool>("TimeSeries:Enabled"))
 {
     var tsConnStr = builder.Configuration.GetConnectionString("TimeSeries")!;
-    builder.Services.AddDbContext<TimeSeriesDbContext>(options => options.UseNpgsql(tsConnStr));
+    builder.Services.AddDbContext<TimeSeriesDbContext>(options =>
+    {
+        if (useSqlite) options.UseSqlite(tsConnStr);
+        else options.UseNpgsql(tsConnStr);
+    });
 }
 
-builder.Services.AddHostedService<MqttSubscriberService>();
+// Khóa Data Protection mã hóa khóa bí mật của thiết bị trong CSDL; mất thư mục này là mất khả năng xác thực node.
+var keysPath = builder.Configuration["DataProtection:KeysPath"]
+    ?? Path.Combine(builder.Environment.ContentRootPath, "keys");
+var dataProtection = builder.Services.AddDataProtection()
+    .SetApplicationName("TunnelSecurity.BackendV2")
+    .PersistKeysToFileSystem(new DirectoryInfo(keysPath));
+if (OperatingSystem.IsWindows())
+{
+    // PC trạm chạy Windows: mã hóa chính các khóa này bằng DPAPI của máy, file khóa bị sao chép đi nơi khác cũng vô dụng.
+    dataProtection.ProtectKeysWithDpapi(protectToLocalMachine: true);
+}
+
+builder.Services.AddGateway(builder.Configuration);
 
 builder.Services.AddSingleton<CameraRelayRegistry>();
 
@@ -99,10 +124,27 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
+// Môi trường thật không được chạy với mật khẩu MQTT mặc định của docker-compose/appsettings.Development.
+if (!app.Environment.IsDevelopment())
+{
+    var mqtt = app.Services.GetRequiredService<IOptions<MqttOptions>>().Value;
+    static bool IsWeak(string? secret) => string.IsNullOrEmpty(secret) || secret.Length < 12 || secret.StartsWith("dev-", StringComparison.Ordinal);
+    if (mqtt.DynamicSecurity.Enabled && (IsWeak(mqtt.Password) || IsWeak(mqtt.DynamicSecurity.ProvisioningPassword)))
+    {
+        throw new InvalidOperationException(
+            "Mqtt:Password and Mqtt:DynamicSecurity:ProvisioningPassword must be set to strong (12+ chars, non-default) values outside Development");
+    }
+}
+
 // Auth — seed standard roles/permissions and bootstrap the initial admin user
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    if (useSqlite)
+    {
+        // SQLite không dùng migration của SQL Server; tạo schema trực tiếp từ model ở lần chạy đầu.
+        await db.Database.EnsureCreatedAsync();
+    }
     var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher<User>>();
     await AuthSeeder.SeedAsync(db, passwordHasher, app.Configuration);
     await TopologySeeder.SeedAsync(db);

@@ -273,7 +273,7 @@ namespace Station.Views
 
             foreach (var line in _mock.Lines)
             {
-                foreach (var node in line.Nodes.Take(8))
+                foreach (var node in line.Nodes)
                 {
                     var camera = _mock.Cameras.FirstOrDefault(c => c.NodeId == node.NodeId);
                     locations.Add(new LocationInfo(
@@ -577,8 +577,8 @@ namespace Station.Views
                     Name = "Cao/nghiêm trọng",
                     Values = highRiskValues,
                     Fill = null,
-                    Stroke = new SolidColorPaint(new SKColor(239, 68, 68)) { StrokeThickness = 3 },
-                    GeometryFill = new SolidColorPaint(new SKColor(239, 68, 68)),
+                    Stroke = new SolidColorPaint(new SKColor(255, 82, 82)) { StrokeThickness = 3 },
+                    GeometryFill = new SolidColorPaint(new SKColor(255, 82, 82)),
                     GeometryStroke = new SolidColorPaint(new SKColor(254, 202, 202)) { StrokeThickness = 2 },
                     GeometrySize = 7,
                     LineSmoothness = 0.45
@@ -621,10 +621,10 @@ namespace Station.Views
 
             var severityCounts = new[]
             {
-                new { Name = "Nghiêm trọng", Count = filtered.Count(r => r.Severity == "Nghiêm trọng"), Color = new SKColor(239, 68, 68) },
-                new { Name = "Cao", Count = filtered.Count(r => r.Severity == "Cao"), Color = new SKColor(249, 115, 22) },
-                new { Name = "Trung bình", Count = filtered.Count(r => r.Severity == "Trung bình"), Color = new SKColor(234, 179, 8) },
-                new { Name = "Thấp", Count = filtered.Count(r => r.Severity == "Thấp"), Color = new SKColor(34, 197, 94) }
+                new { Name = "Nghiêm trọng", Count = filtered.Count(r => r.Severity == "Nghiêm trọng"), Color = new SKColor(255, 82, 82) },
+                new { Name = "Cao", Count = filtered.Count(r => r.Severity == "Cao"), Color = new SKColor(255, 140, 66) },
+                new { Name = "Trung bình", Count = filtered.Count(r => r.Severity == "Trung bình"), Color = new SKColor(255, 209, 102) },
+                new { Name = "Thấp", Count = filtered.Count(r => r.Severity == "Thấp"), Color = new SKColor(63, 207, 142) }
             };
 
             SeverityDonutSeries = severityCounts
@@ -702,9 +702,9 @@ namespace Station.Views
 
             OverviewTrendSeries = new ISeries[]
             {
-                BuildThresholdLine("Ngưỡng nghiêm trọng", thresholdCritical, new SKColor(239, 68, 68, 170)),
-                BuildThresholdLine("Ngưỡng cảnh báo", thresholdWarning, new SKColor(251, 191, 36, 170)),
-                BuildThresholdLine("Giá trị kỳ vọng", expected, new SKColor(52, 211, 153, 170)),
+                BuildThresholdLine("Ngưỡng nghiêm trọng", thresholdCritical, new SKColor(255, 82, 82, 170)),
+                BuildThresholdLine("Ngưỡng cảnh báo", thresholdWarning, new SKColor(255, 209, 102, 170)),
+                BuildThresholdLine("Giá trị kỳ vọng", expected, new SKColor(63, 207, 142, 170)),
                 new LineSeries<int>
                 {
                     Name = "Tổng số",
@@ -720,9 +720,9 @@ namespace Station.Views
                 {
                     Name = "Nghiêm trọng",
                     Values = criticalValues,
-                    Fill = new SolidColorPaint(new SKColor(239, 68, 68, 35)),
-                    Stroke = new SolidColorPaint(new SKColor(239, 68, 68)) { StrokeThickness = 3 },
-                    GeometryFill = new SolidColorPaint(new SKColor(239, 68, 68)),
+                    Fill = new SolidColorPaint(new SKColor(255, 82, 82, 35)),
+                    Stroke = new SolidColorPaint(new SKColor(255, 82, 82)) { StrokeThickness = 3 },
+                    GeometryFill = new SolidColorPaint(new SKColor(255, 82, 82)),
                     GeometrySize = 7,
                     LineSmoothness = 0.65
                 },
@@ -731,8 +731,8 @@ namespace Station.Views
                     Name = "Cảnh báo",
                     Values = warningValues,
                     Fill = null,
-                    Stroke = new SolidColorPaint(new SKColor(249, 115, 22)) { StrokeThickness = 3 },
-                    GeometryFill = new SolidColorPaint(new SKColor(249, 115, 22)),
+                    Stroke = new SolidColorPaint(new SKColor(255, 140, 66)) { StrokeThickness = 3 },
+                    GeometryFill = new SolidColorPaint(new SKColor(255, 140, 66)),
                     GeometrySize = 7,
                     LineSmoothness = 0.65
                 }
@@ -831,11 +831,11 @@ namespace Station.Views
         {
             var color = index switch
             {
-                0 => Color.FromArgb(255, 239, 68, 68),
-                1 => Color.FromArgb(255, 249, 115, 22),
-                2 => Color.FromArgb(255, 251, 191, 36),
-                3 => Color.FromArgb(255, 251, 191, 36),
-                _ => Color.FromArgb(255, 52, 211, 153)
+                0 => Color.FromArgb(255, 255, 82, 82),
+                1 => Color.FromArgb(255, 255, 140, 66),
+                2 => Color.FromArgb(255, 255, 209, 102),
+                3 => Color.FromArgb(255, 255, 209, 102),
+                _ => Color.FromArgb(255, 63, 207, 142)
             };
 
             return new SolidColorBrush(color);
@@ -1012,8 +1012,8 @@ namespace Station.Views
         private static SolidColorBrush BrushForChange(int delta)
         {
             return new SolidColorBrush(delta > 0
-                ? Color.FromArgb(255, 248, 113, 113)
-                : Color.FromArgb(255, 53, 201, 127));
+                ? Color.FromArgb(255, 255, 82, 82)
+                : Color.FromArgb(255, 63, 207, 142));
         }
 
         private SolidColorBrush HeatmapIntensityBrush(double ratio, bool isEmpty)
@@ -1179,7 +1179,7 @@ namespace Station.Views
 
         private static SolidColorBrush ThemeBrush(string key)
         {
-            return Application.Current.Resources.TryGetValue(key, out var value) && value is SolidColorBrush brush
+            return Station.Services.ThemeBrushes.TryGet(key, out var value) && value is SolidColorBrush brush
                 ? brush
                 : new SolidColorBrush(Color.FromArgb(255, 15, 23, 42));
         }

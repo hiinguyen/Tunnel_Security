@@ -12,12 +12,15 @@ public sealed partial class EditNodeDialog : ContentDialog
     public EditNodeDialog(NodeItemViewModel node, DevicesViewModel viewModel)
     {
         this.InitializeComponent();
+        RequestedTheme = Station.Services.ThemeService.Instance.CurrentTheme;
         _node = node;
         _viewModel = viewModel;
 
         LoadCurrentValues();
         this.PrimaryButtonClick += OnSaveClicked;
     }
+
+    private void HeaderClose_Click(object sender, RoutedEventArgs e) => Hide();
 
     private void LoadCurrentValues()
     {

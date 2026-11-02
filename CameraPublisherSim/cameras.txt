@@ -2,7 +2,11 @@
 #   cameraId=đường_dẫn_hoặc_link_video
 #   cameraId=đường_dẫn_hoặc_link_video,fps   (fps tùy chọn, mặc định lấy từ CAMERA_FPS hoặc 24)
 #
-# - cameraId phải khớp với Camera.Id đã seed trong BackendV2 (vd: CAM-HUB-01)
+# - cameraId phải khớp với Camera.Id mà BackendV2 tạo khi node tham gia: CAM-L{tuyến}-N{số node}
+#   (tuyến k = Lines.Id do backend cấp, node n = hố ga thứ n của tuyến theo Station/Assets/Map/nodes.json)
+#   Hiện tại: tuyến 2 = Đội Cấn (DC), 3 = Kim Mã (KM), 4 = Phan Đình Phùng (PDP), 5 = Hoàng Hoa Thám (HHT)
+#   (tuyến 1 là tuyến dev nm-dev-1, không có camera). ID sai thì publisher vẫn chạy nhưng viewer không thấy hình.
+#   Kiểm tra: SELECT Id FROM Cameras trong DB TunnelSecurityV2.
 # - Giá trị sau dấu "=" có thể là đường dẫn file local (D:\Videos\a.mp4)
 #   hoặc link mạng mà ffmpeg đọc được (http/https/rtsp/rtmp)
 # - Dòng bắt đầu bằng "#" hoặc để trống sẽ bị bỏ qua
@@ -14,6 +18,9 @@
 
 
 
-CAM-HUB-01=D:\Projects\Tunnel_Security\CameraPublisherSim\Videos\video1.mp4
-CAM-HUB-02=D:\Projects\Tunnel_Security\CameraPublisherSim\Videos\video2.mp4
-CAM-HUB-03=D:\Projects\Tunnel_Security\CameraPublisherSim\Videos\video3.mp4
+# Hố ga Đội Cấn 1 (DC-01)
+CAM-L2-N1=D:\Projects\Tunnel_Security\CameraPublisherSim\Videos\video1.mp4
+# Hố ga Đội Cấn 2 (DC-02)
+CAM-L2-N2=D:\Projects\Tunnel_Security\CameraPublisherSim\Videos\video2.mp4
+# Hố ga Đội Cấn 3 (DC-03)
+CAM-L2-N3=D:\Projects\Tunnel_Security\CameraPublisherSim\Videos\video3.mp4

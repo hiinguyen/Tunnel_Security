@@ -4,42 +4,38 @@ Tài liệu mô tả 2 luồng dữ liệu chính trong `BackendV2`: **Sensor (M
 
 ---
 
-## 1. Luồng Sensor (MQTT → DB → SignalR)
+## 1. Luồng Sensor (MQTT → hàng đợi → TimescaleDB + SignalR)
 
-### Thành phần liên quan
-- `MqttSubscriberService` (`BackgroundService`, singleton hosted service) — subscribe topic `sensors/+/reading` trên broker Mosquitto (`localhost:1883`)
-- `AppDbContext` — lưu `Reading` vào DB (tạo `IServiceScopeFactory` scope mới mỗi message vì `DbContext` là scoped, không thể inject thẳng vào service singleton)
-- `SensorHub` (`Hub`, rỗng — chỉ dùng làm kênh broadcast) — map tại `/hubs/sensors`
-- `IHubContext<SensorHub>` — dùng để đẩy dữ liệu tới toàn bộ client đang kết nối SignalR
-
-### Sequence diagram
+Luồng này được thay bằng giao thức PC - NM theo tuyến; chi tiết đầy đủ ở `docs/lan-architecture-protocol.md` (mục 4, 7, 8).
 
 ```mermaid
 sequenceDiagram
-    participant Node as Node (thiết bị đo)
-    participant Broker as MQTT Broker (Mosquitto)
-    participant Sub as MqttSubscriberService
-    participant DB as AppDbContext (SQL Server)
-    participant Hub as SensorHub (SignalR)
-    participant Station as Station (client SignalR)
+    participant NM as NM (Gateway tuyến)
+    participant Broker as Mosquitto (Dynamic Security)
+    participant Conn as MqttConnectionService
+    participant Router as GatewayMessageRouter
+    participant Ing as SensorIngestion
+    participant Writer as ReadingWriter
+    participant Alerts as AlertEngine
+    participant Hub as SensorHub
+    participant Station
 
-    Node->>Broker: PUBLISH sensors/{sensorId}/reading (JSON payload)
-    Broker-->>Sub: ApplicationMessageReceivedAsync (subscribed sensors/+/reading)
-    Sub->>Sub: Deserialize JSON → Reading
-    alt payload hợp lệ
-        Sub->>DB: db.Readings.Add(reading) + SaveChangesAsync (scoped)
-        Sub->>Hub: Clients.All.SendAsync("NewReading", reading)
-        Hub-->>Station: push "NewReading" (real-time)
-    else deserialize null / lỗi
-        Sub->>Sub: catch + Console.WriteLine (bỏ qua message)
-    end
+    NM->>Broker: PUBLISH ts/{line}/n/{node}/up/data (khung A7 nhị phân)
+    Broker-->>Conn: bản tin (subscribe ts/+/n/+/up/+)
+    Conn->>Conn: xếp vào hàng đợi có giới hạn
+    Conn->>Router: worker xử lý theo thứ tự
+    Router->>Router: kiểm tra tuyến đã cấp, CRC, Node ID khung = topic, node đã tham gia
+    Router->>Ing: HandleAsync(node, payload)
+    Ing->>Writer: Enqueue(reading) (ghi theo lô 1.000 dòng / 500 ms)
+    Ing->>Hub: NewReading tới group all / line-{k} / node-{k}-{n}
+    Hub-->>Station: push realtime
+    Ing->>Alerts: SensorLevelChanged (chỉ khi mức đã lọc dao động thay đổi)
 ```
 
 ### Ghi chú
-- `MqttSubscriberService` chạy suốt vòng đời app (`Task.Delay(Timeout.Infinite)` sau khi subscribe) — kết nối MQTT chỉ thiết lập 1 lần lúc start.
-- Mỗi message tạo 1 `IServiceScopeFactory.CreateScope()` mới để lấy `AppDbContext` — bắt buộc vì service là singleton còn `DbContext` là scoped.
-- Lỗi parse/save chỉ log ra console, không rebroadcast, không throw — 1 message lỗi không làm sập subscriber loop.
-- `SensorHub` không có method nào — chỉ là "ống" để `IHubContext` bơm dữ liệu ra client, client không gọi ngược lại hub.
+- Kết nối MQTT tự kết nối lại; mỗi lần kết nối, `DynamicSecurityClient` bảo đảm quyền của backend và tài khoản cấp phát trước khi subscribe.
+- Callback nhận chỉ xếp hàng, nên handler có thể chờ phản hồi broker mà không tự khóa vòng nhận.
+- Không còn ghi CSDL cho từng bản tin; dữ liệu và realtime tách rời, CSDL chậm không làm chậm Station.
 
 ---
 
@@ -101,8 +97,8 @@ flowchart LR
 
 | | Sensor | Camera |
 |---|---|---|
-| Giao thức nhận từ Node | MQTT (pub/sub qua broker) | WebSocket (custom middleware) |
-| Nơi lưu trữ | SQL Server (`Readings` table) | Không lưu — chỉ relay trực tiếp |
-| Cách phát tới client | SignalR Hub (`Clients.All.SendAsync`) | WebSocket binary trực tiếp tới từng viewer |
+| Giao thức nhận từ Node | MQTT qua NM của tuyến (cây topic `ts/...`) | WebSocket (custom middleware) |
+| Nơi lưu trữ | TimescaleDB (`Readings`, ghi theo lô) | Không lưu - chỉ relay trực tiếp |
+| Cách phát tới client | SignalR Hub, group theo phạm vi (`SetScope`) | WebSocket binary trực tiếp tới từng viewer |
 | Trạng thái giữ ở đâu | Không giữ danh sách client thủ công (SignalR tự quản lý) | `CameraRelayRegistry` tự quản lý viewer theo `cameraId` |
-| Độ bền dữ liệu | Có (ghi DB trước khi broadcast) | Không (mất nếu không ai đang xem) |
+| Độ bền dữ liệu | Có (ghi theo lô, phát realtime song song) | Không (mất nếu không ai đang xem) |

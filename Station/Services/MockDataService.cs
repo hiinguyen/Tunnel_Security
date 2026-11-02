@@ -252,8 +252,8 @@ namespace Station.Services
             // Only evaluate real threshold-based alerts
             // Auto-generated random alerts have been disabled
             EvaluateSensorAlerts();
-            MaybeFireCameraAlert();     // DISABLED - was generating fake camera alerts
-            MaybeFireRandomSensorAlert(); // DISABLED - was generating fake sensor alerts
+            // MaybeFireCameraAlert();       // DISABLED - was generating fake camera alerts
+            // MaybeFireRandomSensorAlert(); // DISABLED - was generating fake sensor alerts
         }
 
         private void EvaluateSensorAlerts()
@@ -503,7 +503,7 @@ namespace Station.Services
 				{
 					string nodeId = $"{prefix}-{ni:D2}"; // Khớp 100% ID trong JSON (VD: dc-01)
 					string nodeName = $"Hố ga {lineName.Replace("Tuyến ", "")} {ni}";
-					string loc = $"{lineName} - Nút {ni}";
+					string loc = nodeName; // Vị trí = tên node, giống dashboard giám sát
 
 					// Radar
 					sensors.Add(new SimulatedSensor
@@ -619,15 +619,16 @@ namespace Station.Services
 			{
 				for (int ni = 1; ni <= 10; ni++)
 				{
+					string camNodeName = $"Hố ga {lineName.Replace("Tuyến ", "")} {ni}";
 					cams.Add(new SimulatedCamera
 					{
 						CameraId = $"CAM-{prefix.ToUpper()}{ni:D2}",
-						CameraName = $"Camera Nút {ni:D2}",
-						Location = $"{lineName} - Nút {ni:D2}",
+						CameraName = $"Camera {camNodeName}",
+						Location = camNodeName,
 						LineId = lineId,
 						LineName = lineName,
 						NodeId = $"{prefix}-{ni:D2}", // Khớp với dc-01
-						NodeName = $"Hố ga {lineName.Replace("Tuyến ", "")} {ni}",
+						NodeName = camNodeName,
 						IsOnline = true
 					});
 				}

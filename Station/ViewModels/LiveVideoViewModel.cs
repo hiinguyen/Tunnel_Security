@@ -149,8 +149,8 @@ namespace Station.ViewModels
                 {
                     CameraId = simCam.CameraId,
                     CameraName = string.IsNullOrWhiteSpace(simCam.CameraName)
-                        ? simCam.Location
-                        : $"{simCam.CameraName} · {simCam.Location}",
+                        ? simCam.NodeName
+                        : simCam.CameraName,
                     StreamUrl = simCam.StreamUrl ?? $"{apiBaseUrl}/api/cameras/{simCam.CameraId}/stream",
                     Resolution = "320×240",
                     IrStatus = "ON",
@@ -588,7 +588,7 @@ namespace Station.ViewModels
         // sync with Colors.xaml (incl. Light/Dark variants) instead of duplicating
         // hex values here — same pattern as ColorConverters.cs / DevicesPage.xaml.cs.
         private static SolidColorBrush ResolveBrush(string key, Windows.UI.Color fallback) =>
-            Application.Current.Resources.TryGetValue(key, out var resource) && resource is SolidColorBrush brush
+            Station.Services.ThemeBrushes.TryGet(key, out var resource) && resource is SolidColorBrush brush
                 ? brush
                 : new SolidColorBrush(fallback);
 

@@ -16,14 +16,17 @@ namespace BackendV2.Models
 
     public class Sensor
     {
-        public string Id { get; set; }
-        public string Name { get; set; }
+        public string Id { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
         public SensorType Type { get; set; }
-        public string Description { get; set; }
-        public string NodeId { get; set; }
+        public string Description { get; set; } = string.Empty;
+        public string NodeId { get; set; } = string.Empty;
 
-        /// <summary>Wire-protocol byte ID của sensor trong node (1-7)</summary>
+        /// <summary>Byte loại trong header TLV (0x01-0x7F cảm biến).</summary>
         public byte? SensorByteId { get; set; }
+
+        /// <summary>Số thứ tự trong header TLV, phân biệt nhiều cảm biến cùng loại trên một node.</summary>
+        public byte? Ordinal { get; set; }
 
         public string Unit { get; set; } = string.Empty;
 

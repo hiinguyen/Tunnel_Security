@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "skills": {
+    "vercel-optimize": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/vercel-optimize/SKILL.md",
+      "computedHash": "ad0ef9c5c980f824e2ec19cba5c45426aba923a17e71fbaf6d1830574b62cc44"
+    },
+    "winui-design": {
+      "source": "microsoft/win-dev-skills",
+      "ref": "staging",
+      "sourceType": "github",
+      "skillPath": "plugins/winui/agent-plugin/skills/winui-design/SKILL.md",
+      "computedHash": "3b9846010fd9605051a898c08571c0ea748f35cb3e862a2eeb9714c4a98e1466"
+    },
+    "winui-dev-workflow": {
+      "source": "microsoft/win-dev-skills",
+      "ref": "staging",
+      "sourceType": "github",
+      "skillPath": "plugins/winui/agent-plugin/skills/winui-dev-workflow/SKILL.md",
+      "computedHash": "1964a3589a62a06128f3e9139b4f803dffeb09151ae9f803579aa2044c460318"
+    },
+    "winui-packaging": {
+      "source": "microsoft/win-dev-skills",
+      "ref": "staging",
+      "sourceType": "github",
+      "skillPath": "plugins/winui/agent-plugin/skills/winui-packaging/SKILL.md",
+      "computedHash": "5dfc27d6d68e951c721acfb081e96a63318830da6f38ddd157cd744955453040"
+    }
+  }
+}
