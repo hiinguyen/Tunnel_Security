@@ -262,6 +262,7 @@ public sealed class NodeJoinService
             var existing = await db.Nodes.FirstOrDefaultAsync(n => n.PhysicalId == physicalId, ct);
             if (existing is { NodeByteId: { } knownId } && existing.LineId == lineId)
             {
+                await ApplyMapIdentityAsync(db, existing, physicalId, ct);
                 await EnsureCameraAsync(db, existing, ct);
                 await db.SaveChangesAsync(ct);
                 return knownId;
@@ -297,6 +298,7 @@ public sealed class NodeJoinService
                 Status = NodeStatus.Unknown
             };
             db.Nodes.Add(node);
+            await ApplyMapIdentityAsync(db, node, physicalId, ct);
             await EnsureCameraAsync(db, node, ct);
             await db.SaveChangesAsync(ct);
             return free;
@@ -304,6 +306,34 @@ public sealed class NodeJoinService
         finally
         {
             _allocationLock.Release();
+        }
+    }
+
+    /// <summary>
+    /// Thiết bị giả lập đóng vai một hố ga của bản đồ dashboard: dùng tên, mã, vị trí của hố ga đó thay cho tên mặc định
+    /// "Node n tuyến k", và đặt tên tuyến theo bản đồ nếu tuyến vẫn mang tên mặc định. Tên người vận hành đã sửa được giữ nguyên.
+    /// </summary>
+    private async Task ApplyMapIdentityAsync(AppDbContext db, Node node, uint physicalId, CancellationToken ct)
+    {
+        if (MapNodeCatalog.ForSimulatedDevice(physicalId) is not { } info)
+        {
+            return;
+        }
+
+        var lineId = node.LineId!.Value;
+        if (node.Name == $"Node {node.NodeByteId} tuyến {lineId}")
+        {
+            node.Name = info.Name;
+            node.Code = info.Code;
+            node.Latitude = info.Latitude;
+            node.Longitude = info.Longitude;
+        }
+
+        var line = await db.Lines.FirstOrDefaultAsync(l => l.Id == lineId, ct);
+        if (line is not null && line.Name == $"Tuyến {lineId}")
+        {
+            line.Name = info.LineName;
+            _topology.UpsertLine(new LineEntry(line.Id, line.Name, line.GatewayHardwareId));
         }
     }
 
@@ -320,7 +350,7 @@ public sealed class NodeJoinService
         db.Cameras.Add(new Camera
         {
             Id = cameraId,
-            Name = $"Camera node {node.NodeByteId} tuyến {node.LineId}",
+            Name = $"Camera {node.Name}",
             Description = string.Empty,
             NodeId = node.Id,
             Protocol = CameraProtocol.WebSocket,

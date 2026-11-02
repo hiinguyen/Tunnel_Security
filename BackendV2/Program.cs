@@ -22,9 +22,15 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddSignalR();
 
+// Database:Provider = SqlServer (mặc định, môi trường dev) | Sqlite (bản cài máy đơn, không cần cài CSDL).
+var useSqlite = string.Equals(builder.Configuration["Database:Provider"], "Sqlite", StringComparison.OrdinalIgnoreCase);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("ConnectionStrings:DefaultConnection is not configured.");
-builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
+builder.Services.AddDbContext<AppDbContext>(options =>
+{
+    if (useSqlite) options.UseSqlite(connectionString);
+    else options.UseSqlServer(connectionString);
+});
 
 // ── Auth (JWT bearer + roles/permissions) ─────────────────────────────────────
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
@@ -74,7 +80,11 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 if (builder.Configuration.GetValue<bool>("TimeSeries:Enabled"))
 {
     var tsConnStr = builder.Configuration.GetConnectionString("TimeSeries")!;
-    builder.Services.AddDbContext<TimeSeriesDbContext>(options => options.UseNpgsql(tsConnStr));
+    builder.Services.AddDbContext<TimeSeriesDbContext>(options =>
+    {
+        if (useSqlite) options.UseSqlite(tsConnStr);
+        else options.UseNpgsql(tsConnStr);
+    });
 }
 
 // Khóa Data Protection mã hóa khóa bí mật của thiết bị trong CSDL; mất thư mục này là mất khả năng xác thực node.
@@ -130,6 +140,11 @@ if (!app.Environment.IsDevelopment())
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    if (useSqlite)
+    {
+        // SQLite không dùng migration của SQL Server; tạo schema trực tiếp từ model ở lần chạy đầu.
+        await db.Database.EnsureCreatedAsync();
+    }
     var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher<User>>();
     await AuthSeeder.SeedAsync(db, passwordHasher, app.Configuration);
     await TopologySeeder.SeedAsync(db);

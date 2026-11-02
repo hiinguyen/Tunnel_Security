@@ -27,20 +27,29 @@ public sealed class SimulatedGateway
     private int _lineId;
     private long _published;
 
-    public SimulatedGateway(SimOptions options, int index)
+    public SimulatedGateway(SimOptions options, int index, int nodeCount, IReadOnlyList<string>? nodeNames = null)
     {
         _options = options;
         _index = index;
         _hardwareId = $"{options.GatewayIdPrefix}-{index}";
         var secret = Encoding.UTF8.GetBytes(options.DeviceSecret);
-        _nodes = Enumerable.Range(1, options.NodesPerLine)
+        _nodes = Enumerable.Range(1, nodeCount)
             .Select(n =>
             {
                 var physicalId = SimOptions.PhysicalId(index, n);
-                return new SimulatedNode(n, physicalId, JoinProtocol.DeriveDeviceKey(secret, physicalId), seed: (int)physicalId);
+                return new SimulatedNode(n, physicalId, JoinProtocol.DeriveDeviceKey(secret, physicalId), seed: (int)physicalId)
+                {
+                    Name = nodeNames is not null && n <= nodeNames.Count ? nodeNames[n - 1] : null
+                };
             })
             .ToList();
     }
+
+    public int Index => _index;
+
+    public int LineId => _lineId;
+
+    public IReadOnlyList<SimulatedNode> Nodes => _nodes;
 
     public long Published => Interlocked.Read(ref _published);
 

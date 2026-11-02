@@ -142,5 +142,16 @@ public class AppDbContext : DbContext
             b.HasOne(t => t.User).WithMany(u => u.RefreshTokens).HasForeignKey(t => t.UserId);
             b.HasIndex(t => t.TokenHash).IsUnique(false);
         });
+
+        // SQLite không so sánh/sắp xếp được DateTimeOffset; lưu dạng số nhị phân (giữ nguyên thứ tự thời gian).
+        if (Database.IsSqlite())
+        {
+            foreach (var property in modelBuilder.Model.GetEntityTypes()
+                         .SelectMany(t => t.GetProperties())
+                         .Where(p => p.ClrType == typeof(DateTimeOffset) || p.ClrType == typeof(DateTimeOffset?)))
+            {
+                property.SetValueConverter(new Microsoft.EntityFrameworkCore.Storage.ValueConversion.DateTimeOffsetToBinaryConverter());
+            }
+        }
     }
 }

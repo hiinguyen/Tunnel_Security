@@ -11,9 +11,15 @@ Console.CancelKeyPress += (_, e) =>
 };
 AppDomain.CurrentDomain.ProcessExit += (_, _) => cts.Cancel();
 
-Console.WriteLine($"[NodePublisherSim] {options.Lines} line(s) x {options.NodesPerLine} node(s) -> {options.BrokerHost}:{options.BrokerPort}");
+var nodesPerGateway = options.NodesPerGateway();
+var totalNodes = nodesPerGateway.Sum();
+Console.WriteLine($"[NodePublisherSim] {nodesPerGateway.Count} line(s), {totalNodes} node(s) ({string.Join("+", nodesPerGateway)}) -> {options.BrokerHost}:{options.BrokerPort}");
 
-var gateways = Enumerable.Range(options.FirstGatewayIndex, options.Lines).Select(i => new SimulatedGateway(options, i)).ToList();
+var nodeNames = options.NodeNamesPerGateway();
+var gateways = nodesPerGateway
+    .Select((count, i) => new SimulatedGateway(options, options.FirstGatewayIndex + i, count, i < nodeNames.Count ? nodeNames[i] : null))
+    .ToList();
+using var control = SimControlServer.TryStart(gateways);
 var runs = gateways.Select(g => g.RunAsync(cts.Token)).ToList();
 
 var report = Task.Run(async () =>
@@ -24,7 +30,7 @@ var report = Task.Run(async () =>
         await Task.Delay(TimeSpan.FromSeconds(10), cts.Token).ContinueWith(_ => { });
         var total = gateways.Sum(g => g.Published);
         Console.WriteLine(
-            $"[NodePublisherSim] joined {gateways.Sum(g => g.JoinedNodes)}/{options.Lines * options.NodesPerLine} nodes, " +
+            $"[NodePublisherSim] joined {gateways.Sum(g => g.JoinedNodes)}/{totalNodes} nodes, " +
             $"{(total - last) / 10.0:0.#} msg/s");
         last = total;
     }

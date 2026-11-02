@@ -20,6 +20,12 @@ public static class TimescaleInitializer
         // 1. Create tables if they don't exist (idempotent)
         await db.Database.EnsureCreatedAsync();
 
+        // SQLite (bản máy đơn) không có TimescaleDB/hypertable.
+        if (db.Database.IsSqlite())
+        {
+            return;
+        }
+
         // EnsureCreated does not alter an existing table, so columns added after the first
         // deployment are added here (idempotent).
         await db.Database.ExecuteSqlRawAsync($$"""
