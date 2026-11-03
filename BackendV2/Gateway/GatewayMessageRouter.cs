@@ -64,6 +64,10 @@ public sealed class GatewayMessageRouter : IMqttMessageHandler
                 _provisioning.Enqueue(address.HardwareId!, payload);
                 return;
 
+            // Payload rỗng là lệnh xóa bản tin retained (khi gỡ tuyến), không phải trạng thái của NM.
+            case TopicKind.GatewayState or TopicKind.GatewayStatus when payload.IsEmpty:
+                return;
+
             case TopicKind.GatewayState when IsActive(address.LineId):
                 _health.OnGatewayState(address.LineId, Encoding.UTF8.GetString(payload.Span).Trim() == "online");
                 return;

@@ -206,6 +206,13 @@ public sealed class GatewayProvisioningService : BackgroundService
             await _dynSec.DeleteLineAccountAsync(lineId, ct);
         }
 
+        // Xóa bản tin retained của NM (sau khi đã thu hồi tài khoản để NM không ghi lại được),
+        // nếu không broker giữ chúng mãi và mỗi lần backend khởi động lại nhận traffic của tuyến đã gỡ.
+        foreach (var topic in new[] { GatewayTopics.GatewayState(lineId), GatewayTopics.GatewayStatus(lineId) })
+        {
+            await _publisher.PublishAsync(topic, ReadOnlyMemory<byte>.Empty, MqttQos.AtLeastOnce, retain: true, ct);
+        }
+
         _logger.LogInformation("[Provision] Line {Line} retired", lineId);
         return true;
     }
